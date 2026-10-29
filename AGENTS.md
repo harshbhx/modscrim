@@ -10,7 +10,7 @@ Instructions for every AI coding agent working in this repository: Codex, Claude
 - **Deadlines (IST):** feature freeze Sun 1 Nov 2026 22:00 · target submit Mon 2 Nov 20:00 · hard deadline Tue 3 Nov 03:30.
 - **Team:** Harsh owns all Cloudflare work (Worker, Durable Objects, D1, cron, Queues, R2, Workers AI, deploy) and the landing page. Dhairya owns the core engine, all Twitch integration, the web app, **all testing (automated and manual)**, CI and the launch. GitHub labels `owner: harsh` and `owner: dhairya`.
 - **Stack:** one Cloudflare Worker (Hono router plus a React SPA served as static assets), one `ChannelRoom` Durable Object with SQLite per channel, one D1 database, Twitch OAuth, Helix and EventSub webhooks. TypeScript 5 strict end to end. No paid AI calls at runtime.
-- **Status (30 Oct 2026):** specs only, no code yet. Start at ticket T-01. Track tickets in `docs/for-agents/build-plan.md`.
+- **Status:** tracked live in `docs/for-agents/build-plan.md` and on the [project board](https://github.com/users/harshbhx/projects/3). Done so far: T-01, T-02, T-37, T-38.
 
 ## Sources of truth
 
@@ -36,7 +36,7 @@ Start with **`INDEX.md`**: a map of every doc, a section index of the PRD and SR
 | `interfaces.md` | REST routes, WebSocket protocol and role routing, room RPC surface, error codes |
 | `twitch.md` | Scopes, Helix endpoints, EventSub webhooks, rate limits, local testing with the Twitch CLI |
 | `safety-security-privacy.md` | S-01 to S-12, overlay redaction, threats and controls, retention and deletion |
-| `build-plan.md` | Milestones, tickets T-01 to T-36 with status, cut order, day-0 test, submission checklist |
+| `build-plan.md` | Milestones, tickets T-01 to T-55 with owner, status and issue, cut order, day-0 test, submission checklist |
 | `testing.md` | Test layers, required test files, how to run one test, live checklist |
 | `glossary.md` | Domain terms and ID prefixes |
 | `open-questions.md` | Every `[verify]` assumption, open questions, known gaps and contradictions in the specs |
@@ -44,6 +44,7 @@ Start with **`INDEX.md`**: a map of every doc, a section index of the PRD and SR
 ## Rules
 
 1. **Scope.** Build only what your ticket's IDs (`T-xx`, `FR-xx`, `F-xx`) say. Read those IDs in both the PRD and the SRS before writing code.
+   - **Save tokens: never open `PRD.md` or `SRS.md` whole** (the SRS alone is about 40,000 tokens). Find the sections the issue cites with `rg -n "^#+ 5\.3" docs/for-agents/SRS.md` (or the FR ID) and read only those line ranges. The issue body plus its cited sections are enough for any ticket. Use the short digests in `docs/for-agents/` for orientation.
 2. **Safety, never break:**
    - No code sends text to Twitch chat except FR-41's fixed announcement constant, behind `ANNOUNCE_ENABLED`.
    - Every generated link ends in `.invalid`. Slurs are only the placeholders `slurx` and `slury`, rendered as `▇` blocks. No real slur list exists anywhere.
