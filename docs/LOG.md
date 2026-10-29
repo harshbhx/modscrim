@@ -41,6 +41,8 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
 
+2026-10-30 · T-02 · Added the pure seeded `Rng`/FNV-1a helpers and the SRS §5.3 tokenizer, matcher, wildcard validation, and blocked-term lookup. Added the normative matcher table plus a workerd compatibility test. Matching follows unverified assumption A-01 until day-0 measurement. · Wrote and ran `npm test -w packages/core -- matcher` red before implementation; then `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-03 waves and safety scan.
+
 2026-10-30 · T-01 correction · Split the app TypeScript project into browser and Worker configurations; the Worker now uses the generated `Env` and `ExecutionContext` globals from `worker-configuration.d.ts`; ignored TypeScript build-info files. · `npm run typecheck`, `npm test`, and `npm run build` passed. · Next: T-02 matcher and seeded PRNG.
 
 2026-10-30 · T-01 · Added the npm-workspace monorepo, strict TypeScript project references, Node and workerd Vitest scaffolds, Vite/Cloudflare Worker configuration, a minimal Hono health endpoint, React entry page, and generated Worker types. Selected React 19.3.1. · `npm test`, `npm run typecheck`, and `npm run build` passed; local `GET /api/health` returned `200 {"ok":true}`. · Next: T-02 matcher and seeded PRNG.
