@@ -6,6 +6,7 @@ The running record the PRD (§12.4) and SRS (§13.3, §15.1) ask for: decisions,
 
 | Date | Decision | Why | Source |
 |---|---|---|---|
+| 2026-10-30 | React 19.3.1 | It is the current supported React release at T-01 and meets SRS §9.1. | T-01 |
 | | Day-0 outcome (PRD §12.1 decision table) | | Day-0 results below |
 | | React version (18 or 19) | | SRS §9.1 leaves it open |
 | | `GRADING_QUOTA_UNIT` and `GRADING_BATCH_SIZE` | | Day-0 step 5 |
@@ -33,8 +34,13 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 | Date | Area (core, worker, web) | Session ID | Tickets |
 |---|---|---|---|
+| 2026-10-30 | core, worker, web | Unavailable in this execution environment | T-01 |
 | | | | |
 
 ## Session notes
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
+
+2026-10-30 · T-01 correction · Split the app TypeScript project into browser and Worker configurations; the Worker now uses the generated `Env` and `ExecutionContext` globals from `worker-configuration.d.ts`; ignored TypeScript build-info files. · `npm run typecheck`, `npm test`, and `npm run build` passed. · Next: T-02 matcher and seeded PRNG.
+
+2026-10-30 · T-01 · Added the npm-workspace monorepo, strict TypeScript project references, Node and workerd Vitest scaffolds, Vite/Cloudflare Worker configuration, a minimal Hono health endpoint, React entry page, and generated Worker types. Selected React 19.3.1. · `npm test`, `npm run typecheck`, and `npm run build` passed; local `GET /api/health` returned `200 {"ok":true}`. · Next: T-02 matcher and seeded PRNG.
