@@ -1,6 +1,6 @@
 # AGENTS.md: Mod Fire Drill
 
-Instructions for every coding agent (Codex, Claude Code) working in this repository. Read this file at the start of every session, then open the docs your ticket needs.
+Instructions for every AI coding agent working in this repository: Codex, Claude Code, Cursor, Copilot or any other. Read this file at the start of every session, then open the docs your ticket needs.
 
 ## What this is
 
@@ -9,21 +9,21 @@ Instructions for every coding agent (Codex, Claude Code) working in this reposit
 - **Event:** Codex x TwitchCon hackathon on Devpost. Must be built with OpenAI Codex; record every Codex session ID (`/status`) in `docs/LOG.md`.
 - **Deadlines (IST):** feature freeze Sun 1 Nov 2026 22:00 · target submit Mon 2 Nov 20:00 · hard deadline Tue 3 Nov 03:30.
 - **Stack:** one Cloudflare Worker (Hono router plus a React SPA served as static assets), one `ChannelRoom` Durable Object with SQLite per channel, one D1 database, Twitch OAuth, Helix and EventSub webhooks. TypeScript 5 strict end to end. No paid AI calls at runtime.
-- **Status (30 Oct 2026):** specs only, no code yet. Start at ticket T-01. Track tickets in `docs/for-claude/build-plan.md`.
+- **Status (30 Oct 2026):** specs only, no code yet. Start at ticket T-01. Track tickets in `docs/for-agents/build-plan.md`.
 
 ## Sources of truth
 
 | Question | Source | Wins when they disagree about |
 |---|---|---|
-| What to build, priority, exact copy, safety | `docs/for-claude/PRD.md` | Scope and safety |
-| How to build: architecture, data, interfaces, algorithms, tests | `docs/for-claude/SRS.md` | Implementation |
+| What to build, priority, exact copy, safety | `docs/for-agents/PRD.md` | Scope and safety |
+| How to build: architecture, data, interfaces, algorithms, tests | `docs/for-agents/SRS.md` | Implementation |
 
 - Code blocks in SRS §5 are **normative**: port them as written. Where SRS code and prose disagree, keep the code and its tests.
 - **Never add a feature, endpoint, dependency or table that the PRD or SRS does not list.** If something is unclear, write a `TODO(question)` and stop instead of guessing.
-- The SRS was written for a repo where the specs live at `docs/PRD.md` and `docs/SRS.md`. In this repo they live in `docs/for-claude/`. The repo root is the SRS's `mod-fire-drill/`.
+- The SRS was written for a repo where the specs live at `docs/PRD.md` and `docs/SRS.md`. In this repo they live in `docs/for-agents/`. The repo root is the SRS's `mod-fire-drill/`.
 - PDF copies in `docs/for-humans/` are for people. Never edit them; the Markdown is the source.
 
-## Context docs (`docs/for-claude/`)
+## Context docs (`docs/for-agents/`)
 
 Start with **`INDEX.md`**: a map of every doc, a section index of the PRD and SRS, and the feature → requirement → ticket → test traceability table.
 
@@ -93,7 +93,7 @@ npx vitest run packages/core/test/matcher.test.ts -t "spaced"
 
 ```
 AGENTS.md  CLAUDE.md  README.md  LICENSE  package.json  tsconfig.base.json
-docs/            for-claude/ (PRD.md, SRS.md, context docs) · for-humans/ (PDFs) · LOG.md
+docs/            for-agents/ (PRD.md, SRS.md, context docs) · for-humans/ (PDFs) · LOG.md
 packages/core/   @mfd/core: pure engine (prng, matcher, tricks, templates, waves, schema,
                  ruleFinder, cleanIndex, proof, scoring, sim, pace, coach, fixtures, views, protocol)
 app/worker/      Worker: index.ts, routes/, auth/, twitch/, room/ (ChannelRoom split into modules), jobs/, lib/
@@ -107,7 +107,7 @@ scripts/         day0.ts, load.ts, subscribe-revoke.ts
 
 - Commit messages name the requirement: `FR-17: emit lines on the drift-free clock` or `T-03: wave builder and safety scan`.
 - Keep diffs small: one ticket per branch and PR.
-- After each ticket, append what changed and the test evidence to `docs/LOG.md`, and tick the ticket in `docs/for-claude/build-plan.md`.
+- After each ticket, append what changed and the test evidence to `docs/LOG.md`, and tick the ticket in `docs/for-agents/build-plan.md`.
 - Record each Codex session ID (`/status`) in `docs/LOG.md`; the submission requires them.
 - Commits are authored by the human builders. No AI co-author trailers.
 
