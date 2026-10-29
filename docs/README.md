@@ -1,13 +1,13 @@
 # Docs
 
-Each spec lives here in two formats.
-
-| Folder | Files | Read by |
+| Path | Read by | Contents |
 |---|---|---|
-| `for-claude/` | `PRD.md`, `SRS.md` | Coding agents: the source of truth while building |
-| `for-humans/` | `PRD.pdf`, `SRS.pdf` | Judges, teammates, reviewers |
+| `for-agents/` | AI coding agents (Codex, Claude Code, Cursor, any other) | The specs in Markdown plus context docs. Start at [`for-agents/INDEX.md`](for-agents/INDEX.md) |
+| `for-humans/` | Judges, teammates, reviewers | `PRD.pdf`, `SRS.pdf` |
+| `LOG.md` | Everyone | Decisions, day-0 results, Codex session IDs, session notes |
 
-- **PRD** (v2.0): the what and the why.
-- **SRS** (v2.0): the how.
+**Specs (normative):** [`PRD.md`](for-agents/PRD.md) v2.0 is the what and the why; [`SRS.md`](for-agents/SRS.md) v2.0 is the how.
 
-If the two formats ever disagree, fix the Markdown first, then regenerate the PDF.
+**Context docs (digests of the specs):** `INDEX.md`, `architecture.md`, `tech-stack.md`, `interfaces.md`, `twitch.md`, `safety-security-privacy.md`, `build-plan.md`, `testing.md`, `glossary.md`, `open-questions.md`.
+
+If the Markdown and PDF ever disagree, fix the Markdown first, then regenerate the PDF.
