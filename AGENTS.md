@@ -103,6 +103,15 @@ app/test/        Worker integration tests
 scripts/         day0.ts, load.ts, subscribe-revoke.ts
 ```
 
+## Working from GitHub issues
+
+Every ticket is a GitHub issue in `harshbhx/modscrim` (numbers are in `docs/for-agents/build-plan.md`). When asked to do or fix an issue:
+
+1. Read it with `gh issue view <number>`. Its Scope, Requirements, Tests and Done-when sections are the brief; its References point to the spec sections to read.
+2. Check that the issues it depends on are closed. If not, stop and say so.
+3. Work on a branch named `t-xx-short-name`, tests first.
+4. The PR is titled `T-xx: …` and its description says `Closes #<number>`.
+
 ## Commits, PRs and the log
 
 - Commit messages name the requirement: `FR-17: emit lines on the drift-free clock` or `T-03: wave builder and safety scan`.
