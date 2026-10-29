@@ -72,7 +72,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-35 | P2: announcement | FR-41 | P2 | Dhairya | M4 | T-12 | [#37](https://github.com/harshbhx/modscrim/issues/37) |
 | ☐ | T-36 | P2: coach's note | FR-42 | P2 | Harsh | M4 | T-17 | [#38](https://github.com/harshbhx/modscrim/issues/38) |
 | ☑ | T-37 | Shared types, WebSocket protocol and view types in core | — | P0 | Dhairya | M1 | T-02 | [#41](https://github.com/harshbhx/modscrim/issues/41) |
-| ☐ | T-38 | Worker foundations: router layout, error handling, structured logs and IDs | NFR-10, NFR-11, NFR-20 | P0 | Harsh | M1 | T-01 | [#42](https://github.com/harshbhx/modscrim/issues/42) |
+| ☑ | T-38 | Worker foundations: router layout, error handling, structured logs and IDs | NFR-10, NFR-11, NFR-20 | P0 | Harsh | M1 | T-01 | [#42](https://github.com/harshbhx/modscrim/issues/42) |
 | ☐ | T-39 | Continuous integration on every pull request | NFR-06, NFR-12, NFR-17, NFR-21 | P0 | Dhairya | M1 | T-01 | [#43](https://github.com/harshbhx/modscrim/issues/43) |
 | ☐ | T-40 | Register the Twitch app and deploy the Worker to Cloudflare | — | P0 | Harsh | M1 | T-01 | [#44](https://github.com/harshbhx/modscrim/issues/44) |
 | ☐ | T-41 | Run the day-0 kill test and record the decision | A-01 to A-06 | P0 | Dhairya | M3 | T-06, T-40 | [#45](https://github.com/harshbhx/modscrim/issues/45) |
