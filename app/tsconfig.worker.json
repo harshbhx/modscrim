@@ -4,5 +4,5 @@
     "composite": true,
     "noEmit": true
   },
-  "include": ["worker/**/*.ts", "test/**/*.ts", "worker-configuration.d.ts"]
+  "include": ["worker/**/*.ts", "worker/**/*.d.ts", "test/**/*.ts", "worker-configuration.d.ts"]
 }
