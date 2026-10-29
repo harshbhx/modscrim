@@ -8,6 +8,7 @@ Instructions for every AI coding agent working in this repository: Codex, Claude
 
 - **Event:** Codex x TwitchCon hackathon on Devpost. Must be built with OpenAI Codex; record every Codex session ID (`/status`) in `docs/LOG.md`.
 - **Deadlines (IST):** feature freeze Sun 1 Nov 2026 22:00 · target submit Mon 2 Nov 20:00 · hard deadline Tue 3 Nov 03:30.
+- **Team:** Harsh owns all Cloudflare work (Worker, Durable Objects, D1, cron, Queues, R2, Workers AI, deploy) and the landing page. Dhairya owns the core engine, all Twitch integration, the web app, **all testing (automated and manual)**, CI and the launch. GitHub labels `owner: harsh` and `owner: dhairya`.
 - **Stack:** one Cloudflare Worker (Hono router plus a React SPA served as static assets), one `ChannelRoom` Durable Object with SQLite per channel, one D1 database, Twitch OAuth, Helix and EventSub webhooks. TypeScript 5 strict end to end. No paid AI calls at runtime.
 - **Status (30 Oct 2026):** specs only, no code yet. Start at ticket T-01. Track tickets in `docs/for-agents/build-plan.md`.
 
@@ -53,6 +54,7 @@ Start with **`INDEX.md`**: a map of every doc, a section index of the PRD and SR
    - No blocked term reaches Twitch without the streamer's explicit approval, and every push can be undone.
 3. **`packages/core` is pure:** no I/O, no `Date.now()`, no `Math.random()`. Use the seeded `Rng` from `prng.ts`. It must run unchanged in Node, browsers and `workerd`.
 4. **Tests first.** Write or update the tests SRS §13.2 names for your FRs, run them failing, then implement. `npm test` and `npm run typecheck` must pass before you finish.
+   - **Exception:** Harsh's Cloudflare tickets list *acceptance checks* instead of tests. Their automated tests live in a paired test ticket owned by Dhairya (T-50 to T-55, named in each issue). Build so those checks pass; do not skip a check because its tests come later.
 5. **TypeScript strict** with `noUncheckedIndexedAccess`. No `any`. Validate every boundary with zod: HTTP bodies, WebSocket messages, Twitch responses.
 6. **Durable Object rules:**
    - Atomic state changes run synchronously inside `ctx.storage.transactionSync()` with no `await` between read and write.

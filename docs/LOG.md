@@ -41,6 +41,8 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
 
+2026-10-30 · T-37 · Added the shared pure core types, WebSocket protocol, view and report contracts; the Worker and browser each type-import the shared contract. Added compile-checked type assertions for the exact redacted overlay-line shape and report-card text/term exclusion. · Wrote the contract test first; `npm run typecheck` initially failed because the exports were absent. After implementation, `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-03 waves and safety scan, or T-09 Worker room skeleton.
+
 2026-10-30 · T-02 · Added the pure seeded `Rng`/FNV-1a helpers and the SRS §5.3 tokenizer, matcher, wildcard validation, and blocked-term lookup. Added the normative matcher table plus a workerd compatibility test. Matching follows unverified assumption A-01 until day-0 measurement. · Wrote and ran `npm test -w packages/core -- matcher` red before implementation; then `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-03 waves and safety scan.
 
 2026-10-30 · T-01 correction · Split the app TypeScript project into browser and Worker configurations; the Worker now uses the generated `Env` and `ExecutionContext` globals from `worker-configuration.d.ts`; ignored TypeScript build-info files. · `npm run typecheck`, `npm test`, and `npm run build` passed. · Next: T-02 matcher and seeded PRNG.
