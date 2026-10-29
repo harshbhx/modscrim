@@ -137,8 +137,8 @@ The digests summarise the PRD and SRS and point to the normative section. When y
 | F-24 Chat votes | P2 | FR-40 | T-34 | Manual |
 | F-25 Drill announcement | P2 | FR-41 | T-35 | NFR-14 constant test |
 | F-26 Coach's note | P2 | FR-42 | T-36 | Prompt contains no line text |
-| F-27 Mod history | P2 | FR-27 | **none** (see `open-questions.md` §3) | — |
-| F-28 Hide mod names on overlay | P1 | FR-46 | **none** (see `open-questions.md` §3) | `overlay.redaction.test.ts` |
+| F-27 Mod history | P2 | FR-27 | T-43 | History aggregation test |
+| F-28 Hide mod names on overlay | P1 | FR-46 | T-42 | `overlay.redaction.test.ts` |
 
 ## 5. ID scheme
 
