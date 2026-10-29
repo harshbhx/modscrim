@@ -1,0 +1,34 @@
+{
+  "name": "@mfd/app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc -b",
+    "types": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply mfd --local",
+    "db:migrate:remote": "wrangler d1 migrations apply mfd --remote",
+    "build": "vite build",
+    "deploy": "vite build && wrangler deploy"
+  },
+  "dependencies": {
+    "@mfd/core": "*",
+    "hono": "^4.13.14",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.13.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.66.0",
+    "@cloudflare/vitest-plugin": "^1.4.11",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.156.0"
+  }
+}
