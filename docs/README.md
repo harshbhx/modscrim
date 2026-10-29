@@ -2,9 +2,12 @@
 
 Each spec lives here in two formats.
 
-| Folder | Format | Read by |
+| Folder | Files | Read by |
 |---|---|---|
-| `for-claude/` | Markdown (`srs.md`, `prd.md`) | Claude Code: the source of truth while building |
-| `for-humans/` | PDF / DOCX (`SRS.pdf`, `PRD.pdf`) | Judges, teammates, reviewers |
+| `for-claude/` | `PRD.md`, `SRS.md` | Coding agents: the source of truth while building |
+| `for-humans/` | `PRD.pdf`, `SRS.pdf` | Judges, teammates, reviewers |
 
-If the two ever disagree, fix the Markdown first, then regenerate or update the human copy.
+- **PRD** (v2.0): the what and the why.
+- **SRS** (v2.0): the how.
+
+If the two formats ever disagree, fix the Markdown first, then regenerate the PDF.
