@@ -34,7 +34,7 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 | Date | Area (core, worker, web) | Session ID | Tickets |
 |---|---|---|---|
-| 2026-10-30 | core, worker, web | Unavailable in this execution environment | T-01 |
+| 2026-10-30 | core, worker (Harsh's account) | `01a1892d-f9b6-7203-bfdb-f73490bfd6c0` | T-01, T-02, T-37, T-38 |
 | | | | |
 
 ## Session notes
