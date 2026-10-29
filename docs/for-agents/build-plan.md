@@ -35,7 +35,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | ID | Ticket | FR / NFR | After | Owner | PR |
 |---|---|---|---|---|---|---|
 | ☑ | T-01 | Monorepo, TS config, Vitest in core, Vite + Cloudflare plugin app, hello-world deploy | — | — | A | |
-| ☐ | T-02 | `prng.ts`, `matcher.ts` with the SRS §5.3 test table | FR-31 | T-01 | B | |
+| ☑ | T-02 | `prng.ts`, `matcher.ts` with the SRS §5.3 test table | FR-31 | T-01 | B | |
 | ☐ | T-03 | `tricks.ts`, `templates.ts`, `waves.ts`, `safety.test.ts` | FR-13 to FR-15 | T-02 | B | |
 | ☐ | T-04 | `cleanIndex.ts` with the property test; `ruleFinder.ts`; `proof.ts` | FR-31, FR-33 | T-03 | B | |
 | ☐ | T-05 | `scoring.ts`, `sim.ts`, `pace.ts`, `schema.ts` | FR-16, FR-25, FR-28, FR-39 | T-02 | B | |
