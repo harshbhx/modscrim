@@ -29,8 +29,8 @@ Never guess a `[verify]` behaviour. Put it behind a named constant or var, test 
 
 | # | Issue | Where | Resolution to use |
 |---|---|---|---|
-| G-1 | FR-46 (hide mod names on the overlay, F-28, P1) has no ticket | SRS §15.3 | Fold into T-24 (overlay) or add a ticket; the redaction test already covers it |
-| G-2 | F-27 mod history (P2) has no ticket | SRS §15.3 | First to cut; ignore unless ahead at the freeze |
+| G-1 | FR-46 (hide mod names on the overlay, F-28, P1) has no ticket | SRS §15.3 | Resolved: ticket T-42 |
+| G-2 | F-27 mod history (P2) has no ticket | SRS §15.3 | Resolved: ticket T-43 (P2, first to cut) |
 | G-3 | Join-code throttle: FR-22 says 429 after **5** failed attempts per IP per minute (room SQLite); SRS §11.1 says **10** a minute per IP and channel; `JOIN_LIMITER` is 10/60 s | FR-22, §11.1, §12.2 | FR-22 is the requirement: 5 in the room; `JOIN_LIMITER` (10) is only an approximate outer guard |
 | G-4 | `FIXTURE_CHAT` is declared as `readonly string[] = [] = [ … ]` (a stray destructuring assignment) | SRS §5.16 | Write `export const FIXTURE_CHAT: readonly string[] = [ … ];` |
 | G-5 | The SRS repo layout puts specs at `docs/PRD.md` and `docs/SRS.md` and names the root `mod-fire-drill/` | SRS §12.1, PRD §13.6 | This repo uses `docs/for-agents/` and root `modscrim/`; the Worker is still named `mod-fire-drill` |
