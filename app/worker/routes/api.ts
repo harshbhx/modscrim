@@ -5,6 +5,7 @@ import { requireJsonSameOrigin } from '../auth/origin.js';
 import { drillCall, drillIdOf, readDrillConfig } from '../lib/drillHttp.js';
 import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
+import { OverlaySettingsZ } from '../room/hub.js';
 import { demoRoutes } from './demo.js';
 import { modRoutes, publicRoutes } from './mod.js';
 
@@ -168,6 +169,25 @@ apiRoutes.post('/overlay/rotate', requireStreamer, async (context) => {
   }
   const overlayUrl = `${context.env.PUBLIC_BASE_URL.replace(/\/$/, '')}/overlay/${encodeURIComponent(user.login)}?key=${encodeURIComponent(key)}`;
   return context.json({ overlayUrl });
+});
+
+/** POST /api/overlay/settings `{ hideNames }` (FR-46, P1): show mods as "Mod 1", "Mod 2" on the overlay. */
+apiRoutes.post('/overlay/settings', requireStreamer, async (context) => {
+  let body: unknown;
+  try {
+    body = await context.req.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid request body.');
+  }
+  const parsed = OverlaySettingsZ.safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid request body.', 'hideNames');
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    await room.setOverlaySettings(parsed.data);
+  } catch {
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+  return context.json({ hideNames: parsed.data.hideNames });
 });
 
 // ---- drills (T-12: FR-16 to FR-21) ------------------------------------------------------------
