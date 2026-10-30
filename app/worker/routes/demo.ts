@@ -3,7 +3,7 @@ import { createMiddleware } from 'hono/factory';
 import { z } from 'zod';
 import { COOKIES, readCookie, setCookie } from '../auth/cookies.js';
 import { readToken, signToken, type DemoSession } from '../auth/session.js';
-import { drillCall, drillIdOf, readDrillConfig } from '../lib/drillHttp.js';
+import { drillCall, drillIdOf, readDrillConfig, reportOrNotFound } from '../lib/drillHttp.js';
 import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
 import { DemoIdZ, demoRoomName } from '../room/demo.js';
@@ -174,8 +174,15 @@ demoRoutes.get('/:room/drills/:id', requireDemoRoom, async (context) => {
   return context.json(await drillCall(() => room.getDrill(drillId), 'The drill is unavailable.'));
 });
 
+/** GET /api/demo/:room/drills/:id/report: the report stays in the room (no D1 summary, R2 export or Queue). */
+demoRoutes.get('/:room/drills/:id/report', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const room = roomOf(context.env, context.get('demoId'));
+  const report = await drillCall(() => room.getReport(drillId), 'The report is unavailable.');
+  return context.json(reportOrNotFound(report));
+});
+
 // TODO(T-15): POST /:room/drills/:id/grade and /grade/local, GET /:room/drills/:id/grades. Demo rooms always
 //             grade locally (FR-29) and every grade is labelled engine `local` ("local estimate").
 // TODO(T-16): POST /:room/drills/:id/rules, /prove, /push and /undo. Push and undo are simulated (FR-34): they
 //             add to and remove from the room's own `blocked_terms`, never Twitch, and write no D1 audit row.
-// TODO(T-17): GET /:room/drills/:id/report. The report stays in the room: no D1 summary, R2 export or Queue.

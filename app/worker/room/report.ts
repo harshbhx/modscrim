@@ -292,6 +292,12 @@ export function saveReport(sql: Sql, drillId: string, now: number): Report | nul
   return report;
 }
 
+/** The saved report of a drill, or null when it has none yet. */
+export function readReport(sql: Sql, drillId: string): Report | null {
+  const row = sql.exec<{ report: string }>('SELECT report FROM reports WHERE drill_id = ?', drillId).toArray()[0];
+  return row ? (JSON.parse(row.report) as Report) : null;
+}
+
 // ---- the card and `report.ready` (SRS §8.3, §8.7, S-06) -----------------------------------------
 
 /**

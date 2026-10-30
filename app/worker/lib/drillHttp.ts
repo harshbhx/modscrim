@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DrillConfigInputZ, type DrillConfigInput } from '@mfd/core';
+import { DrillConfigInputZ, type DrillConfigInput, type Report } from '@mfd/core';
 import { DRILL_ERRORS } from '../room/drill.js';
 import { AppError } from './errors.js';
 
@@ -47,4 +47,10 @@ export async function drillCall<T>(run: () => Promise<T>, conflictMessage: strin
     if (message === DRILL_ERRORS.invalid) throw new AppError('invalid', 'Invalid drill settings.');
     throw new AppError('room_unavailable', 'The room is unavailable.');
   }
+}
+
+/** A drill's report, or a 404 while the drill has none yet (it is saved when the drill ends, FR-27). */
+export function reportOrNotFound(report: Report | null): Report {
+  if (!report) throw new AppError('not_found', 'Report not found.');
+  return report;
 }
