@@ -1,4 +1,12 @@
+# Security headers for the app's static assets, adapted from SRS §9.6.
+# Fonts are self-hosted, so font-src is 'self' and no font host is allowed. connect-src 'self'
+# covers same-origin wss: in current browsers; the production wss: origin is listed as well for
+# browsers that do not [verify in Safari]. img-src allows Twitch avatars. These rules apply only
+# to files served from assets; /api/*, /auth/*, /ws/* and /eventsub run the Worker first.
 /*
-  Content-Security-Policy: default-src 'self'; connect-src 'self'; img-src 'self' data: https://static-cdn.jtvnw.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; base-uri 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://static-cdn.jtvnw.net; font-src 'self'; connect-src 'self' wss://app.modscrim.dualmindlab.tech; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
