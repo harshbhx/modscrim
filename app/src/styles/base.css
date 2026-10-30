@@ -1,0 +1,141 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  line-height: 1.15;
+  margin: 0 0 var(--space-3);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+p {
+  margin: 0 0 var(--space-3);
+}
+
+code,
+kbd {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--text);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.hazard-stripe {
+  height: 10px;
+  background: repeating-linear-gradient(135deg, var(--hazard) 0 14px, #1a1a1f 14px 28px);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -4rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 2px solid var(--focus);
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.site-header,
+.site-main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: var(--space-3);
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.site-header a {
+  text-decoration: none;
+}
+
+.site-main {
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-5);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 2px solid var(--alarm);
+  border-radius: var(--radius);
+  font: 600 1rem var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button-primary {
+  background: var(--alarm);
+  color: var(--on-alarm);
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button {
+    transition: transform 150ms ease;
+  }
+
+  .button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
