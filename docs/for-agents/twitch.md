@@ -5,7 +5,8 @@ A digest of SRS §6 and the Twitch parts of §2.4, §4 and §5. Anything marked 
 ## 1. Application setup (SRS §6.1)
 
 1. Twitch developer console → new application. Category: Application Integration. Client type: **Confidential**.
-2. OAuth redirect URLs: `https://mod-fire-drill.<account>.workers.dev/auth/callback` and `http://localhost:5173/auth/callback`.
+2. OAuth redirect URL: `https://app.modscrim.dualmindlab.tech/auth/callback`. Twitch accepts only HTTPS redirect URIs, so `localhost` cannot be registered: Twitch sign-in is tested on the deployed app, and local dev (`npm run dev`) covers everything else (demo rooms, drills, tests). If local sign-in is ever needed, add a `cloudflared` tunnel's HTTPS URL as a second redirect.
+   EventSub webhook callback: `https://app.modscrim.dualmindlab.tech/eventsub`.
 3. Client ID → `TWITCH_CLIENT_ID` var (public). Client secret → `TWITCH_CLIENT_SECRET` secret.
 4. EventSub secret: 10 to 100 ASCII characters (`openssl rand -hex 24`) → `EVENTSUB_SECRET`.
 
