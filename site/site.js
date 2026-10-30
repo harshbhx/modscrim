@@ -97,7 +97,6 @@
       } else {
         el = document.createElement('button'); el.type = 'button'; el.className = 'msg' + (animate && !reduce ? ' in' : '');
         el.innerHTML = '<span class="u" style="color:' + colorOf(x.u) + '">' + esc(x.u) + '</span><span class="t">' + esc(x.m) + '</span><span class="hint">Delete</span>';
-        el.setAttribute('aria-label', 'Delete message from ' + x.u + ': ' + x.m);
       }
       return el;
     }
@@ -168,7 +167,7 @@
         var n = st.phase === 'live' ? '<span class="n' + ((st.by[k.k] || 0) === TOTAL[k.k] ? ' done' : '') + '">' + (st.by[k.k] || 0) + '/' + TOTAL[k.k] + '</span>' : '';
         return '<li><b>' + k.name + '</b>' + n + '<span class="ex">' + k.ex + '</span></li>';
       }).join('');
-      notes.innerHTML = '<h3>' + (mode === 'mod' ? 'Remove attacks, leave regulars alone' : 'What to watch for') + '</h3><ul class="watch">' + rows +
+      notes.innerHTML = '<h2>' + (mode === 'mod' ? 'Remove attacks, leave regulars alone' : 'What to watch for') + '</h2><ul class="watch">' + rows +
         '<li class="notspam"><b>Not spam</b><span class="ex">A first-time chatter saying hi, a run of 1s when the streamer asks for them, or someone joking about free real estate.</span></li></ul>' +
         '<p class="micro muted">A line nobody removes within ' + SLIP + ' seconds slips through.</p>';
     }
