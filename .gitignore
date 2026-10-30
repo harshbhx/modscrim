@@ -11,5 +11,3 @@ desktop.ini
 *.tsbuildinfo
 app/.dev.vars
 .wrangler/
-# Local agent notes (not part of the project)
-CLAUDE.md
