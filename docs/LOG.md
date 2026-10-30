@@ -41,7 +41,7 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
 
-2026-10-30 · T-07 · Added the D1 migration (SRS §7.3), AES-256-GCM `seal`/`unseal`, HMAC `signToken`/`readToken`, the three `__Host-` cookie helpers, the streamer session check against `users.session_epoch`, and the JSON plus `Origin` write guard (`requireJsonSameOrigin`). SRS code blocks ported unchanged. · `npm run typecheck` passed; the migration applied to an in-memory SQLite. Automated tests are Dhairya's T-50 (#56); the repo has no CI yet (T-39). · Next: T-09 ChannelRoom, T-08 OAuth.
+2026-10-30 · T-07 · Added the D1 migration (SRS §7.3), AES-256-GCM `seal`/`unseal`, HMAC `signToken`/`readToken`, the three `__Host-` cookie helpers, the streamer session check against `users.session_epoch`, and the JSON plus `Origin` write guard (`requireJsonSameOrigin`). SRS code blocks ported unchanged. · `npm run typecheck` passed; the migration applied to an in-memory SQLite. A focused acceptance test file (`app/test/t07-auth.test.ts`) was added; the fuller suite stays with Dhairya's T-50 (#56). · Next: T-09 ChannelRoom, T-08 OAuth.
 
 2026-10-30 · T-38 · Added the mounted Hono route layout, typed API-error middleware, sensitive-field-safe structured logging, cryptographic random ID helpers, and optional P1/P2 Env bindings. · Wrote and ran the foundation test red before implementation; then `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-07 D1, token sealing, sessions and Origin checks.
 
