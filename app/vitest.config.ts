@@ -12,7 +12,8 @@ export default defineConfig({
           SESSION_HMAC_KEY: 'test-session-hmac-key',
           TOKEN_ENC_KEY: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
           EVENTSUB_SECRET: 'test-eventsub-secret',
-          TWITCH_CLIENT_SECRET: 'test-twitch-secret'
+          TWITCH_CLIENT_SECRET: 'test-twitch-secret',
+          TWITCH_CLIENT_ID: 'test-twitch-client-id'
         }
       }
     })

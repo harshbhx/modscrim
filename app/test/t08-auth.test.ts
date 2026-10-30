@@ -69,7 +69,7 @@ function mockTwitch(subscriptionStatus: 'pending' | 'failed' = 'pending') {
     }
 
     if (url === 'https://api.twitch.tv/helix/users') {
-      expect(new Headers(init?.headers).get('Client-Id')).toBe('TODO_REPLACE_WITH_TWITCH_CLIENT_ID');
+      expect(new Headers(init?.headers).get('Client-Id')).toBe('test-twitch-client-id');
       expect(new Headers(init?.headers).get('Authorization')).toBe(`Bearer ${ACCESS_TOKEN}`);
       return Response.json({
         data: [{

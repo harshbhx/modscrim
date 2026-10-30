@@ -41,6 +41,21 @@ Start with **`INDEX.md`**: a map of every doc, a section index of the PRD and SR
 | `glossary.md` | Domain terms and ID prefixes |
 | `open-questions.md` | Every `[verify]` assumption, open questions, known gaps and contradictions in the specs |
 
+## Environments and URLs
+
+| Host | Serves | Source |
+|---|---|---|
+| `https://modscrim.dualmindlab.tech` | Static marketing website | `site/`, Cloudflare Pages project `modscrim` (Git-connected) |
+| `https://app.modscrim.dualmindlab.tech` | The app Worker `mod-fire-drill`: SPA routes (`/console`, `/mod/:channel`, `/overlay/:channel?key=…`, `/demo`, `/demo/:room`, `/r/:reportId`) plus `/api/*`, `/auth/*`, `/ws/*`, `/eventsub` | `app/`, config in `app/wrangler.jsonc`, deployed with `npm run deploy` |
+| `https://mod-fire-drill.creharsh.workers.dev` | The same Worker on `workers.dev` | same |
+| `http://localhost:5173` | Local dev (`npm run dev`) | `app/`, overrides in `app/.dev.vars` |
+
+- `PUBLIC_BASE_URL` (a Worker secret) is `https://app.modscrim.dualmindlab.tech` in production and `http://localhost:5173` in `app/.dev.vars`.
+- Twitch OAuth redirect URL (registered in the Twitch console): `https://app.modscrim.dualmindlab.tech/auth/callback`. Twitch accepts only HTTPS redirect URIs, so `localhost` cannot be registered.
+- EventSub webhook callback: `https://app.modscrim.dualmindlab.tech/eventsub`.
+- Twitch sign-in is tested on the deployed app; local dev covers everything else (demo rooms, drills, tests). If local sign-in is ever needed, add a `cloudflared` tunnel's HTTPS URL as a second redirect.
+- **`site/` is the Pages website and `app/` is the Worker. Never add app routes, API calls or app screens to `site/`.** Website buttons link to the app host.
+
 ## Rules
 
 1. **Scope.** Build only what your ticket's IDs (`T-xx`, `FR-xx`, `F-xx`) say. Read those IDs in both the PRD and the SRS before writing code.
