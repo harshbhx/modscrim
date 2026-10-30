@@ -2,6 +2,9 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { clearCookie, readCookie, setCookie } from '../auth/cookies.js';
 import { seal } from '../auth/crypto.js';
+import { deleteUserData } from '../auth/deletion.js';
+import { requireJsonSameOrigin } from '../auth/origin.js';
+import { requireStreamer } from '../auth/streamer.js';
 import { randomId } from '../lib/ids.js';
 import { AppError, errorResponse } from '../lib/errors.js';
 import { log } from '../lib/log.js';
@@ -60,13 +63,16 @@ authRoutes.get('/callback', async (context) => {
     const existing = await context.env.DB.prepare('SELECT session_epoch FROM users WHERE id = ?')
       .bind(user.id)
       .first<{ session_epoch: number }>();
+    // A first sign-in (or one after "Sign out and delete my data") starts a fresh epoch, so a
+    // session cookie issued before the deletion never becomes valid again (FR-04, FR-05).
+    const epoch = existing?.session_epoch ?? now;
 
     await context.env.DB.batch([
-      context.env.DB.prepare(`INSERT INTO users (id, login, display_name, avatar_url, broadcaster_type, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+      context.env.DB.prepare(`INSERT INTO users (id, login, display_name, avatar_url, broadcaster_type, session_epoch, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET login = excluded.login, display_name = excluded.display_name,
           avatar_url = excluded.avatar_url, broadcaster_type = excluded.broadcaster_type, updated_at = excluded.updated_at`)
-        .bind(user.id, user.login, user.display_name, user.profile_image_url ?? null, user.broadcaster_type, now, now),
+        .bind(user.id, user.login, user.display_name, user.profile_image_url ?? null, user.broadcaster_type, epoch, now, now),
       context.env.DB.prepare(`INSERT INTO oauth_tokens (user_id, access_sealed, refresh_sealed, scopes, expires_at, validated_at, status)
         VALUES (?, ?, ?, ?, ?, ?, 'ok')
         ON CONFLICT(user_id) DO UPDATE SET access_sealed = excluded.access_sealed, refresh_sealed = excluded.refresh_sealed,
@@ -89,7 +95,7 @@ authRoutes.get('/callback', async (context) => {
     const subscriptionStatus = await ensureChatSubscription(context.env, user.id);
     const session: StreamerSession = {
       uid: user.id,
-      ep: existing?.session_epoch ?? 0,
+      ep: epoch,
       exp: now + STREAMER_SESSION_SECONDS * 1000
     };
     const sessionCookie = await signToken(session, context.env.SESSION_HMAC_KEY);
@@ -113,3 +119,21 @@ async function sameSecret(left: string, right: string): Promise<boolean> {
   ]);
   return crypto.subtle.timingSafeEqual(a, b);
 }
+
+/** POST /auth/logout: "Sign out and delete my data" (FR-04). 204 once everything is deleted. */
+authRoutes.post('/logout', requireJsonSameOrigin, requireStreamer, async (context) => {
+  const uid = context.get('session').uid;
+  const room = `ch:${uid}`;
+  const started = Date.now();
+  try {
+    await deleteUserData(context.env, uid, { callTwitch: true });
+  } catch {
+    log('auth.signout', { room, uid, ok: false });
+    throw new AppError('room_unavailable', 'Your data could not be deleted. Try again.');
+  }
+  log('auth.signout', { room, uid, ok: true, ms: Date.now() - started });
+  const response = context.body(null, 204);
+  response.headers.append('Set-Cookie', clearCookie('streamer'));
+  response.headers.append('Set-Cookie', clearCookie('oauth'));
+  return response;
+});

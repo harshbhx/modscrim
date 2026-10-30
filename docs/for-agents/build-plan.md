@@ -61,7 +61,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-24 | Web: overlay | FR-37 | P0 | Dhairya | M2 | T-20 | [#26](https://github.com/harshbhx/modscrim/issues/26) |
 | ☐ | T-25 | Web: demo page and QR code | FR-38 | P0 | Dhairya | M2 | T-18, T-22 | [#27](https://github.com/harshbhx/modscrim/issues/27) |
 | ☑ | T-26 | Hourly cron: validate, purge, subscription health | FR-03, FR-11, FR-43 | P0 | Harsh | M3 | T-10 | [#28](https://github.com/harshbhx/modscrim/issues/28) |
-| ☐ | T-27 | Sign-out deletion flow and test | FR-04 | P0 | Harsh | M3 | T-10 | [#29](https://github.com/harshbhx/modscrim/issues/29) |
+| ☑ | T-27 | Sign-out deletion flow and test | FR-04 | P0 | Harsh | M3 | T-10 | [#29](https://github.com/harshbhx/modscrim/issues/29) |
 | ☐ | T-28 | Load script and NFR measurements | NFR-01 to NFR-03 | P0 | Dhairya | M3 | T-12 | [#30](https://github.com/harshbhx/modscrim/issues/30) |
 | ☐ | T-29 | P1: Twitch re-grade after push; agreement rate | FR-30, FR-36 | P1 | Dhairya | M4 | T-16 | [#31](https://github.com/harshbhx/modscrim/issues/31) |
 | ☐ | T-30 | P1: status panel | FR-44 | P1 | Dhairya | M4 | T-26 | [#32](https://github.com/harshbhx/modscrim/issues/32) |
