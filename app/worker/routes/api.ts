@@ -4,7 +4,9 @@ import { DrillConfigInputZ, type DrillConfigInput } from '@mfd/core';
 import { requireStreamer } from '../auth/streamer.js';
 import { requireJsonSameOrigin } from '../auth/origin.js';
 import { AppError } from '../lib/errors.js';
+import { socketUrl } from '../lib/urls.js';
 import { DRILL_ERRORS } from '../room/drill.js';
+import { modRoutes, publicRoutes } from './mod.js';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -12,6 +14,10 @@ export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: 
 apiRoutes.use('*', requireJsonSameOrigin);
 
 apiRoutes.get('/health', (context) => context.json({ ok: true }));
+
+// Mods and public (no session; rate-limited): T-13.
+apiRoutes.route('/mod', modRoutes);
+apiRoutes.route('/public', publicRoutes);
 
 apiRoutes.get('/filters', requireStreamer, async (context) => {
   const { room } = await streamerRoom(context.env, context.get('session').uid);
@@ -142,9 +148,7 @@ apiRoutes.post('/ws-ticket', requireStreamer, async (context) => {
   } catch {
     throw new AppError('room_unavailable', 'The room is unavailable.');
   }
-  const base = new URL(context.env.PUBLIC_BASE_URL);
-  const wsUrl = `${base.protocol === 'https:' ? 'wss' : 'ws'}://${base.host}/ws/ch/${encodeURIComponent(id)}?ticket=${encodeURIComponent(ticket)}`;
-  return context.json({ ticket, wsUrl });
+  return context.json({ ticket, wsUrl: socketUrl(context.env.PUBLIC_BASE_URL, 'ch', id, ticket) });
 });
 
 /** POST /api/overlay/rotate: new overlay key; old overlay sockets are closed by the room. */
