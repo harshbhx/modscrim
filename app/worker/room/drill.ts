@@ -27,6 +27,7 @@ import { joinCode as newJoinCode, randomId } from '../lib/ids.js';
 import { log } from '../lib/log.js';
 import { broadcast } from './hub.js';
 import type { Scheduler } from './scheduler.js';
+import { SIM_PARTICIPANT_ID, simPlan, syncSimMembership } from './sim.js';
 
 /**
  * Drill engine (SRS §3.4, §8.5, FR-16 to FR-21): lifecycle, the drift-free clock, first action wins,
@@ -94,6 +95,11 @@ const LINE_SELECT = `SELECT l.id, l.wave, l.idx, l.kind, l.tactic, l.trick, l.li
 const EmitJobZ = z.object({ drillId: z.string().min(1), idx: z.number().int().min(0) });
 const SlipJobZ = z.object({ drillId: z.string().min(1), lineId: z.string().min(1) });
 const EndJobZ = z.object({ drillId: z.string().min(1) });
+const SimJobZ = z.object({
+  drillId: z.string().min(1),
+  lineId: z.string().min(1),
+  action: z.enum(['delete', 'timeout', 'ban'])
+});
 
 /** Validate a config (FR-16). An omitted seed keeps `fallbackSeed`, or becomes a random uint32. */
 export function parseConfig(input: unknown, fallbackSeed?: number): StoredConfig {
@@ -196,6 +202,10 @@ export class DrillEngine {
   }
 
   /** What sockets see: the active drill, else the most recent ended one. Cancelled drills are never shown. */
+  currentDrillId(): string | null {
+    return this.currentDrill()?.id ?? null;
+  }
+
   private currentDrill(): DrillRow | undefined {
     return this.sql
       .exec<DrillRow>(
@@ -321,6 +331,7 @@ export class DrillEngine {
           pid
         );
       }
+      syncSimMembership(this.sql, drillId, config.simMod, now);
       this.deps.touch(now);
       return { drillId, joinCode: code, created: true, lines, seed: config.seed };
     });
@@ -345,6 +356,7 @@ export class DrillEngine {
       const config = parseConfig(input, d.seed);
       this.sql.exec('UPDATE drills SET seed = ?, config = ? WHERE id = ?', config.seed, JSON.stringify(config), drillId);
       this.writeWaveA(drillId, config);
+      syncSimMembership(this.sql, drillId, config.simMod, now);
       this.deps.touch(now);
     });
     return this.view(drillId);
@@ -512,7 +524,13 @@ export class DrillEngine {
       if (row.kind === 'attack') {
         this.deps.scheduler.enqueue('line.slip', row.id, now + config.slipWindowMs, { drillId, lineId: row.id });
       }
-      // TODO(T-14): schedule Kai (sim)'s `sim.act` for this line when `config.simMod` is on.
+      if (config.simMod) {
+        // Kai (sim) acts after its delay unless someone was first or the line slipped (FR-39).
+        const plan = simPlan(config.seed, row);
+        if (plan) {
+          this.deps.scheduler.enqueue('sim.act', row.id, now + plan.delayMs, { drillId, lineId: row.id, action: plan.action });
+        }
+      }
       const total = this.sql
         .exec<{ n: number }>("SELECT COUNT(*) AS n FROM wave_lines WHERE drill_id = ? AND wave = 'A'", drillId)
         .one().n;
@@ -566,6 +584,23 @@ export class DrillEngine {
     if (!parsed.success) return;
     const result = this.finish(parsed.data.drillId, job.now, 'job');
     if (result?.fresh) this.announceEnd(parsed.data.drillId, result);
+  }
+
+  /** `sim.act <lineId>`: Kai (sim) acts if the line is still open; otherwise Kai loses cleanly (FR-39). */
+  simAct(job: { payload: unknown; now: number }): void {
+    const parsed = SimJobZ.safeParse(job.payload);
+    if (!parsed.success) return;
+    const { drillId, lineId, action } = parsed.data;
+    // `actedAt` is the time at the start of this alarm (SRS §5.9), like `webSocketMessage` for humans.
+    const res = this.applyAction(SIM_PARTICIPANT_ID, lineId, action, job.now);
+    log('mod.action', {
+      room: this.deps.roomName(),
+      drill: drillId,
+      pid: SIM_PARTICIPANT_ID,
+      result: res.ok ? 'ok' : res.reason,
+      ...(res.ok ? { reactionMs: res.reactionMs } : {})
+    });
+    if (res.ok) this.broadcastAction(res);
   }
 
   // ---- actions (FR-18) -------------------------------------------------------------------------
