@@ -137,7 +137,7 @@ code,.mono{font-family:var(--mono);font-size:.94em}
 .cover-in p{color:var(--on-green-muted)}
 
 .notes{padding:24px 28px 28px;color:var(--chalk);display:flex;flex-direction:column;gap:20px;min-width:0}
-.notes h3{font-family:var(--display);font-variation-settings:"opsz" 72;font-weight:800;font-size:36px;line-height:1}
+.notes h2,.notes h3{font-family:var(--display);font-variation-settings:"opsz" 72;font-weight:800;font-size:36px;line-height:1}
 .watch{list-style:none;padding:0;display:flex;flex-direction:column;gap:14px}
 .watch li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px}
 .watch b{font-weight:700;font-size:17px}
