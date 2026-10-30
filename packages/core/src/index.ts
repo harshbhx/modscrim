@@ -8,3 +8,7 @@ export * from './prng.js';
 export * from './protocol.js';
 export * from './types.js';
 export * from './views.js';
+export * from './tricks.js';
+export * from './templates.js';
+export * from './waves.js';
+export * from './fixtures.js';
