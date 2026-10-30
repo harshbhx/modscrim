@@ -76,7 +76,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-39 | Continuous integration on every pull request | NFR-06, NFR-12, NFR-17, NFR-21 | P0 | Dhairya | M1 | T-01 | [#43](https://github.com/harshbhx/modscrim/issues/43) |
 | ☐ | T-40 | Register the Twitch app and deploy the Worker to Cloudflare | — | P0 | Harsh | M1 | T-01 | [#44](https://github.com/harshbhx/modscrim/issues/44) |
 | ☐ | T-41 | Run the day-0 kill test and record the decision | A-01 to A-06 | P0 | Dhairya | M3 | T-06, T-40 | [#45](https://github.com/harshbhx/modscrim/issues/45) |
-| ☐ | T-42 | Hide mod names on the overlay | FR-46 | P1 | Harsh | M4 | T-09, T-24 | [#46](https://github.com/harshbhx/modscrim/issues/46) |
+| ☑ | T-42 | Hide mod names on the overlay | FR-46 | P1 | Harsh | M4 | T-09, T-24 | [#46](https://github.com/harshbhx/modscrim/issues/46) |
 | ☐ | T-43 | Mod history across drills | FR-27 | P2 | Dhairya | M4 | T-17 | [#47](https://github.com/harshbhx/modscrim/issues/47) |
 | ☐ | T-44 | End-to-end test of the demo loop | M-05 | P1 | Dhairya | M4 | T-25 | [#48](https://github.com/harshbhx/modscrim/issues/48) |
 | ☐ | T-45 | README, licence and a judge-ready public repository | M-06 | P0 | Dhairya | M6 | T-18, T-40 | [#49](https://github.com/harshbhx/modscrim/issues/49) |
