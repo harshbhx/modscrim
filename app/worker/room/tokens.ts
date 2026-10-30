@@ -1,6 +1,6 @@
 import { seal, unseal } from '../auth/crypto.js';
 import { log } from '../lib/log.js';
-import { refreshToken as refreshTwitchToken } from '../twitch/oauth.js';
+import { refreshToken as refreshTwitchToken, TwitchOAuthError, validateToken } from '../twitch/oauth.js';
 
 type TokenRow = {
   access_sealed: string;
@@ -36,6 +36,46 @@ export class RoomTokens {
     } finally {
       if (this.refreshes.get(userId) === refresh) this.refreshes.delete(userId);
     }
+  }
+
+  /**
+   * Hourly validation (FR-03). Twitch answering 401 to `/oauth2/validate`, or 400/401 to a refresh,
+   * marks the token `invalid` so the console shows "Reconnect Twitch". Network and 5xx errors throw
+   * and leave the stored status unchanged. `validated_at` records each answer Twitch gave.
+   */
+  async validate(userId: string, now: number): Promise<'ok' | 'invalid'> {
+    let access: string;
+    try {
+      access = await this.getAccessToken(userId);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'twitch_reconnect_required') return 'invalid';
+      if (error instanceof TwitchOAuthError && (error.status === 400 || error.status === 401)) {
+        return this.markInvalid(userId, now);
+      }
+      throw error;
+    }
+
+    let identity: Awaited<ReturnType<typeof validateToken>>;
+    try {
+      identity = await validateToken(this.env, access);
+    } catch (error) {
+      if (error instanceof TwitchOAuthError && error.status === 401) return this.markInvalid(userId, now);
+      throw error;
+    }
+    if (identity.user_id !== userId) return this.markInvalid(userId, now);
+    await this.env.DB.prepare("UPDATE oauth_tokens SET validated_at = ? WHERE user_id = ? AND status = 'ok'")
+      .bind(now, userId)
+      .run();
+    log('auth.validate', { room: this.roomName(), uid: userId, ok: true });
+    return 'ok';
+  }
+
+  private async markInvalid(userId: string, now: number): Promise<'invalid'> {
+    await this.env.DB.prepare("UPDATE oauth_tokens SET status = 'invalid', validated_at = ? WHERE user_id = ? AND status = 'ok'")
+      .bind(now, userId)
+      .run();
+    log('auth.validate', { room: this.roomName(), uid: userId, ok: false });
+    return 'invalid';
   }
 
   private async refreshAccessToken(userId: string, rejectedToken?: string): Promise<string> {
