@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { DrillConfigInputZ, type DrillConfigInput } from '@mfd/core';
 import { requireStreamer } from '../auth/streamer.js';
 import { requireJsonSameOrigin } from '../auth/origin.js';
+import { drillCall, drillIdOf, readDrillConfig } from '../lib/drillHttp.js';
 import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
-import { DRILL_ERRORS } from '../room/drill.js';
+import { demoRoutes } from './demo.js';
 import { modRoutes, publicRoutes } from './mod.js';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
@@ -18,6 +18,9 @@ apiRoutes.get('/health', (context) => context.json({ ok: true }));
 // Mods and public (no session; rate-limited): T-13.
 apiRoutes.route('/mod', modRoutes);
 apiRoutes.route('/public', publicRoutes);
+
+// Public demo rooms (no Twitch account; demo cookie bound to one room): T-18.
+apiRoutes.route('/demo', demoRoutes);
 
 apiRoutes.get('/filters', requireStreamer, async (context) => {
   const { room } = await streamerRoom(context.env, context.get('session').uid);
@@ -168,47 +171,6 @@ apiRoutes.post('/overlay/rotate', requireStreamer, async (context) => {
 });
 
 // ---- drills (T-12: FR-16 to FR-21) ------------------------------------------------------------
-
-const DrillIdZ = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
-
-function drillIdOf(raw: string | undefined): string {
-  const parsed = DrillIdZ.safeParse(raw);
-  if (!parsed.success) throw new AppError('not_found', 'Drill not found.');
-  return parsed.data;
-}
-
-/** Parse a `DrillConfigInput` body. A failure is a 400 naming the first bad field (FR-16). */
-async function readDrillConfig(request: Request): Promise<DrillConfigInput> {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    throw new AppError('invalid', 'Invalid request body.');
-  }
-  const parsed = DrillConfigInputZ.safeParse(body);
-  if (!parsed.success) {
-    const issue = parsed.error.issues[0];
-    const field = issue && issue.path.length > 0 ? issue.path.map(String).join('.') : undefined;
-    throw new AppError('invalid', issue?.message ?? 'Invalid drill settings.', field);
-  }
-  return parsed.data;
-}
-
-/** Call a drill RPC and map the room's error messages (`DRILL_ERRORS`) to API errors. */
-async function drillCall<T>(run: () => Promise<T>, conflictMessage: string): Promise<T> {
-  try {
-    return await run();
-  } catch (error) {
-    if (error instanceof AppError) throw error;
-    const message = error instanceof Error ? error.message : '';
-    if (message === DRILL_ERRORS.notFound || message === 'room_not_bootstrapped') {
-      throw new AppError('not_found', 'Drill not found.');
-    }
-    if (message === DRILL_ERRORS.conflict) throw new AppError('conflict', conflictMessage);
-    if (message === DRILL_ERRORS.invalid) throw new AppError('invalid', 'Invalid drill settings.');
-    throw new AppError('room_unavailable', 'The room is unavailable.');
-  }
-}
 
 /** POST /api/drills: create the draft, or return the existing one (FR-20). */
 apiRoutes.post('/drills', requireStreamer, async (context) => {
