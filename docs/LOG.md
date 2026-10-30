@@ -41,6 +41,8 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
 
+2026-10-30 · T-19 · Added the SPA shell: React Router with every PRD §9.1 route (placeholders for later screens), light and dark colour tokens and base styles, Google Fonts (Archivo, Source Sans 3, JetBrains Mono), the landing and privacy pages, `app/public/_headers` with the SRS §9.6 CSP, and `app/src/copy.ts` holding the PRD §9.6 copy deck plus the demo and privacy page text. · `npm run typecheck` passed. The build-size check and route render tests belong to T-39 (#43), which does not exist yet, so `npm run build`, `npm test` and the 250 KB gzip budget are not yet verified. · Next: T-20 `useRoom`, T-22 console steps.
+
 2026-10-30 · T-38 · Added the mounted Hono route layout, typed API-error middleware, sensitive-field-safe structured logging, cryptographic random ID helpers, and optional P1/P2 Env bindings. · Wrote and ran the foundation test red before implementation; then `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-07 D1, token sealing, sessions and Origin checks.
 
 2026-10-30 · T-37 · Added the shared pure core types, WebSocket protocol, view and report contracts; the Worker and browser each type-import the shared contract. Added compile-checked type assertions for the exact redacted overlay-line shape and report-card text/term exclusion. · Wrote the contract test first; `npm run typecheck` initially failed because the exports were absent. After implementation, `npm test`, `npm run typecheck`, and `npm run build` passed. · Next: T-03 waves and safety scan, or T-09 Worker room skeleton.

@@ -10,7 +10,7 @@ Instructions for every AI coding agent working in this repository: Codex, Claude
 - **Deadlines (IST):** feature freeze Sun 1 Nov 2026 22:00 · target submit Mon 2 Nov 20:00 · hard deadline Tue 3 Nov 03:30.
 - **Team:** Harsh owns all Cloudflare work (Worker, Durable Objects, D1, cron, Queues, R2, Workers AI, deploy) and the landing page. Dhairya owns the core engine, all Twitch integration, the web app, **all testing (automated and manual)**, CI and the launch. GitHub labels `owner: harsh` and `owner: dhairya`.
 - **Stack:** one Cloudflare Worker (Hono router plus a React SPA served as static assets), one `ChannelRoom` Durable Object with SQLite per channel, one D1 database, Twitch OAuth, Helix and EventSub webhooks. TypeScript 5 strict end to end. No paid AI calls at runtime.
-- **Status:** tracked live in `docs/for-agents/build-plan.md` and on the [project board](https://github.com/users/harshbhx/projects/3). Done so far: T-01, T-02, T-37, T-38.
+- **Status:** tracked live in `docs/for-agents/build-plan.md` and on the [project board](https://github.com/users/harshbhx/projects/3). Done so far: T-01, T-02, T-19, T-37, T-38.
 
 ## Sources of truth
 
