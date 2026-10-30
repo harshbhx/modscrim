@@ -31,44 +31,62 @@ export function t(key: CopyKey, values: Record<string, string | number> = {}): s
   });
 }
 
+/** The public website. Its privacy policy and terms are the only copies; the app links to them. */
+export const SITE_URL = 'https://modscrim.dualmindlab.tech';
+
 /**
- * Screen text the PRD describes outside the §9.6 table (landing, demo and privacy pages).
- * Kept here so that all user-facing strings live in one file.
+ * Screen text outside the PRD §9.6 table (app chrome, landing, demo and privacy pages).
+ * Kept here so that all user-facing strings live in one file. The product is named
+ * ModScrim in the UI, as on the website (brand kit decision); the PRD's working name
+ * stays only inside the exact §9.6 strings.
  */
 export const pages = {
-  appName: 'Mod Fire Drill',
+  appName: 'ModScrim',
+  tagline: 'Raid drills for your mod team.',
+  nav: {
+    skip: 'Skip to content',
+    home: 'ModScrim home',
+    main: 'Main',
+    privacy: 'Privacy',
+    footer: 'More about ModScrim',
+    website: 'Website',
+    terms: 'Terms of use',
+    source: 'Source code',
+    notTwitch: 'ModScrim is not affiliated with or endorsed by Twitch.'
+  },
   landing: {
+    title: 'Raid drills for your mod team.',
     pitch:
-      "Fire drills for your Twitch mods. Practice chat floods with fake scams, spam and bots written to slip past your channel's own blocked terms, then Twitch grades your filters and you fix them.",
+      "ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.",
     signIn: 'Sign in with Twitch',
     demo: 'Try the demo'
   },
   demo: {
     intro:
-      "Try Mod Fire Drill without a Twitch account. You'll get a private practice room with a fake channel, a simulated co-mod and the full loop. Grading in demo rooms is a local estimate; on a real channel, Twitch does the grading.",
+      "Try ModScrim without a Twitch account. You'll get a private practice room with a fake channel, a simulated co-mod and the full loop. Grading in demo rooms is a local estimate; on a real channel, Twitch does the grading.",
     start: 'Start a demo drill',
     phone: 'Open the mod view on my phone'
   },
   privacy: {
     title: 'Privacy',
-    stored: 'What is stored',
-    storedItems: [
-      'Your Twitch profile and your Twitch tokens, encrypted, until you sign out or revoke the app.',
-      'Your channel chat log, kept for 7 days only.',
-      'Drills and their results, kept for 30 days or until you sign out.',
-      'Audit log and report summaries, kept until you sign out.',
-      'Demo rooms are deleted 2 hours after their last activity.'
-    ],
-    neverStored: 'Logs never contain tokens, chat text or attack text.',
-    deleteTitle: 'How to delete it',
-    deleteItems: [
-      'Delete your chat log at any time from step 1 of the console.',
-      'Sign out and delete all data from the console to remove everything we hold about your channel.',
-      'Revoking the app on Twitch also deletes your data.'
-    ]
+    lead: 'What ModScrim stores, why, for how long, and how to delete it.',
+    full: 'The full privacy policy lists everything ModScrim stores, why, how long each item is kept, who else handles it, and how to delete it. It is kept in one place, on the ModScrim website, so the app and the site never disagree.',
+    link: 'Read the privacy policy',
+    deleteNote:
+      'You can delete the chat log at any time, pause logging, or delete everything by signing out.',
+    contact: 'Questions about your data:',
+    email: 'team@dualmindlab.tech'
+  },
+  screens: {
+    console: 'Console',
+    mod: 'Mod console',
+    overlay: 'Overlay',
+    demo: 'Demo',
+    demoConsole: 'Demo console',
+    demoMod: 'Demo mod view',
+    report: 'Report'
   },
   placeholder: 'This screen is built in a later ticket.',
   notFound: 'Page not found.',
-  back: 'Back to the start',
-  nav: { skip: 'Skip to content', privacy: 'Privacy' }
+  back: 'Back to the start'
 } as const;
