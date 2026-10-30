@@ -48,7 +48,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-11 | Filters read and cache; broadcaster type | FR-06, FR-07 | P0 | Dhairya | M3 | T-08 | [#13](https://github.com/harshbhx/modscrim/issues/13) |
 | ☑ | T-12 | Drill create, start, emit, act, slip, stop, end; snapshot | FR-16 to FR-21 | P0 | Harsh | M2 | T-05, T-09, T-37 | [#14](https://github.com/harshbhx/modscrim/issues/14) |
 | ☑ | T-13 | Mod join (code), participant tokens, rate limits | FR-22 | P0 | Harsh | M2 | T-12 | [#15](https://github.com/harshbhx/modscrim/issues/15) |
-| ☐ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
+| ☑ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
 | ☐ | T-15 | Grading queue with pacing and local fallback | FR-28, FR-29 | P0 | Dhairya | M2 | T-11, T-12 | [#17](https://github.com/harshbhx/modscrim/issues/17) |
 | ☐ | T-16 | Rules, proof, push and undo in the room; audit log | FR-31 to FR-35, FR-45 | P0 | Dhairya | M2 | T-04, T-15 | [#18](https://github.com/harshbhx/modscrim/issues/18) |
 | ☐ | T-17 | Report build and console view | FR-27 | P0 | Harsh | M2 | T-16 | [#19](https://github.com/harshbhx/modscrim/issues/19) |
