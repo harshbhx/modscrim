@@ -1,0 +1,82 @@
+name: Preview app
+
+# Every pull request to main that touches the app runs the checks and deploys it to the
+# preview Worker (its own D1 database), then posts the link on the PR.
+# There is one shared preview: the most recently updated PR is the one it shows.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "app/**"
+      - "packages/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig*.json"
+      - ".github/workflows/preview-app.yml"
+
+concurrency:
+  group: preview-app
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    # Secrets are not available to forks; previews run only for branches in this repository.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      PREVIEW_URL: https://mod-fire-drill-preview.creharsh.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Apply D1 migrations (preview database)
+        working-directory: app
+        run: npx wrangler d1 migrations apply mfd-preview --remote --env preview
+
+      - name: Build and deploy the preview
+        env:
+          CLOUDFLARE_ENV: preview
+        run: npm run deploy
+
+      - name: Health check
+        run: |
+          for i in 1 2 3 4 5; do
+            if curl -fsS "$PREVIEW_URL/api/health"; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+
+      - name: Post the preview link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          body="**Preview deployed** for ${SHA:0:7}: $PREVIEW_URL
+
+          - Demo: $PREVIEW_URL/demo
+          - It uses the preview database only, never production data. Twitch sign-in works only on production.
+          - This is a shared preview: the most recently updated PR is the one it shows."
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --body "$body" || gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$body"
