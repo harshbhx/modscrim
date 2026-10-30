@@ -15,11 +15,7 @@ app.route('/eventsub', eventsubRoutes);
 app.route('/ws', wsRoutes);
 app.notFound(() => errorResponse('not_found', 'Not found.'));
 
-export class ChannelRoom {
-  fetch(): Response {
-    return new Response('Not found', { status: 404 });
-  }
-}
+export { ChannelRoom } from './room/ChannelRoom.js';
 
 export default {
   fetch: app.fetch,
