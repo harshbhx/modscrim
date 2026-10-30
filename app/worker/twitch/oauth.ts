@@ -7,7 +7,7 @@ const TOKEN_RESPONSE = z.object({
   access_token: z.string().min(1),
   refresh_token: z.string().min(1).optional(),
   expires_in: z.number().int().positive(),
-  scope: z.array(z.string()),
+  scope: z.array(z.string()).default([]),
   token_type: z.string().optional()
 });
 
