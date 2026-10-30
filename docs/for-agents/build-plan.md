@@ -46,7 +46,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☑ | T-09 | `ChannelRoom` skeleton: schema, scheduler, hub, tickets, overlay key | FR-21, FR-37 | P0 | Harsh | M1 | T-07, T-37 | [#11](https://github.com/harshbhx/modscrim/issues/11) |
 | ☐ | T-10 | Webhook verify and route; subscription create and reconcile; chat ingest | FR-08 to FR-10 | P0 | Dhairya | M3 | T-08, T-09 | [#12](https://github.com/harshbhx/modscrim/issues/12) |
 | ☐ | T-11 | Filters read and cache; broadcaster type | FR-06, FR-07 | P0 | Dhairya | M3 | T-08 | [#13](https://github.com/harshbhx/modscrim/issues/13) |
-| ☐ | T-12 | Drill create, start, emit, act, slip, stop, end; snapshot | FR-16 to FR-21 | P0 | Harsh | M2 | T-05, T-09, T-37 | [#14](https://github.com/harshbhx/modscrim/issues/14) |
+| ☑ | T-12 | Drill create, start, emit, act, slip, stop, end; snapshot | FR-16 to FR-21 | P0 | Harsh | M2 | T-05, T-09, T-37 | [#14](https://github.com/harshbhx/modscrim/issues/14) |
 | ☐ | T-13 | Mod join (code), participant tokens, rate limits | FR-22 | P0 | Harsh | M2 | T-12 | [#15](https://github.com/harshbhx/modscrim/issues/15) |
 | ☐ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
 | ☐ | T-15 | Grading queue with pacing and local fallback | FR-28, FR-29 | P0 | Dhairya | M2 | T-11, T-12 | [#17](https://github.com/harshbhx/modscrim/issues/17) |
