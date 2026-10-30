@@ -6,11 +6,15 @@ import {
   type ModAction,
   type Participant,
   type Report,
+  type ReportCard,
+  type Role,
+  type ServerMsg,
   type TagCount
 } from '@mfd/core';
 import { z } from 'zod';
 import { reportId as newReportId } from '../lib/ids.js';
 import type { StoredConfig } from './drill.js';
+import { broadcast } from './hub.js';
 
 /**
  * After-action report (FR-27, SRS §7.4): one per ended drill, rebuilt from the room's own tables and
@@ -18,7 +22,8 @@ import type { StoredConfig } from './drill.js';
  * empty or absent, never an error, so a report can be built as soon as the drill ends and rebuilt as
  * the loop moves on. Synchronous SQL only: callers run `saveReport` inside `transactionSync`.
  *
- * `rules.rejected[].fpExample` is a real chat line. The full `Report` goes to the console only (S-06).
+ * `rules.rejected[].fpExample` is a real chat line. The full `Report` goes to the console only (S-06);
+ * sockets get the numbers-only `ReportCard`.
  */
 
 type Sql = DurableObjectStorage['sql'];
@@ -285,4 +290,47 @@ export function saveReport(sql: Sql, drillId: string, now: number): Report | nul
     report.createdAt
   );
   return report;
+}
+
+// ---- the card and `report.ready` (SRS §8.3, §8.7, S-06) -----------------------------------------
+
+/**
+ * The numbers-only card: counts and mod names, no terms, no line text and no chat lines (S-06). Every key is
+ * copied by name, so nothing else in the report can reach a socket. The grade is phase A (wave A against the
+ * channel's current filters), `termsPushed` counts terms this drill added that are still in place, and
+ * `fresh` is the fresh-wave proof's before and after.
+ */
+export function reportCard(report: Report): ReportCard {
+  const a = report.grading.find((g) => g.phase === 'A');
+  return {
+    drillId: report.drillId,
+    attacksShown: report.score.attacksShown,
+    slipped: report.score.slipped,
+    mods: report.score.mods.map((m) => ({
+      name: m.name,
+      isSim: m.isSim,
+      caught: m.caught,
+      falseBans: m.falseBans,
+      avgReactionMs: m.avgReactionMs
+    })),
+    grade: a ? { passed: a.passed, total: a.total, engine: a.engine } : null,
+    termsPushed: report.pushes.filter((p) => p.status === 'added').length,
+    fresh: report.proof
+      ? { before: report.proof.blockedBefore, after: report.proof.blockedAfter, total: report.proof.total }
+      : null
+  };
+}
+
+/** `report.ready` for one role (SRS §8.3): the card for console and overlay, nothing for mods. */
+export function reportReadyFor(role: Role, card: ReportCard): ServerMsg | null {
+  return role === 'mod' ? null : { type: 'report.ready', data: { drillId: card.drillId, card } };
+}
+
+/**
+ * Broadcast `report.ready` after a report update. `broadcast` passes the overlay copy through `forOverlay`,
+ * so with `hide_names` on its mod names become "Mod 1", "Mod 2" (FR-46).
+ */
+export function broadcastReport(ctx: DurableObjectState, report: Report): void {
+  const card = reportCard(report);
+  broadcast(ctx, (role) => reportReadyFor(role, card));
 }
