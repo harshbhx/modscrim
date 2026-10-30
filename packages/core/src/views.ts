@@ -1,5 +1,6 @@
 import type { DrillConfig, DrillScore, Engine, Grade, GradePhase, LineState, ModAction, Participant, WaveLine } from './types.js';
 import type { PublicLine, RedactedLine, Reveal } from './protocol.js';
+import type { TagCount } from './ruleFinder.js';
 
 export type DrillStatus = 'draft' | 'voting' | 'running' | 'ended' | 'cancelled';
 
@@ -67,8 +68,6 @@ export interface ChatMessageEvent {
   message_id: string; message: { text: string }; message_type: string;
   source_broadcaster_user_id: string | null;
 }
-
-export interface TagCount { tag: string; count: number; needsBotRule: boolean }
 
 export interface Report {
   reportId: string;

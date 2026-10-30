@@ -12,3 +12,6 @@ export * from './tricks.js';
 export * from './templates.js';
 export * from './waves.js';
 export * from './fixtures.js';
+export * from './cleanIndex.js';
+export * from './ruleFinder.js';
+export * from './proof.js';
