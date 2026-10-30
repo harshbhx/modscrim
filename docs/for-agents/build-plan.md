@@ -41,7 +41,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-04 | `cleanIndex.ts` with the property test; `ruleFinder.ts`; `proof.ts` | FR-31, FR-33 | P0 | Dhairya | M2 | T-03 | [#6](https://github.com/harshbhx/modscrim/issues/6) |
 | ☐ | T-05 | `scoring.ts`, `sim.ts`, `pace.ts`, `schema.ts` | FR-16, FR-25, FR-28, FR-39 | P0 | Dhairya | M2 | T-02 | [#7](https://github.com/harshbhx/modscrim/issues/7) |
 | ☐ | T-06 | `scripts/day0.ts` | — | P0 | Dhairya | M2 | T-04 | [#8](https://github.com/harshbhx/modscrim/issues/8) |
-| ☐ | T-07 | D1 migration; `crypto.ts`, `session.ts`, cookies, Origin check | FR-02, FR-05 | P0 | Harsh | M1 | T-38 | [#9](https://github.com/harshbhx/modscrim/issues/9) |
+| ☑ | T-07 | D1 migration; `crypto.ts`, `session.ts`, cookies, Origin check | FR-02, FR-05 | P0 | Harsh | M1 | T-38 | [#9](https://github.com/harshbhx/modscrim/issues/9) |
 | ☐ | T-08 | OAuth login and callback; Helix `users`; token refresh in the room | FR-01, FR-02 | P0 | Dhairya | M3 | T-07 | [#10](https://github.com/harshbhx/modscrim/issues/10) |
 | ☐ | T-09 | `ChannelRoom` skeleton: schema, scheduler, hub, tickets, overlay key | FR-21, FR-37 | P0 | Harsh | M1 | T-07, T-37 | [#11](https://github.com/harshbhx/modscrim/issues/11) |
 | ☐ | T-10 | Webhook verify and route; subscription create and reconcile; chat ingest | FR-08 to FR-10 | P0 | Dhairya | M3 | T-08, T-09 | [#12](https://github.com/harshbhx/modscrim/issues/12) |
