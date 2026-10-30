@@ -1,8 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
-import type { DrillSnapshot, JobKind, Role, ServerMsg } from '@mfd/core';
+import type { ChatMessageEvent, DrillSnapshot, JobKind, Role, ServerMsg } from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
 import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
 import { ClientMsgZ } from './messages.js';
+import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
@@ -91,6 +92,42 @@ export class ChannelRoom extends DurableObject<Env> {
     const userId = this.meta('broadcaster_id');
     if (!userId) throw new Error('room_missing_broadcaster');
     return this.tokens.getAccessToken(userId, rejectedToken);
+  }
+
+  /** Add one validated Twitch chat event to this channel's seven-day chat log. */
+  async ingestChat(event: ChatMessageEvent): Promise<ChatIngestResult> {
+    if (!this.bootstrapped()) return 'ignored';
+    const sentAt = Date.now();
+    return this.ctx.storage.transactionSync(() => {
+      const broadcasterId = this.meta('broadcaster_id');
+      if (!broadcasterId || event.broadcaster_user_id !== broadcasterId) return 'ignored';
+      const result = ingestChat(this.sql, broadcasterId, this.meta('logging') === '1', event, sentAt);
+      if (result === 'stored') this.touch(sentAt);
+      return result;
+    });
+  }
+
+  async chatStats(): Promise<ReturnType<typeof chatLogStats> | null> {
+    if (!this.bootstrapped()) return null;
+    return chatLogStats(this.sql, this.meta('logging') === '1');
+  }
+
+  async setLogging(on: boolean): Promise<boolean | null> {
+    if (!this.bootstrapped()) return null;
+    return this.ctx.storage.transactionSync(() => {
+      this.setMeta('logging', on ? '1' : '0');
+      this.touch();
+      return on;
+    });
+  }
+
+  async deleteChatLog(): Promise<number | null> {
+    if (!this.bootstrapped()) return null;
+    return this.ctx.storage.transactionSync(() => {
+      const deleted = deleteChatLog(this.sql);
+      this.touch();
+      return deleted;
+    });
   }
 
   /** A single-use 60 second ticket for a WebSocket connection. */
