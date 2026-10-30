@@ -82,6 +82,8 @@ type Deps = {
   scheduler: Scheduler;
   roomName: () => string;
   touch: (now: number) => void;
+  /** Participant IDs of mods with an open socket; they join each new draft without a code (FR-22). */
+  connectedMods: () => string[];
 };
 
 const DRILL_COLUMNS = 'id, seed, config, status, join_code, created_at, started_at, ended_at';
@@ -289,7 +291,10 @@ export class DrillEngine {
 
   // ---- lifecycle (FR-16, FR-20) ----------------------------------------------------------------
 
-  /** Create a draft with a new join code and wave A, or return the existing draft unchanged. */
+  /**
+   * Create a draft with a new join code and wave A, or return the existing draft unchanged.
+   * Mods with an open socket are added to the new draft (FR-22), so only new mods need the code.
+   */
   create(input: unknown, now: number): { drillId: string; joinCode: string; created: boolean } {
     const result = this.tx(() => {
       const active = this.activeDrill();
@@ -309,6 +314,13 @@ export class DrillEngine {
         now
       );
       const lines = this.writeWaveA(drillId, config);
+      for (const pid of this.deps.connectedMods()) {
+        this.sql.exec(
+          'INSERT OR IGNORE INTO drill_participants (drill_id, participant_id) SELECT ?, id FROM participants WHERE id = ?',
+          drillId,
+          pid
+        );
+      }
       this.deps.touch(now);
       return { drillId, joinCode: code, created: true, lines, seed: config.seed };
     });

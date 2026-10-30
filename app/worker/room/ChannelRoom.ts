@@ -18,6 +18,7 @@ import { log } from '../lib/log.js';
 import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
 import { DrillEngine } from './drill.js';
+import { joinAsMod, JoinInputZ } from './mods.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
@@ -45,7 +46,8 @@ export class ChannelRoom extends DurableObject<Env> {
     ctx: this.ctx,
     scheduler: this.scheduler,
     roomName: () => this.roomName(),
-    touch: (now) => this.touch(now)
+    touch: (now) => this.touch(now),
+    connectedMods: () => this.connectedMods()
   });
 
   constructor(ctx: DurableObjectState, env: Env) {
@@ -309,6 +311,45 @@ export class ChannelRoom extends DurableObject<Env> {
     return this.drills.view(drillId);
   }
 
+  // ---- mods (SRS §8.4, T-13) ---------------------------------------------------------------
+
+  /**
+   * Join the current draft or running drill with its code (FR-22). Throws `join_forbidden` (wrong code,
+   * no open drill), `join_rate_limited` (5 failures from this IP this minute) or `join_invalid`.
+   */
+  async joinAsMod(i: { code: string; displayName: string; ip: string; twitchUserId?: string }): Promise<{ participantId: string }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const input = JoinInputZ.safeParse(i);
+    if (!input.success) throw new Error('join_invalid');
+    const now = Date.now();
+    const res = this.ctx.storage.transactionSync(() => {
+      const r = joinAsMod(this.sql, input.data, now);
+      if (r.ok) this.touch(now);
+      return r;
+    });
+    if (!res.ok) throw new Error(res.reason === 'rate_limited' ? 'join_rate_limited' : 'join_forbidden');
+    this.broadcastParticipants();
+    return { participantId: res.participantId };
+  }
+
+  /** Whether a draft or running drill is open for joining; null for a never-bootstrapped room. */
+  async isDrillOpen(): Promise<boolean | null> {
+    if (!this.bootstrapped()) return null;
+    return (
+      this.sql.exec("SELECT 1 FROM drills WHERE status IN ('draft', 'voting', 'running') LIMIT 1").toArray().length > 0
+    );
+  }
+
+  /** Participant IDs of mods with an open socket. */
+  private connectedMods(): string[] {
+    const ids = new Set<string>();
+    for (const ws of this.ctx.getWebSockets('mod')) {
+      const att = attachmentOf(ws);
+      if (att?.pid) ids.add(att.pid);
+    }
+    return [...ids];
+  }
+
   /** First action wins (FR-18, SRS §8.5); used by mod sockets and, later, Kai (sim). */
   applyAction(pid: string, lineId: string, action: ModAction, now: number): ActionResult {
     return this.drills.applyAction(pid, lineId, action, now);
@@ -349,6 +390,8 @@ export class ChannelRoom extends DurableObject<Env> {
     send(server, { type: 'hello', data: { role: auth.role, ...(auth.pid ? { participantId: auth.pid } : {}), serverTime: Date.now() } });
     send(server, { type: 'drill.state', data: this.snapshot(auth.role, auth.pid) });
     this.touch();
+    // A mod coming online updates everyone's mod list (the console's "joined mods").
+    if (auth.role === 'mod') this.broadcastParticipants();
     return new Response(null, { status: 101, webSocket: client });
   }
 
