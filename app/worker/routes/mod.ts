@@ -18,11 +18,12 @@ const LoginZ = z
   .regex(/^[A-Za-z0-9_]{1,25}$/)
   .transform((login) => login.toLowerCase());
 const TicketBodyZ = z.object({ participantToken: z.string().min(1).max(2048) });
-const ParticipantTokenZ = z.object({
-  room: z.string().regex(/^ch:[A-Za-z0-9_-]{1,64}$/),
+const ParticipantTokenShapeZ = z.object({
+  room: z.string().min(1).max(128),
   pid: z.string().min(1).max(64),
   exp: z.number()
 });
+const LiveRoomZ = z.string().regex(/^ch:[A-Za-z0-9_-]{1,64}$/);
 
 type ChannelRow = { broadcaster_id: string; room_name: string; display_name: string; avatar_url: string | null };
 
@@ -44,16 +45,84 @@ async function channelByLogin(env: Env, login: string): Promise<ChannelRow> {
   return row;
 }
 
-async function limit(env: Env, key: string): Promise<void> {
+export async function limit(env: Env, key: string): Promise<void> {
   const { success } = await env.JOIN_LIMITER.limit({ key });
   if (!success) throw new AppError('rate_limited', 'Too many attempts. Try again in a minute.');
 }
 
-async function readJson(request: Request): Promise<unknown> {
+export async function readJson(request: Request): Promise<unknown> {
   try {
     return await request.json();
   } catch {
     throw new AppError('invalid', 'Invalid request body.');
+  }
+}
+
+/** Validate a join body `{ code, displayName }`; a failure is a 400 naming the field. */
+export async function readJoin(request: Request): Promise<{ code: string; displayName: string }> {
+  const body = JoinZ.safeParse(await readJson(request));
+  if (!body.success) {
+    const issue = body.error.issues[0];
+    const field = issue && issue.path.length > 0 ? issue.path.map(String).join('.') : undefined;
+    throw new AppError('invalid', issue?.message ?? 'Invalid request body.', field);
+  }
+  return body.data;
+}
+
+/** Validate a reconnect body and its signed participant token; the caller checks the token's room. */
+export async function readParticipantToken(request: Request, key: string): Promise<ParticipantToken> {
+  const body = TicketBodyZ.safeParse(await readJson(request));
+  if (!body.success) throw new AppError('invalid', 'Invalid request body.', 'participantToken');
+  const raw = await readToken<ParticipantToken>(body.data.participantToken, key, Date.now());
+  const token = ParticipantTokenShapeZ.safeParse(raw);
+  if (!token.success) throw new AppError('unauthenticated', 'Join again with the drill code.');
+  return token.data;
+}
+
+/**
+ * Join the room's open drill with its code (FR-22), then sign the participant token and issue the first
+ * ticket. Shared by live channels and demo rooms; `notFound` is the message for a never-bootstrapped room.
+ */
+export async function joinRoom(
+  env: Env,
+  roomName: string,
+  input: { code: string; displayName: string },
+  ip: string,
+  notFound: string
+): Promise<{ participantId: string; participantToken: string; ticket: string }> {
+  const room = env.ROOM.getByName(roomName);
+  let participantId: string;
+  try {
+    ({ participantId } = await room.joinAsMod({ code: input.code, displayName: input.displayName, ip }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (message === 'join_forbidden') throw new AppError('forbidden', 'That join code is not right.', 'code');
+    if (message === 'join_rate_limited') throw new AppError('rate_limited', 'Too many wrong codes. Try again in a minute.');
+    if (message === 'join_invalid') throw new AppError('invalid', 'Invalid request body.');
+    if (message === 'room_not_bootstrapped') throw new AppError('not_found', notFound);
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+
+  const token: ParticipantToken = { room: roomName, pid: participantId, exp: Date.now() + PARTICIPANT_TOKEN_MS };
+  const participantToken = await signToken(token, env.SESSION_HMAC_KEY);
+  let ticket: string;
+  try {
+    ticket = await room.issueTicket({ role: 'mod', participantId });
+  } catch {
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+  return { participantId, participantToken, ticket };
+}
+
+/** A fresh single-use mod ticket for a reconnect. `notFound` is the message for a never-bootstrapped room. */
+export async function reconnectTicket(env: Env, roomName: string, pid: string, notFound: string): Promise<string> {
+  try {
+    return await env.ROOM.getByName(roomName).issueTicket({ role: 'mod', participantId: pid });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '';
+    if (message === 'unknown_participant') throw new AppError('unauthenticated', 'Join again with the drill code.');
+    if (message === 'room_not_bootstrapped') throw new AppError('not_found', notFound);
+    throw new AppError('room_unavailable', 'The room is unavailable.');
   }
 }
 
@@ -84,67 +153,29 @@ modRoutes.post('/:login/join', async (context) => {
   const ip = context.req.header('CF-Connecting-IP') ?? 'unknown';
   // Outer guard only (approximate, per location). The rule is 5 failures per IP per minute in the room.
   await limit(context.env, `join:${ip}:${login}`);
-  const body = JoinZ.safeParse(await readJson(context.req.raw));
-  if (!body.success) {
-    const issue = body.error.issues[0];
-    const field = issue && issue.path.length > 0 ? issue.path.map(String).join('.') : undefined;
-    throw new AppError('invalid', issue?.message ?? 'Invalid request body.', field);
-  }
+  const input = await readJoin(context.req.raw);
   const channel = await channelByLogin(context.env, login);
-  const room = context.env.ROOM.getByName(channel.room_name);
-
-  let participantId: string;
-  try {
-    ({ participantId } = await room.joinAsMod({ code: body.data.code, displayName: body.data.displayName, ip }));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '';
-    if (message === 'join_forbidden') throw new AppError('forbidden', 'That join code is not right.', 'code');
-    if (message === 'join_rate_limited') throw new AppError('rate_limited', 'Too many wrong codes. Try again in a minute.');
-    if (message === 'join_invalid') throw new AppError('invalid', 'Invalid request body.');
-    if (message === 'room_not_bootstrapped') throw new AppError('not_found', 'Channel not found.');
-    throw new AppError('room_unavailable', 'The room is unavailable.');
-  }
-
-  const token: ParticipantToken = { room: channel.room_name, pid: participantId, exp: Date.now() + PARTICIPANT_TOKEN_MS };
-  const participantToken = await signToken(token, context.env.SESSION_HMAC_KEY);
-  let ticket: string;
-  try {
-    ticket = await room.issueTicket({ role: 'mod', participantId });
-  } catch {
-    throw new AppError('room_unavailable', 'The room is unavailable.');
-  }
+  const joined = await joinRoom(context.env, channel.room_name, input, ip, 'Channel not found.');
   return context.json({
-    participantId,
-    participantToken,
-    ticket,
-    wsUrl: socketUrl(context.env.PUBLIC_BASE_URL, 'ch', channel.broadcaster_id, ticket)
+    ...joined,
+    wsUrl: socketUrl(context.env.PUBLIC_BASE_URL, 'ch', channel.broadcaster_id, joined.ticket)
   });
 });
 
 /** POST /api/mod/ticket `{ participantToken }`: a fresh single-use ticket for a reconnect. */
 modRoutes.post('/ticket', async (context) => {
-  const body = TicketBodyZ.safeParse(await readJson(context.req.raw));
-  if (!body.success) throw new AppError('invalid', 'Invalid request body.', 'participantToken');
-  const raw = await readToken<ParticipantToken>(body.data.participantToken, context.env.SESSION_HMAC_KEY, Date.now());
-  const token = ParticipantTokenZ.safeParse(raw);
-  if (!token.success) throw new AppError('unauthenticated', 'Join again with the drill code.');
+  const token = await readParticipantToken(context.req.raw, context.env.SESSION_HMAC_KEY);
+  // A demo room's token reconnects through `/api/demo/:room/mod/ticket` only.
+  if (!LiveRoomZ.safeParse(token.room).success) throw new AppError('unauthenticated', 'Join again with the drill code.');
   // Per participant, so mods behind one address do not share a reconnect budget.
-  await limit(context.env, `ticket:${token.data.pid}`);
+  await limit(context.env, `ticket:${token.pid}`);
 
-  const broadcasterId = token.data.room.slice('ch:'.length);
+  const broadcasterId = token.room.slice('ch:'.length);
   const known = await context.env.DB.prepare('SELECT 1 FROM channels WHERE broadcaster_id = ? AND room_name = ?')
-    .bind(broadcasterId, token.data.room)
+    .bind(broadcasterId, token.room)
     .first();
   if (!known) throw new AppError('not_found', 'Channel not found.');
 
-  let ticket: string;
-  try {
-    ticket = await context.env.ROOM.getByName(token.data.room).issueTicket({ role: 'mod', participantId: token.data.pid });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '';
-    if (message === 'unknown_participant') throw new AppError('unauthenticated', 'Join again with the drill code.');
-    if (message === 'room_not_bootstrapped') throw new AppError('not_found', 'Channel not found.');
-    throw new AppError('room_unavailable', 'The room is unavailable.');
-  }
+  const ticket = await reconnectTicket(context.env, token.room, token.pid, 'Channel not found.');
   return context.json({ ticket, wsUrl: socketUrl(context.env.PUBLIC_BASE_URL, 'ch', broadcasterId, ticket) });
 });
