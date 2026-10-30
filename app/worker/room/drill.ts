@@ -490,7 +490,8 @@ export class DrillEngine {
     this.send((role) =>
       role === 'overlay' ? { type: 'drill.ended', data: { score } } : { type: 'drill.ended', data: { score, reveal } }
     );
-    // TODO(T-17): save the first version of the report here and broadcast `report.ready`.
+    // TODO(T-17): save the first version of the report here and broadcast `report.ready` with `broadcast`:
+    // the overlay gets the card only, and `forOverlay` hides its mod names when `hide_names` is on (FR-46).
     log('drill.ended', {
       room: this.deps.roomName(),
       drill: drillId,

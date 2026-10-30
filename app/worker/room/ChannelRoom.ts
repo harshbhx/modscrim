@@ -15,7 +15,18 @@ import {
 } from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
 import { log } from '../lib/log.js';
-import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
+import {
+  attachmentOf,
+  broadcast,
+  closeRole,
+  overlayNames,
+  overlaySnapshot,
+  OverlaySettingsZ,
+  send,
+  tagsFor,
+  type Attachment,
+  type OverlaySettings
+} from './hub.js';
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
 import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
@@ -264,6 +275,24 @@ export class ChannelRoom extends DurableObject<Env> {
     return key;
   }
 
+  /**
+   * Hide mod names on the overlay (FR-46): stored in `meta.hide_names`. Overlay sockets get a fresh
+   * `drill.state` (which carries the mod list) at once, so the change shows without waiting for the next event.
+   */
+  async setOverlaySettings(s: OverlaySettings): Promise<void> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const input = OverlaySettingsZ.safeParse(s);
+    if (!input.success) throw new Error('overlay_invalid');
+    this.ctx.storage.transactionSync(() => {
+      this.setMeta('hide_names', input.data.hideNames ? '1' : '0');
+      this.touch();
+    });
+    const participants = this.participants();
+    broadcast(this.ctx, (role) =>
+      role === 'overlay' ? { type: 'drill.state', data: { drill: this.drills.snapshot('overlay'), participants } } : null
+    );
+  }
+
   /** Delete everything this room stores, and drop its sockets and alarm (FR-04). */
   async destroy(): Promise<void> {
     for (const ws of this.ctx.getWebSockets()) {
@@ -482,9 +511,13 @@ export class ChannelRoom extends DurableObject<Env> {
     return { role: 'console' };
   }
 
-  /** The per-role `drill.state` (FR-21): full lines for console and mods, redacted for overlays (SRS §8.3). */
+  /**
+   * The per-role `drill.state` (FR-21): full lines for console and mods, redacted for overlays (SRS §8.3),
+   * with mod names hidden on overlays while `hide_names` is on (FR-46).
+   */
   private snapshot(role: Role, _pid?: string): DrillSnapshot {
-    return { drill: this.drills.snapshot(role), participants: this.participants() };
+    const snapshot = { drill: this.drills.snapshot(role), participants: this.participants() };
+    return role === 'overlay' ? overlaySnapshot(snapshot, overlayNames(this.sql)) : snapshot;
   }
 
   /** Push a fresh `drill.state` to every socket after a lifecycle change (create, edit, cancel). */
