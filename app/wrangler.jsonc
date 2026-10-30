@@ -33,5 +33,37 @@
     "ANNOUNCE_ENABLED": "false",
     "COACH_AI_ENABLED": "false"
   },
-  "secrets": { "required": ["PUBLIC_BASE_URL", "TWITCH_CLIENT_SECRET", "EVENTSUB_SECRET", "SESSION_HMAC_KEY", "TOKEN_ENC_KEY"] }
+  "secrets": { "required": ["PUBLIC_BASE_URL", "TWITCH_CLIENT_SECRET", "EVENTSUB_SECRET", "SESSION_HMAC_KEY", "TOKEN_ENC_KEY"] },
+
+  // Preview environment for pull requests: its own Worker (mod-fire-drill-preview) and its own
+  // D1 database, on workers.dev only. Built with CLOUDFLARE_ENV=preview. It never touches
+  // production data, has no cron, and grades locally because Twitch sign-in is production-only.
+  "env": {
+    "preview": {
+      "routes": [],
+      "workers_dev": true,
+      "triggers": { "crons": [] },
+      "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "ChannelRoom" }] },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "mfd-preview", "database_id": "b4ed3423-cdd5-4695-8b9e-e293271a54f7", "migrations_dir": "migrations" }
+      ],
+      "ratelimits": [
+        { "name": "JOIN_LIMITER", "namespace_id": "2001", "simple": { "limit": 10, "period": 60 } },
+        { "name": "DEMO_LIMITER", "namespace_id": "2002", "simple": { "limit": 5, "period": 60 } },
+        { "name": "AUTH_LIMITER", "namespace_id": "2003", "simple": { "limit": 20, "period": 60 } }
+      ],
+      "vars": {
+        "TWITCH_CLIENT_ID": "arbdhhcofj5c61yidld9xdvb4tue3s",
+        "CHAT_LOG_RETENTION_DAYS": "7",
+        "CLEAN_SET_MAX_LINES": "20000",
+        "GRADING_ENGINE": "local",
+        "GRADING_BATCH_SIZE": "100",
+        "GRADING_QUOTA_UNIT": "request",
+        "DEMO_ENABLED": "true",
+        "ANNOUNCE_ENABLED": "false",
+        "COACH_AI_ENABLED": "false"
+      },
+      "secrets": { "required": ["PUBLIC_BASE_URL", "TWITCH_CLIENT_SECRET", "EVENTSUB_SECRET", "SESSION_HMAC_KEY", "TOKEN_ENC_KEY"] }
+    }
+  }
 }
