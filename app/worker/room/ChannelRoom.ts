@@ -1,17 +1,28 @@
 import { DurableObject } from 'cloudflare:workers';
 import { z } from 'zod';
-import type { ChatMessageEvent, DrillConfigInput, DrillSnapshot, DrillView, FiltersView, JobKind, Role, ServerMsg } from '@mfd/core';
+import {
+  ClientMsgZ,
+  type ActionResult,
+  type ChatMessageEvent,
+  type DrillConfigInput,
+  type DrillSnapshot,
+  type DrillView,
+  type FiltersView,
+  type JobKind,
+  type ModAction,
+  type Role,
+  type ServerMsg
+} from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
 import { log } from '../lib/log.js';
 import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
-import { ClientMsgZ } from './messages.js';
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
+import { DrillEngine } from './drill.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
-import { DrillEngine, DrillError } from './drill.js';
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -29,17 +40,25 @@ export type BootstrapInput = {
 export class ChannelRoom extends DurableObject<Env> {
   private readonly sql = this.ctx.storage.sql;
   private readonly scheduler = new Scheduler(this.ctx, () => this.roomName());
-  private readonly drills = new DrillEngine(this.ctx, this.scheduler, () => this.roomName());
   private readonly tokens = new RoomTokens(this.env, () => this.roomName());
+  private readonly drills = new DrillEngine({
+    ctx: this.ctx,
+    scheduler: this.scheduler,
+    roomName: () => this.roomName(),
+    touch: (now) => this.touch(now)
+  });
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    this.drills.registerJobs((kind, handler) => this.registerJob(kind, handler));
     // Migrations run only for rooms bootstrapped before; a stray request creates no tables.
     ctx.blockConcurrencyWhile(async () => {
       if (isBootstrapped(this.sql)) migrate(this.sql);
     });
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'));
+    // Drill jobs (SRS §3.4). Registered on every construction so a restarted room finds its handlers.
+    this.scheduler.register('line.emit', (job) => this.drills.emit(job));
+    this.scheduler.register('line.slip', (job) => this.drills.slip(job));
+    this.scheduler.register('drill.end', (job) => this.drills.end(job));
   }
 
   // ---- meta -------------------------------------------------------------------------------
@@ -250,39 +269,49 @@ export class ChannelRoom extends DurableObject<Env> {
     await this.ctx.storage.deleteAll();
   }
 
-  async createDrill(input: DrillConfigInput): Promise<{ drillId: string; joinCode: string }> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    this.touch();
-    return this.drills.createDrill(input);
+  // ---- drills (SRS §8.4, T-12) -------------------------------------------------------------
+  // Failures throw `drill_not_found`, `drill_conflict` or `drill_invalid` (see `DRILL_ERRORS`).
+
+  /** Create the draft, or return the existing one (FR-20). A running drill blocks a new draft. */
+  async createDrill(cfg: DrillConfigInput): Promise<{ drillId: string; joinCode: string }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const { drillId, joinCode, created } = this.drills.create(cfg, Date.now());
+    if (created) this.broadcastState();
+    return { drillId, joinCode };
   }
 
-  async updateDraft(drillId: string, input: DrillConfigInput): Promise<DrillView> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    this.touch();
-    return this.drills.updateDraft(drillId, input);
+  /** Replace a draft's configuration and rebuild wave A; the join code stays (FR-20). */
+  async updateDraft(drillId: string, cfg: DrillConfigInput): Promise<DrillView> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const view = this.drills.update(drillId, cfg, Date.now());
+    this.broadcastState();
+    return view;
   }
 
   async cancelDraft(drillId: string): Promise<void> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    this.touch();
-    return this.drills.cancelDraft(drillId);
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    this.drills.cancel(drillId, Date.now());
+    this.broadcastState();
   }
 
   async startDrill(drillId: string): Promise<{ startedAt: number }> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    this.touch();
-    return this.drills.startDrill(drillId);
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.drills.start(drillId, Date.now());
   }
 
   async stopDrill(drillId: string): Promise<{ endedAt: number }> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    this.touch();
-    return this.drills.stopDrill(drillId);
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.drills.stop(drillId, Date.now());
   }
 
   async getDrill(drillId: string): Promise<DrillView> {
-    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
-    return this.drills.getDrill(drillId);
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.drills.view(drillId);
+  }
+
+  /** First action wins (FR-18, SRS §8.5); used by mod sockets and, later, Kai (sim). */
+  applyAction(pid: string, lineId: string, action: ModAction, now: number): ActionResult {
+    return this.drills.applyAction(pid, lineId, action, now);
   }
 
   // ---- scheduler (SRS §8.5) ----------------------------------------------------------------
@@ -351,9 +380,15 @@ export class ChannelRoom extends DurableObject<Env> {
     return { role: 'console' };
   }
 
-  /** The per-role `drill.state`; overlays receive only redacted line data. */
+  /** The per-role `drill.state` (FR-21): full lines for console and mods, redacted for overlays (SRS §8.3). */
   private snapshot(role: Role, _pid?: string): DrillSnapshot {
-    return this.drills.snapshot(role);
+    return { drill: this.drills.snapshot(role), participants: this.participants() };
+  }
+
+  /** Push a fresh `drill.state` to every socket after a lifecycle change (create, edit, cancel). */
+  private broadcastState(): void {
+    const participants = this.participants();
+    broadcast(this.ctx, (role) => ({ type: 'drill.state', data: { drill: this.drills.snapshot(role), participants } }));
   }
 
   private participants(exclude?: WebSocket): DrillSnapshot['participants'] {
@@ -371,6 +406,7 @@ export class ChannelRoom extends DurableObject<Env> {
   }
 
   override async webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer): Promise<void> {
+    const now = Date.now(); // server time at the event boundary, for reaction measurements
     if (!this.bootstrapped()) return;
     const att = attachmentOf(ws);
     if (!att) return;
@@ -386,12 +422,23 @@ export class ChannelRoom extends DurableObject<Env> {
       send(ws, { type: 'drill.state', data: this.snapshot(att.role, att.pid) });
       return;
     }
-    const now = Date.now();
-    if (msg.data.type === 'mod.action' && att.role === 'mod' && att.pid) {
-      const result = this.drills.applyAction(att.pid, msg.data.data.lineId, msg.data.data.action, now);
-      if (result.ok) this.drills.broadcastAction(result);
-      else send(ws, { type: 'action.rejected', data: { lineId: msg.data.data.lineId, reason: result.reason, ...(result.by ? { by: result.by } : {}) } });
+    // Only mod sockets act; console and overlay sockets can only `sync`.
+    if (att.role !== 'mod' || !att.pid) return;
+    const { lineId, action } = msg.data.data;
+    const res = this.applyAction(att.pid, lineId, action, now);
+    const drill = this.drills.drillOfLine(lineId);
+    log('mod.action', {
+      room: this.roomName(),
+      ...(drill ? { drill } : {}),
+      pid: att.pid,
+      result: res.ok ? 'ok' : res.reason,
+      ...(res.ok ? { reactionMs: res.reactionMs } : {})
+    });
+    if (!res.ok) {
+      send(ws, { type: 'action.rejected', data: { lineId, reason: res.reason, ...(res.by !== undefined ? { by: res.by } : {}) } });
+      return;
     }
+    this.drills.broadcastAction(res);
   }
 
   override async webSocketClose(ws: WebSocket, code: number): Promise<void> {
