@@ -17,6 +17,7 @@ import { overlayKey as newOverlayKey } from '../lib/ids.js';
 import { log } from '../lib/log.js';
 import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
+import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
 import { joinAsMod, JoinInputZ } from './mods.js';
 import { isBootstrapped, migrate } from './schema.js';
@@ -62,6 +63,8 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('line.slip', (job) => this.drills.slip(job));
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
+    // Demo rooms delete themselves 2 hours after their last activity (FR-38).
+    this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
   }
 
   // ---- meta -------------------------------------------------------------------------------
@@ -190,6 +193,8 @@ export class ChannelRoom extends DurableObject<Env> {
   /** Return a usable broadcaster token, refreshing at the five-minute boundary or after a 401. */
   async getAccessToken(rejectedToken?: string): Promise<string> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    // Demo rooms never call Twitch or D1 (FR-38).
+    if (this.meta('mode') === 'demo') throw new Error('demo_room');
     const userId = this.meta('broadcaster_id');
     if (!userId) throw new Error('room_missing_broadcaster');
     return this.tokens.getAccessToken(userId, rejectedToken);
@@ -270,6 +275,57 @@ export class ChannelRoom extends DurableObject<Env> {
     }
     await this.ctx.storage.deleteAlarm();
     await this.ctx.storage.deleteAll();
+  }
+
+  // ---- demo rooms (FR-38, T-18) ------------------------------------------------------------
+  // A demo room never calls Twitch, D1, R2 or the Queue. Its fixture terms live in `blocked_terms`.
+
+  /**
+   * Create a demo room for the fixture channel with its terms and chat log, schedule its `room.gc`,
+   * and create the first draft with `DEFAULT_CONFIG` (Kai (sim) on). Calling it again returns the same draft.
+   */
+  async bootstrapDemo(roomName: string): Promise<{ drillId: string; joinCode: string }> {
+    if (!isDemoRoomName(roomName)) throw new Error('demo_invalid');
+    const fresh = !this.bootstrapped();
+    if (!fresh && this.meta('mode') !== 'demo') throw new Error('demo_invalid');
+    await this.bootstrap(demoBootstrap(roomName));
+    const now = Date.now();
+    this.ctx.storage.transactionSync(() => {
+      seedDemo(this.sql, now);
+      this.scheduler.enqueue('room.gc', DEMO_GC_KEY, demoGcDueAt(now));
+    });
+    await this.scheduler.rearm();
+    if (fresh) log('demo.created', { room: roomName });
+    // TODO(T-15): grading in demo rooms is always local (FR-29), labelled "local estimate".
+    // TODO(T-16): push and undo in demo rooms are simulated (FR-34): they edit `blocked_terms` only.
+    // TODO(T-17): demo reports stay in the room; never schedule `report.export` (no D1, R2 or Queue).
+    return this.createDrill(DEMO_DRILL_CONFIG);
+  }
+
+  /** True once a demo room has been idle for 2 hours. Live rooms are never idle-collected. */
+  private demoIdle(now: number): boolean {
+    return this.meta('mode') === 'demo' && now >= demoGcDueAt(Number(this.meta('last_activity') ?? 0));
+  }
+
+  /**
+   * `room.gc demo`: while the room is in use, move the check to 2 hours after the latest activity.
+   * Once idle, the job does nothing here and `alarm()` deletes the room after this pass.
+   */
+  private demoGc(now: number): void {
+    if (this.meta('mode') !== 'demo' || this.demoIdle(now)) return;
+    const dueAt = demoGcDueAt(Number(this.meta('last_activity') ?? 0));
+    const current = this.sql
+      .exec<{ due_at: number }>("SELECT due_at FROM schedule WHERE kind = 'room.gc' AND key = ?", DEMO_GC_KEY)
+      .toArray()[0]?.due_at;
+    // The scheduler drops a row whose due_at did not change, so a same-time reschedule moves 1 ms later.
+    this.scheduler.enqueue('room.gc', DEMO_GC_KEY, dueAt === current ? dueAt + 1 : dueAt);
+  }
+
+  /** Delete everything an idle demo room stores (FR-38): storage, alarm and sockets. */
+  private async collectDemo(): Promise<void> {
+    const room = this.roomName();
+    await this.destroy();
+    log('demo.gc', { room });
   }
 
   // ---- drills (SRS §8.4, T-12) -------------------------------------------------------------
@@ -370,7 +426,9 @@ export class ChannelRoom extends DurableObject<Env> {
 
   override async alarm(): Promise<void> {
     if (!this.bootstrapped()) return;
-    await this.scheduler.runDueJobs();
+    const now = Date.now();
+    await this.scheduler.runDueJobs(now);
+    if (this.demoIdle(now)) await this.collectDemo();
   }
 
   // ---- WebSockets --------------------------------------------------------------------------
