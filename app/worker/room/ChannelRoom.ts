@@ -2,6 +2,8 @@ import { DurableObject } from 'cloudflare:workers';
 import { z } from 'zod';
 import {
   ClientMsgZ,
+  coachStats,
+  type CoachStats,
   type ActionResult,
   type ChatMessageEvent,
   type DrillConfigInput,
@@ -32,7 +34,8 @@ import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from '
 import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
 import { joinAsMod, JoinInputZ } from './mods.js';
-import { broadcastReport, readReport, saveReport } from './report.js';
+import { aiCoachNote, coachAiEnabled } from './coach.js';
+import { broadcastReport, readReport, saveAiCoachNote, saveReport } from './report.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
@@ -65,6 +68,8 @@ export class ChannelRoom extends DurableObject<Env> {
     connectedMods: () => this.connectedMods(),
     refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
+  /** Drills whose Workers AI coach's note this instance already asked for: one call per drill (FR-42). */
+  private readonly coachAsked = new Set<string>();
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -460,7 +465,27 @@ export class ChannelRoom extends DurableObject<Env> {
     broadcastReport(this.ctx, report);
     log('report.saved', { room: this.roomName(), drill: drillId, reportId: report.reportId });
     // TODO(T-31): live rooms with the P1 bindings (re)schedule `report.export` 60 s after this update.
+    this.requestAiCoachNote(report);
     return report;
+  }
+
+  /**
+   * Coach's note (FR-42, P2): the report already carries the template note. With `COACH_AI_ENABLED` and the
+   * optional `AI` binding, ask Workers AI once per drill for its wording, in the background so the report
+   * never waits on the model. The prompt holds the four score numbers only.
+   */
+  private requestAiCoachNote(report: Report): void {
+    if (report.coachNote?.source === 'ai' || this.coachAsked.has(report.drillId) || !coachAiEnabled(this.env)) return;
+    this.coachAsked.add(report.drillId);
+    this.ctx.waitUntil(this.writeAiCoachNote(report.drillId, coachStats(report.score)));
+  }
+
+  /** Save the model's note, then refresh the report so it is broadcast like any other update. */
+  private async writeAiCoachNote(drillId: string, stats: CoachStats): Promise<void> {
+    const text = await aiCoachNote(this.env, stats, this.roomName(), drillId);
+    if (text === null || !this.bootstrapped()) return; // the template note stands
+    const saved = this.ctx.storage.transactionSync(() => saveAiCoachNote(this.sql, drillId, text));
+    if (saved) this.refreshReport(drillId);
   }
 
   // ---- mods (SRS §8.4, T-13) ---------------------------------------------------------------
