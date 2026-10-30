@@ -6,6 +6,7 @@ The running record the PRD (§12.4) and SRS (§13.3, §15.1) ask for: decisions,
 
 | Date | Decision | Why | Source |
 |---|---|---|---|
+| 2026-10-30 | App on app.modscrim.dualmindlab.tech, website on modscrim.dualmindlab.tech | The static site (Pages, `site/`) and the app Worker (`app/`) deploy separately; one host each keeps cookies, CSP and routes apart. Only the HTTPS callback is registered with Twitch, which rejects `localhost`. | T-40 (#44) |
 | 2026-10-30 | React 19.3.1 | It is the current supported React release at T-01 and meets SRS §9.1. | T-01 |
 | | Day-0 outcome (PRD §12.1 decision table) | | Day-0 results below |
 | | React version (18 or 19) | | SRS §9.1 leaves it open |
@@ -40,6 +41,8 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 ## Session notes
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
+
+2026-10-30 · T-40 (part) · Created the D1 database `mfd` (`e28e6c2c-9a50-4f08-a622-a563c3baadfb`) and applied `0001_init.sql` remotely; added the Workers Custom Domain `app.modscrim.dualmindlab.tech` with `workers_dev` kept on; set the five required secrets (`TWITCH_CLIENT_SECRET` is a placeholder until the Twitch app is registered); deployed `mod-fire-drill` with `npm run deploy`. Documented the URL split in README, AGENTS, tech-stack and twitch docs. · Google Trust Services issued the edge certificate for `app.modscrim.dualmindlab.tech` about 4 minutes after deploy. On both the custom domain and `https://mod-fire-drill.creharsh.workers.dev`: `GET /api/health` returned `200 {"ok":true}` with valid TLS, `GET /` and `GET /console` served the SPA shell, unsigned `POST /eventsub` returned 400. `npm run typecheck` and `npm test` (3 + 6 files, 19 + 46 tests) pass. · Next: register the Twitch app, set `TWITCH_CLIENT_ID` and the real `TWITCH_CLIENT_SECRET`, redeploy.
 
 2026-10-30 · T-56 to T-77 · Added the brand kit in `brand/` (logos, fonts with OFL licences, social and stream images, `DESIGN.md`) and the static website in `site/`: 13 pages, shared CSS and tokens, self-hosted fonts in place of Google Fonts, icons and manifest, absolute canonical and OG URLs, and `_headers` adapted from SRS §9.6. Domain, GitHub owner, team name, contact email and governing law are filled; no postal address is published. Issues #76 to #100, nested under T-56. · A link check over `site/` found every local `href`, `src` and `url()`; `wrangler pages dev site` served all 13 pages and their extensionless routes with the headers; headless Chrome loaded every page with no console errors, CSP violations or third-party requests, and the home drill, console steps and mod view ran. `npm run build` and `npm run typecheck` pass. · Next: push and PR, then T-78 (Pages project) and T-79 (custom domain) after approval, then T-80.
 
