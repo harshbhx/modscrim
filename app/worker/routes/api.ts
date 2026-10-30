@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 import { requireStreamer } from '../auth/streamer.js';
 import { requireJsonSameOrigin } from '../auth/origin.js';
 import { AppError } from '../lib/errors.js';
@@ -9,6 +10,50 @@ export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: 
 apiRoutes.use('*', requireJsonSameOrigin);
 
 apiRoutes.get('/health', (context) => context.json({ ok: true }));
+
+apiRoutes.get('/chatlog/stats', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    const stats = await room.chatStats();
+    if (!stats) throw new AppError('room_unavailable', 'The room is unavailable.');
+    return context.json(stats);
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
+
+apiRoutes.post('/chatlog/logging', requireStreamer, async (context) => {
+  let body: unknown;
+  try {
+    body = await context.req.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid request body.');
+  }
+  const parsed = z.object({ on: z.boolean() }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid request body.');
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    const logging = await room.setLogging(parsed.data.on);
+    if (logging === null) throw new AppError('room_unavailable', 'The room is unavailable.');
+    return context.json({ logging });
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
+
+apiRoutes.delete('/chatlog', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    const deleted = await room.deleteChatLog();
+    if (deleted === null) throw new AppError('room_unavailable', 'The room is unavailable.');
+    return context.json({ deleted });
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
 
 apiRoutes.get('/me', requireStreamer, async (context) => {
   const uid = context.get('session').uid;
