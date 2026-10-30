@@ -1,3 +1,4 @@
+/* Base styles and the app shell. Needs tokens.css and fonts.css. See brand/DESIGN.md. */
 *,
 *::before,
 *::after {
@@ -6,31 +7,55 @@
 
 html {
   color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-body);
-  font-size: 1.0625rem;
-  line-height: 1.55;
+  font: var(--t-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  display: contents;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-heading);
-  line-height: 1.15;
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: 'opsz' 72;
+  line-height: 0.95;
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(48px, 5.4vw, 72px);
 }
 
-p {
-  margin: 0 0 var(--space-3);
+h2 {
+  font-size: 36px;
+  line-height: 1;
+}
+
+p,
+ul {
+  margin: 0 0 var(--space-4);
+}
+
+ul {
+  padding-left: 1.25em;
+}
+
+li + li {
+  margin-top: var(--space-2);
 }
 
 code,
@@ -39,103 +64,242 @@ kbd {
 }
 
 a {
-  color: var(--text);
+  color: inherit;
+  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
 }
 
 :focus-visible {
   outline: 3px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-.hazard-stripe {
-  height: 10px;
-  background: repeating-linear-gradient(135deg, var(--hazard) 0 14px, #1a1a1f 14px 28px);
+.wrap {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
 }
 
+.lead {
+  font: var(--t-lead);
+  max-width: var(--measure);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.contact {
+  margin-top: var(--space-8);
+}
+
+/* Skip link: hidden until focused. */
 .skip-link {
   position: absolute;
   left: var(--space-2);
-  top: -4rem;
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface);
-  border: 2px solid var(--focus);
+  top: -6rem;
   z-index: 10;
+  padding: var(--space-2) var(--space-4);
+  background: var(--white);
+  color: var(--green-700);
+  border: 2px solid var(--green-700);
+  border-radius: var(--radius-md);
+  font: var(--t-button);
 }
 
 .skip-link:focus {
   top: var(--space-2);
 }
 
-.site-header,
-.site-main {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: var(--space-3);
+/* Header band. */
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 72px;
 }
 
-.site-header {
+.brand {
+  display: inline-flex;
+  padding: var(--space-1) 0;
+}
+
+.brand img {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+
+.site-nav {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-heading);
+  gap: var(--space-6);
+  font: var(--t-body-s);
   font-weight: 700;
 }
 
-.site-header a {
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: none;
 }
 
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+/* Page body. */
 .site-main {
-  padding-top: var(--space-5);
-  padding-bottom: var(--space-5);
+  flex: 1;
+}
+
+.site-main:focus {
+  outline: none;
+}
+
+.page {
+  padding: var(--space-16) 0 var(--space-24);
+}
+
+.page .prose {
+  max-width: var(--measure);
+}
+
+.hero {
+  padding: var(--space-16) 0 var(--space-24);
+}
+
+.hero h1 {
+  max-width: 12ch;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: var(--space-4);
+  margin-top: var(--space-8);
 }
 
-.button {
+/* Buttons: one orange action per view; outline for the second. No arrows in labels. */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 var(--space-4);
-  border: 2px solid var(--alarm);
-  border-radius: var(--radius);
-  font: 600 1rem var(--font-body);
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  font: var(--t-button);
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
+  transition:
+    background-color 0.12s,
+    color 0.12s,
+    border-color 0.12s,
+    transform 0.06s;
 }
 
-.button-primary {
-  background: var(--alarm);
-  color: var(--on-alarm);
+.btn:hover {
+  text-decoration: none;
 }
 
-.button-secondary {
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-orange {
+  background: var(--action);
+  color: var(--on-action);
+}
+
+.btn-orange:hover {
+  background: var(--action-hover);
+}
+
+.btn-line {
   background: transparent;
   color: var(--text);
+  border-color: var(--line-strong);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .button {
-    transition: transform 150ms ease;
+.btn-line:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.tag-practice {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background: var(--practice-bg);
+  color: var(--practice-text);
+  font: 700 14px/1 var(--font-body);
+}
+
+/* Footer band. */
+.site-footer {
+  padding: var(--space-10) 0;
+  font: var(--t-body-s);
+}
+
+.site-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.site-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer li + li {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .hero h1 {
+    font-size: 60px;
   }
 
-  .button:hover {
-    transform: translateY(-1px);
+  .actions .btn {
+    width: 100%;
   }
 }
 
+/* Motion answers actions only; with reduced motion nothing moves. */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .btn:active {
+    transform: none;
   }
 }
