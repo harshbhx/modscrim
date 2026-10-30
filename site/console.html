@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim console</title>
+<meta name="description" content="The streamer console with a sample channel.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim console">
+<meta property="og:description" content="The streamer console with a sample channel.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/console">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/console">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="app-body">
+<a class="skip" href="#main">Skip to content</a>
+<header class="appbar">
+  <div class="wrap appbar-in">
+    <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30"></a>
+    <span class="who"><span class="ava" aria-hidden="true">P</span>pixelpanda_tv</span>
+    <div class="status" aria-label="Connection status"><span><i class="dot"></i>Twitch connected</span><span><i class="dot"></i>Chat log <b data-logcount>1,284 messages</b></span><span><i class="dot"></i>Grading 46 of 50 left this hour</span></div>
+    <a class="btn btn-line btn-xs" href="index.html">Sign out and delete my data</a>
+  </div>
+</header><div class="banner" role="note"><div class="wrap"><span class="tag tag-sample">Sample channel</span><span>You&rsquo;re looking at the console with a sample channel, pixelpanda_tv, and example numbers. On your channel, these come from your own filters, your chat and Twitch&rsquo;s grading.</span></div></div>
+<div class="app">
+  <div class="wrap"><nav class="stepper" aria-label="Drill steps"><a href="#read-filters" data-step-link><span class="sn">1</span>Read filters</a><a href="#configure" data-step-link><span class="sn">2</span>Configure</a><a href="#run-the-drill" data-step-link><span class="sn">3</span>Run the drill</a><a href="#twitch-grades" data-step-link><span class="sn">4</span>Twitch grades</a><a href="#fix-the-rules" data-step-link><span class="sn">5</span>Fix the rules</a><a href="#fresh-wave" data-step-link><span class="sn">6</span>Fresh wave and push</a></nav></div>
+  <main id="main" style="border-top:1px solid #1C4636">
+  <div class="wrap">
+
+  <section class="panel" id="read-filters" data-step aria-labelledby="h-1">
+    <div class="panel-head"><div><h1 id="h-1">Read filters</h1><p>What your channel blocks today, read from Twitch. ModScrim tests these; it never changes your AutoMod settings.</p></div><div><button class="btn btn-line btn-sm" type="button" data-refresh>Refresh from Twitch</button><p class="micro muted" data-refresh-msg aria-live="polite" style="margin-top:8px">Last read 2 minutes ago.</p></div></div>
+    <div class="grid-73">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card"><h2>Public blocked terms</h2>
+          <div class="chips"><span class="chip">free nitro</span><span class="chip">bit.ly</span><span class="chip">buy followers</span><span class="chip ph" title="Placeholder slur, shown as blocks">&#9607;&#9607;&#9607;&#9607;&#9607;</span><span class="chip">freebits</span></div>
+          <p class="micro muted" style="margin-top:14px">5 terms. Twitch doesn&rsquo;t share private blocked terms with apps, so they aren&rsquo;t shown or tested.</p>
+        </div>
+        <div class="card"><h2>Chat log</h2>
+          <dl class="kv"><dt>Messages</dt><dd data-logcount class="num">1,284 messages</dd><dt>Collecting since</dt><dd>Fri 23 Oct, 14:02</dd><dt>Kept for</dt><dd>7 days</dd><dt>Status</dt><dd data-logstate>Logging</dd></dl>
+          <p class="micro muted" style="margin:16px 0 8px">Recent lines, blurred until you hover or focus them</p>
+          <ul class="samples" data-samples>
+            <li class="blur" tabindex="0">mossy_otter: that last round was clean</li><li class="blur" tabindex="0">nora_reads: dm me the build later</li><li class="blur" tabindex="0">lowtide: free real estate lol</li>
+            <li class="blur" tabindex="0">tealkettle: the promo code for the merch is on the panel</li><li class="blur" tabindex="0">quietfox: who claimed the last sub?</li><li class="blur" tabindex="0">baker_beans: hydrate check</li>
+          </ul>
+          <div class="ctas" style="margin-top:18px"><button class="btn btn-line btn-xs" type="button" data-delete-log>Delete chat log</button><button class="btn btn-line btn-xs" type="button" data-pause aria-pressed="false">Pause logging</button></div>
+          <div class="card" data-confirm-delete hidden style="margin-top:14px;background:var(--deep)"><p>Delete all 1,284 logged messages now? New rules will be checked against the banter pool until the log grows again.</p>
+            <div class="ctas" style="margin-top:12px"><button class="btn btn-orange btn-xs" type="button" data-confirm="yes">Delete chat log</button><button class="btn btn-line btn-xs" type="button" data-confirm="no">Keep it</button></div></div>
+          <p class="micro muted" style="margin-top:14px">We keep your chat log for 7 days only to check that new rules don&rsquo;t ban your regulars. Delete it any time.</p>
+        </div>
+      </div>
+      <div class="card"><h2>AutoMod levels</h2>
+        <dl class="kv">
+          <dt>Discrimination and slurs</dt><dd><span class="lvl" aria-label="Level 2 of 4"><i class="on"></i><i class="on"></i><i></i><i></i></span></dd>
+          <dt>Sex-based terms</dt><dd><span class="lvl" aria-label="Level 1 of 4"><i class="on"></i><i></i><i></i><i></i></span></dd>
+          <dt>Hostility</dt><dd><span class="lvl" aria-label="Level 1 of 4"><i class="on"></i><i></i><i></i><i></i></span></dd>
+          <dt>Profanity</dt><dd><span class="lvl" aria-label="Level 0 of 4"><i></i><i></i><i></i><i></i></span></dd>
+        </dl>
+        <p class="micro muted" style="margin-top:16px">Read only. Change these in your Twitch moderation settings.</p>
+        <a class="btn btn-orange" href="#configure" style="margin-top:24px">Set up a drill</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="configure" data-step aria-labelledby="h-2" hidden>
+    <div class="panel-head"><div><h1 id="h-2">Configure</h1><p>The join code already works while you change settings, so mods can join now.</p></div><a class="btn btn-orange" href="#run-the-drill">Start drill</a></div>
+    <div class="grid-73">
+      <form class="card" onsubmit="return false">
+        <h2>Tactics</h2>
+        <label class="check"><input type="checkbox" id="t-link" checked><span>Fake giveaway links</span></label>
+        <label class="check"><input type="checkbox" id="t-spam" checked><span>Follower and viewer spam</span></label>
+        <label class="check"><input type="checkbox" id="t-bot" checked><span>Art and promo bots</span></label>
+        <label class="check"><input type="checkbox" id="t-hate"><span>Hate raid (placeholder slurs)<br><span class="micro muted">This tactic uses placeholder slurs shown as solid blocks. Turn it on only if your community is comfortable with the theme.</span></span></label>
+        <div class="form-row"><label for="primary">Primary tactic</label><select class="sel" id="primary"><option>Fake giveaway links</option><option>Follower and viewer spam</option><option>Art and promo bots</option></select></div>
+        <div class="form-row"><label for="n-att">Attack lines</label><input class="inp narrow" id="n-att" type="number" min="6" max="30" value="14"><span class="help">6 to 30. At most 40 lines in total.</span></div>
+        <div class="form-row"><label for="n-ban">Banter lines</label><input class="inp narrow" id="n-ban" type="number" min="4" max="20" value="8"><span class="help">4 to 20 harmless lines from the curated pool.</span></div>
+        <div class="form-row"><label for="speed">Seconds between lines</label><input class="inp narrow" id="speed" type="number" min="0.8" max="3" step="0.1" value="1.5"><span class="help">0.8 to 3.0.</span></div>
+        <div class="form-row"><label for="slip">Slip window, seconds</label><input class="inp narrow" id="slip" type="number" min="5" max="15" value="9"><span class="help">A line nobody removes in this time slips through. 5 to 15.</span></div>
+        <label class="check" style="border-top:1px solid #1C4636;padding-top:16px;margin-top:4px"><input type="checkbox" id="kai" checked><span>Kai (sim), a simulated co-mod<br><span class="micro muted">Always labelled and scored separately.</span></span></label>
+      </form>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card"><h2>Invite your mods</h2>
+          <p class="micro muted">Join code</p><p class="joincode">482 913</p>
+          <p class="micro muted" style="margin:14px 0 6px">Mod link</p>
+          <div class="copy-row"><code id="mod-link">https://modscrim.dualmindlab.tech/mod/pixelpanda_tv</code><button class="btn btn-line btn-xs" type="button" data-copy="mod-link">Copy</button></div>
+          <h2 style="margin-top:22px">Joined</h2>
+          <ul class="mods"><li><i class="dot"></i>sam_mods</li><li><i class="dot"></i>rowan_r</li><li><i class="dot"></i>Kai <span class="sim">sim</span></li></ul>
+        </div>
+        <div class="card"><h2>OBS overlay</h2>
+          <div class="copy-row"><code id="overlay-url">https://modscrim.dualmindlab.tech/overlay/pixelpanda_tv?key=7hq2mzt4w9xkc3vbn6rjpd8sa5fgye2u</code><button class="btn btn-line btn-xs" type="button" data-copy="overlay-url">Copy</button></div>
+          <div class="ctas" style="margin-top:12px"><button class="btn btn-line btn-xs" type="button" data-rotate>Rotate key</button><a class="btn btn-quiet btn-xs" href="overlay.html">Preview the overlay</a></div>
+          <p class="micro muted" data-rotate-msg aria-live="polite" style="margin-top:10px">Add it as a Browser source, 1920 by 1080.</p>
+          <label class="check"><input type="checkbox" id="hide-names"><span>Hide mod names on the overlay<br><span class="micro muted">Shows Mod 1, Mod 2 instead.</span></span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="run-the-drill" data-step aria-labelledby="h-3" hidden>
+    <div class="panel-head"><div><h1 id="h-3">Run the drill</h1><p>The same practice chat your mods see. Here you can act too, or just watch the scoreboard.</p></div><a class="btn btn-orange" href="#twitch-grades">See Twitch&rsquo;s grade</a></div>
+    <div class="field" style="margin-top:0" id="console-drill" data-drill="home">
+        <div class="sb" role="group" aria-label="Scoreboard">
+          <span class="sb-tag">Practice</span>
+          <div class="slot slot-mods"><span class="slot-l">Mods</span><span class="plates" data-score="mods"><span class="pl"></span><span class="pl">0</span></span></div>
+          <div class="slot slot-raid"><span class="slot-l">Raid</span><span class="plates" data-score="raid"><span class="pl"></span><span class="pl">0</span></span></div>
+          <div class="slot slot-fouls"><span class="slot-l">Fouls</span><span class="plates" data-score="fouls"><span class="pl">0</span></span></div>
+          <div class="slot slot-clock"><span class="slot-l">Clock</span><span class="plates" data-score="clock"><span class="pl">0</span><span class="pl sep">:</span><span class="pl">3</span><span class="pl">0</span></span></div>
+          <p class="vh" aria-live="polite" data-live>Caught 0, slipped 0, fouls 0.</p>
+        </div>
+        <div class="field-body">
+          <div class="chat">
+            <div class="chat-head">
+              <span class="tag tag-practice">Practice chat</span>
+              <span class="micro">Practice chat only. Nothing here is posted to Twitch.</span>
+            </div>
+            <div class="feedwrap">
+              <div class="feed" data-feed role="log" aria-label="Practice chat messages" tabindex="-1"></div>
+              <button class="btn btn-green btn-sm paused" type="button" data-paused hidden>Chat paused. Jump to newest</button>
+              <div class="cover" data-cover>
+                <div class="cover-in">
+                  <p class="h3" style="color:var(--chalk)">Ready when you are.</p>
+                  <p>You have 30 seconds. Click a message to delete it. Delete the spam and leave your regulars alone: deleting a regular is a foul. Anything nobody removes within 9 seconds slips through.</p>
+                  <button class="btn btn-orange" type="button" data-start>Start drill</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="notes" data-notes aria-label="Coach's notes"></aside>
+        </div>
+      </div>
+  </section>
+
+  <section class="panel" id="twitch-grades" data-step aria-labelledby="h-4" hidden>
+    <div class="panel-head"><div><h1 id="h-4">Twitch grades</h1><p>Every attack line from the drill, checked against your current filters with Twitch&rsquo;s Check AutoMod Status.</p></div><a class="btn btn-orange" href="#fix-the-rules">Find better rules</a></div>
+    <div class="card" style="margin-bottom:24px;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:baseline">
+      <p class="big-n num">9 of 14</p><p class="lead">attack lines would get past your filters</p><span class="engine">graded by Twitch</span>
+    </div>
+    <div class="card"><div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Line</th><th>Tactic</th><th>Trick</th><th>Result</th></tr></thead><tbody><tr><td class="mono">free nitro for the first 50 viewers → nitrodrop.invalid</td><td>Fake giveaway links</td><td>none</td><td><span class="res res-block">Blocked</span> <span class="micro muted">by <code>free nitro</code></span></td></tr><tr><td class="mono">fr33 nitro for the first 50 viewers → nitrodrop.invalid</td><td>Fake giveaway links</td><td>number swaps</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">BUY FOLLOWERS and VIEWERS cheap at viewbump.invalid</td><td>Follower and viewer spam</td><td>all caps</td><td><span class="res res-block">Blocked</span> <span class="micro muted">by <code>buy followers</code></span></td></tr><tr><td class="mono">b u y followers and viewers cheap at viewbump.invalid</td><td>Follower and viewer spam</td><td>spaced letters</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">skins giveaway is live, claim yours at giftsnow.invalid</td><td>Fake giveaway links</td><td>none</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">streamer is gifting subs!! grab it giftsnow[.]invalid</td><td>Fake giveaway links</td><td>[.] in link</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">get freebits free before it ends nitrodrop.invalid</td><td>Fake giveaway links</td><td>none</td><td><span class="res res-block">Blocked</span> <span class="micro muted">by <code>freebits</code></span></td></tr><tr><td class="mono">hey streamer, need emooootes or overlays? dm me</td><td>Art and promo bots</td><td>stretched letters</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">nice stream! I do promotion, check your dms</td><td>Art and promo bots</td><td>none</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">hi, I make chibi l0g0s for streamers, dm me</td><td>Art and promo bots</td><td>number swaps</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">want more viewers? best promo viewbump .invalid</td><td>Follower and viewer spam</td><td>space in link</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">grow your channel fast, real f0ll0wers viewbump.invalid</td><td>Follower and viewer spam</td><td>number swaps</td><td><span class="res res-pass">Gets past</span></td></tr><tr><td class="mono">buy followers and viewers cheap at viewbump dot invalid</td><td>Follower and viewer spam</td><td>"dot" spelled out</td><td><span class="res res-block">Blocked</span> <span class="micro muted">by <code>buy followers</code></span></td></tr><tr><td class="mono">FREE NITRO before it ends nitrodrop.invalid</td><td>Fake giveaway links</td><td>all caps</td><td><span class="res res-block">Blocked</span> <span class="micro muted">by <code>free nitro</code></span></td></tr></tbody></table></div>
+      <p class="micro muted" style="margin-top:14px">If Twitch&rsquo;s hourly limit runs out, the rest are graded by ModScrim&rsquo;s matcher and labelled &ldquo;local estimate&rdquo;. Grading resumes on its own.</p></div>
+  </section>
+
+  <section class="panel" id="fix-the-rules" data-step aria-labelledby="h-5" hidden>
+    <div class="panel-head"><div><h1 id="h-5">Fix the rules</h1><p>Terms that catch what got past, checked against your last 7 days of chat and the banter pool. Any term that would match a regular is rejected.</p></div><a class="btn btn-orange" href="#fresh-wave">Test on a fresh wave</a></div>
+    <div class="grid-73">
+      <div class="card"><h2>Proposed</h2>
+        <ul class="term-list">
+          <li class="term"><input type="checkbox" checked data-term value="giftsnow*" id="p1" aria-label="giftsnow*"><code>giftsnow*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 2, for example &ldquo;skins giveaway is live, claim yours at giftsnow.invalid&rdquo;</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="viewbump*" id="p2" aria-label="viewbump*"><code>viewbump*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 3, for example &ldquo;grow your channel fast, real f0ll0wers viewbump.invalid&rdquo;</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="fr33" id="p3" aria-label="fr33"><code>fr33</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, number swaps</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="l0g0s" id="p4" aria-label="l0g0s"><code>l0g0s</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, number swaps</span></li>
+          <li class="term"><input type="checkbox" data-term value="emooo*" id="p5" aria-label="emooo*"><code>emooo*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, stretched letters</span></li>
+        </ul>
+        <form class="form-row" style="margin-top:16px;border:0" onsubmit="return false"><label for="own">Add your own term</label><input class="inp" id="own" placeholder="e.g. cl41m*"><span class="help">2 to 500 characters. A * may appear only at the start or end of a word.</span></form>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card"><h2>Rejected</h2>
+          <ul class="term-list">
+            <li class="term rej" style="grid-template-columns:minmax(0,1fr) auto"><code>dm me</code><span class="badge">Would ban a regular</span><span class="meta" style="grid-column:1/-1">Would catch 2, but also matches <span class="blur" tabindex="0">&ldquo;dm me the build later&rdquo;</span></span></li>
+            <li class="term rej" style="grid-template-columns:minmax(0,1fr) auto"><code>claim*</code><span class="badge">Would ban a regular</span><span class="meta" style="grid-column:1/-1">Would catch 1, but also matches <span class="blur" tabindex="0">&ldquo;who claimed the last sub?&rdquo;</span></span></li>
+            <li class="term rej" style="grid-template-columns:minmax(0,1fr) auto"><code>promo*</code><span class="badge">Would ban a regular</span><span class="meta" style="grid-column:1/-1">Would catch 2, but also matches <span class="blur" tabindex="0">&ldquo;the promo code for the merch is on the panel&rdquo;</span></span></li>
+          </ul></div>
+        <div class="card"><h2>Needs a bot rule</h2>
+          <p class="micro muted" style="margin-bottom:12px">Blocked terms can&rsquo;t express these tricks. Use a moderation bot such as Sery_bot, Fossabot or Nightbot.</p>
+          <dl class="kv"><dt>spaced letters</dt><dd class="num">1 line</dd><dt>[.] in link</dt><dd class="num">1 line</dd><dt>space in link</dt><dd class="num">1 line</dd></dl></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="fresh-wave" data-step aria-labelledby="h-6" hidden>
+    <div class="panel-head"><div><h1 id="h-6">Fresh wave and push</h1><p>30 new attacks from a new seed, built with tricks the rule finder never saw.</p></div></div>
+    <div class="grid-73">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card"><h2>Blocked by your filters</h2>
+          <div class="bars"><div class="bar"><span>Before</span><span class="bar-track"><span class="bar-fill" style="display:block;width:33%"></span></span><span class="num">10 of 30</span></div>
+          <div class="bar"><span>After</span><span class="bar-track"><span class="bar-fill good" style="display:block;width:63%"></span></span><span class="num">19 of 30</span></div></div>
+          <p style="margin-top:18px">New rules matched <b>0 of 1,284</b> real and harmless messages.</p>
+          <p class="micro muted" style="margin-top:6px"><span class="engine local">local estimate</span> Twitch re-grades the fresh wave after you push.</p>
+        </div>
+        <div class="card"><h2>Still gets through</h2>
+          <dl class="kv"><dt>look-alike letters</dt><dd class="num">4</dd><dt>dotted letters</dt><dd class="num">3</dd><dt>&ldquo;dot&rdquo; spelled out</dt><dd class="num">2</dd><dt>number swaps in link</dt><dd class="num">2</dd></dl>
+          <p class="micro muted" style="margin-top:12px">All four need a bot rule.</p>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:16px">
+        <h2>Push to Twitch</h2>
+        <p class="micro muted">Uses the terms you ticked in Fix the rules. Nothing changes on your channel until you press the button.</p>
+        <div class="ctas"><button class="btn btn-orange" type="button" data-push>Approve and push 4 terms to Twitch</button><button class="btn btn-line btn-sm" type="button" data-undo disabled>Undo this push</button></div>
+        <div data-push-out aria-live="polite"></div>
+        <a class="btn btn-quiet btn-xs" href="report.html" style="align-self:flex-start">Open the after-action report</a>
+      </div>
+    </div>
+  </section>
+
+  </div>
+  </main>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

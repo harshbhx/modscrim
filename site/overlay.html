@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim overlay preview</title>
+<meta name="description" content="What viewers see in OBS during a drill.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim overlay preview">
+<meta property="og:description" content="What viewers see in OBS during a drill.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/overlay">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/overlay">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="app-body">
+<a class="skip" href="#main">Skip to content</a>
+<header class="appbar">
+  <div class="wrap appbar-in">
+    <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30"></a>
+    <span class="micro" style="margin-left:auto;color:var(--on-green-muted)">OBS overlay preview</span>
+  </div>
+</header>
+<div class="app">
+<main id="main" class="wrap" style="padding-block:40px 96px">
+  <div class="panel-head" style="margin-bottom:24px"><div><h1>The overlay your viewers see</h1><p>A transparent 1920 by 1080 page for an OBS Browser source. Attack messages arrive only as lengths, so the page has no readable attack text to show.</p></div></div>
+  <div class="stage-wrap" data-stage>
+    <div class="stage" role="img" aria-label="Overlay preview: practice drill bar at the top, practice chat with blurred messages on the right, scoreboard at the bottom left.">
+      <div class="ov-bar"><img src="img/modscrim-mark-small-green.svg" alt="" style="height:52px"><strong>Practice drill in progress</strong><span>Practice chat only. Nothing here is real.</span></div>
+      <div class="ov-chat"><div class="ov-line"><b style="color:#FFC48F">nitrodrops_93</b><i style="width:248px"></i><span class="st st-caught">Caught</span></div><div class="ov-line"><b style="color:#8FE0AE">mossy_otter</b><i style="width:136px"></i></div><div class="ov-line"><b style="color:#FFC48F">viewbump_hq</b><i style="width:312px"></i><span class="st st-caught">Caught</span></div><div class="ov-line"><b style="color:#A6D8EC">grow_fast_77</b><i style="width:280px"></i><span class="st st-slipped">Slipped</span></div><div class="ov-line"><b style="color:#F2E58A">kettlebell_kay</b><i style="width:160px"></i></div><div class="ov-line"><b style="color:#F6B3A0">chibi_by_ren</b><i style="width:264px"></i></div><div class="ov-line"><b style="color:#8FE0AE">giftsnow_bot</b><i style="width:296px"></i><span class="st st-caught">Caught</span></div><div class="ov-line"><b style="color:#A6D8EC">pixel_parsnip</b><i style="width:208px"></i></div></div>
+      <div class="ov-score"><table><thead><tr><th>Mod</th><th>Caught</th><th>False bans</th><th>Avg</th></tr></thead>
+        <tbody><tr><td>sam_mods</td><td class="n">6</td><td class="n">0</td><td class="n">2.1 s</td></tr><tr><td>rowan_r</td><td class="n">4</td><td class="n">1</td><td class="n">3.4 s</td></tr><tr><td>Kai (sim)</td><td class="n">2</td><td class="n">0</td><td class="n">4.0 s</td></tr>
+        <tr><td style="color:var(--on-green-muted)">Team slipped</td><td class="n" style="color:var(--orange)">2</td><td></td><td></td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:32px">
+    <div class="card"><h2>What&rsquo;s on screen</h2><ul style="padding-left:1.2em;display:flex;flex-direction:column;gap:8px"><li>The practice-drill bar, so nobody mistakes it for a real raid.</li><li>The practice chat with readable usernames, blurred messages and outcomes.</li><li>The scoreboard: caught, false bans and average reaction per mod, and the team&rsquo;s slipped count.</li><li>After the drill, an after-action card for 20 seconds with the Twitch grade, terms pushed and the fresh-wave result.</li></ul></div>
+    <div class="card"><h2>What never is</h2><ul style="padding-left:1.2em;display:flex;flex-direction:column;gap:8px"><li>Attack text. The server sends the overlay only the length of each line.</li><li>The reveal of tricks, or anything from your chat log.</li><li>Mod names, if you turn on Hide mod names.</li><li>Anything at all with a wrong or rotated key.</li></ul></div>
+  </div>
+</main>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

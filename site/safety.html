@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim safety</title>
+<meta name="description" content="How ModScrim keeps practice raids from ever reaching real chat or viewers.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim safety">
+<meta property="og:description" content="How ModScrim keeps practice raids from ever reaching real chat or viewers.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/safety">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/safety">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html" aria-current="page">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html" aria-current="page">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
+  <div class="wrap phead">
+    <h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">Safety and trust</h1>
+    <p class="lead">ModScrim puts realistic attacks on screen during a live stream, so it is built so that practice can never leak into the real thing.</p>
+  </div>
+</section>
+<section class="page" aria-label="Safety rules"><div class="wrap"><div class="hr" style="margin-bottom:96px"><div class="hr-head"><h2 class="d2" style="font-size:clamp(40px,4.4vw,56px)">Nothing reaches your real chat</h2></div><ul class="hr-list"><li><h3 class="h3">Attacks stay in the practice chat</h3><p>Nothing the attack engine writes is ever sent to Twitch chat. The only message ModScrim can ever post is an optional one-line notice that a drill is starting, and it never contains attack text.</p></li><li><h3 class="h3">Links that can&rsquo;t open</h3><p>Every generated link ends in <code>.invalid</code>, a domain reserved so that it can never resolve.</p></li><li><h3 class="h3">No real slurs</h3><p>The hate-raid tactic uses placeholder tokens drawn as solid blocks. No real slur list exists anywhere in ModScrim&rsquo;s code. The tactic is off by default and shows a content warning.</p></li><li><h3 class="h3">Banter is curated</h3><p>The harmless lines mixed into a drill come from a fixed pool, never from real viewers&rsquo; messages.</p></li></ul></div><div class="hr" style="margin-bottom:96px"><div class="hr-head"><h2 class="d2" style="font-size:clamp(40px,4.4vw,56px)">Viewers see a safe overlay</h2></div><ul class="hr-list"><li><h3 class="h3">No readable attack text</h3><p>The overlay page never receives attack text. The server sends only the length of each line, which is drawn as a blurred bar next to the username and the outcome.</p></li><li><h3 class="h3">No evasion lists</h3><p>Reports, exports and share links carry counts of tactics and tricks, never the attack lines themselves.</p></li><li><h3 class="h3">Practice is always labelled</h3><p>The overlay&rsquo;s alarm and every mod screen say practice, so nobody mistakes a drill for a real raid.</p></li></ul></div><div class="hr" style="margin-bottom:96px"><div class="hr-head"><h2 class="d2" style="font-size:clamp(40px,4.4vw,56px)">You approve every change</h2></div><ul class="hr-list"><li><h3 class="h3">Approve, then push</h3><p>No blocked term reaches Twitch until you press Approve and push. Every push has Undo this push.</p></li><li><h3 class="h3">Zero real-chat matches</h3><p>Push stays disabled unless the proposed terms match none of your real chat from the last 7 days.</p></li><li><h3 class="h3">AutoMod is read-only</h3><p>Twitch&rsquo;s AutoMod update call overwrites every setting at once, so ModScrim never calls it. It only reads your levels.</p></li><li><h3 class="h3">Everything is logged</h3><p>Pushes, undos, sign-ins, sign-outs, chat-log deletions and overlay key changes are written to your audit log.</p></li></ul></div><div class="hr" style="margin-bottom:96px"><div class="hr-head"><h2 class="d2" style="font-size:clamp(40px,4.4vw,56px)">Your data, kept short</h2></div><ul class="hr-list"><li><h3 class="h3">7-day chat log</h3><p>Your channel&rsquo;s chat is kept for 7 days only to check that new rules won&rsquo;t ban regulars. It is never shown on stream, appears in the console blurred until you hover it, and can be deleted or paused at any time.</p></li><li><h3 class="h3">Tokens never reach a browser</h3><p>Your Twitch tokens are encrypted at rest with AES-256-GCM and used only on the server.</p></li><li><h3 class="h3">Leaving deletes everything</h3><p>Sign out and delete my data removes your tokens, chat log, drills, reports and chat subscription. If you remove ModScrim from your Twitch connections instead, ModScrim deletes the same data once Twitch tells it about the change.</p></li></ul></div>
+<div class="prose note" style="max-width:52em"><p><strong>Found a way around one of these rules?</strong> Please tell us privately through the security contact in the <a href="https://github.com/harshbhx/modscrim">source repository</a> before sharing it anywhere else. For how data is stored and deleted, read the <a href="privacy.html">privacy policy</a>.</p></div>
+</div></section>
+</main><section class="close on-green" aria-labelledby="close-title">
+  <div class="wrap">
+    <div class="close-in" style="grid-template-columns:minmax(0,3fr) minmax(0,9fr)">
+      <img class="mark" src="img/modscrim-mark-reverse.svg" alt="" width="260" height="186" style="max-width:240px">
+      <div class="close-copy">
+        <h2 id="close-title" class="d2">Ready when your team is.</h2>
+        <p class="lead">Sign in with Twitch to read your filters and set up your first drill. Or try the whole loop in a demo room first, no account needed.</p>
+        <div class="ctas"><a class="btn btn-orange" href="console.html">Start a drill</a><a class="btn btn-line" href="demo.html">Open a demo room</a></div>
+      </div>
+    </div>
+  </div>
+</section><div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

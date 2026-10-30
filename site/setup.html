@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim setup guide</title>
+<meta name="description" content="Sign in, invite your mods, add the overlay to OBS and run your first drill.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim setup guide">
+<meta property="og:description" content="Sign in, invite your mods, add the overlay to OBS and run your first drill.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/setup">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/setup">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
+  <div class="wrap phead">
+    <p class="crumb"><a href="index.html">Home</a> / Setup guide</p><h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">Setup guide</h1>
+    <p class="lead">Everything happens in the browser: one sign-in for you, a link for your mods and a URL for OBS. Plan on about three minutes.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap two">
+  <nav class="side" aria-label="On this page"><h2>On this page</h2><a href="#need">What you need</a><a href="#signin">Sign in</a><a href="#mods">Invite your mods</a><a href="#obs">Add the overlay to OBS</a><a href="#first">Run your first drill</a><a href="#perms">Twitch permissions</a><a href="#trouble">If something looks wrong</a></nav>
+  <div class="prose">
+    <h2 id="need">What you need</h2>
+    <ul><li>The Twitch account that owns the channel.</li><li>Mods on any device with a current browser: Chrome, Edge, Firefox or Safari, 360 pixels wide or more.</li><li>OBS 30 or later if you want viewers to see the drill. It&rsquo;s optional.</li></ul>
+    <h2 id="signin">1. Sign in with Twitch</h2>
+    <p>Press <strong>Sign in with Twitch</strong>. Twitch lists the permissions ModScrim needs and why (see <a href="#perms">Twitch permissions</a>). After you approve, the console shows your channel name, avatar and &ldquo;Connected&rdquo;.</p>
+    <p>ModScrim then reads your public blocked terms and AutoMod levels and starts the chat log. Step 1 of the console shows &ldquo;Chat log: 0 messages, collecting since&rdquo; the time you signed in. The false-ban check gets better as the log grows; until then ModScrim uses its banter pool.</p>
+    <h2 id="mods">2. Invite your mods</h2>
+    <p>In step 2, copy the <strong>mod link</strong> and send it with the 6-digit <strong>join code</strong>. Codes are random for every drill, stop working when the drill ends, and are rate-limited against guessing.</p>
+    <p>No mods online? Turn on <strong>Kai (sim)</strong> to rehearse with a simulated co-mod.</p>
+    <h2 id="obs">3. Add the overlay to OBS</h2>
+    <ol><li>In step 2, copy the <strong>overlay URL</strong>. It carries a private 32-character key.</li><li>In OBS, add a <strong>Browser</strong> source, paste the URL and set the size to 1920 by 1080.</li><li>Leave it on top of your scene. It stays transparent until a drill starts.</li></ol>
+    <p class="note">Leaked the URL by accident? Press <strong>Rotate key</strong>. Old links stop working at once and show nothing. Want mods anonymous on stream? Turn on <strong>Hide mod names</strong> and the overlay shows &ldquo;Mod 1&rdquo;, &ldquo;Mod 2&rdquo; instead.</p>
+    <h2 id="first">4. Run your first drill</h2>
+    <p>Pick tactics and press <strong>Start drill</strong>. When the final whistle blows, walk through the remaining steps: Twitch grades, Fix the rules, then Fresh wave and push. Nothing changes on your channel until you press <strong>Approve and push</strong>.</p>
+    <h2 id="perms">Twitch permissions</h2>
+    <p>ModScrim asks for the smallest set of permissions the loop needs. Your tokens stay on the server, encrypted, and are deleted when you sign out.</p>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Permission</th><th>Why ModScrim asks</th><th>Used in</th></tr></thead><tbody><tr><td><code>moderator:read:blocked_terms</code></td><td>Read your public blocked terms</td><td>Step 1, Read filters</td></tr><tr><td><code>moderator:manage:blocked_terms</code></td><td>Add the terms you approve, and remove them when you press Undo</td><td>Step 6, push and undo</td></tr><tr><td><code>moderator:read:automod_settings</code></td><td>Read your AutoMod levels. ModScrim never changes them</td><td>Step 1, Read filters</td></tr><tr><td><code>moderation:read</code></td><td>Check attack lines against your filters with Check AutoMod Status, and see who your mods are</td><td>Step 4 and mod sign-in</td></tr><tr><td><code>user:read:chat, user:bot, channel:bot</code></td><td>Receive your channel&rsquo;s chat for the 7-day false-ban check</td><td>Step 1 and Step 5</td></tr><tr><td><code>user:write:chat</code></td><td>Post one fixed line when a drill starts. Requested only if you turn the announcement on</td><td>Optional</td></tr></tbody></table></div>
+    <h2 id="trouble">If something looks wrong</h2>
+    <h3>&ldquo;Reconnect Twitch&rdquo;</h3><p>ModScrim checks your token every hour. If you changed your password or removed the app on Twitch, sign in again.</p>
+    <h3>The chat log isn&rsquo;t growing</h3><p>The status strip shows the chat subscription and the time of the last message. Broken subscriptions are repaired every hour; you can also repair one from the status strip.</p>
+    <h3>&ldquo;Twitch&rsquo;s grading limit for this hour is used up&rdquo;</h3><p>Twitch limits checks per channel: 5 a minute and 50 an hour for most channels, 10 and 100 for affiliates, and 30 and 300 for partners. ModScrim shows a labelled local estimate and tells you when Twitch grading resumes.</p>
+    <h3>A pushed term turned out to be wrong</h3><p>Press <strong>Undo this push</strong> in that drill&rsquo;s report, or remove the term in your Twitch dashboard.</p>
+  </div>
+</div></section>
+</main><section class="close on-green" aria-labelledby="close-title">
+  <div class="wrap">
+    <div class="close-in" style="grid-template-columns:minmax(0,3fr) minmax(0,9fr)">
+      <img class="mark" src="img/modscrim-mark-reverse.svg" alt="" width="260" height="186" style="max-width:240px">
+      <div class="close-copy">
+        <h2 id="close-title" class="d2">Ready when your team is.</h2>
+        <p class="lead">Sign in with Twitch to read your filters and set up your first drill. Or try the whole loop in a demo room first, no account needed.</p>
+        <div class="ctas"><a class="btn btn-orange" href="console.html">Start a drill</a><a class="btn btn-line" href="demo.html">Open a demo room</a></div>
+      </div>
+    </div>
+  </div>
+</section><div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>
