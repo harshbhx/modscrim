@@ -6,6 +6,7 @@ import { ClientMsgZ } from './messages.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
+import { RoomTokens } from './tokens.js';
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -23,6 +24,7 @@ export type BootstrapInput = {
 export class ChannelRoom extends DurableObject<Env> {
   private readonly sql = this.ctx.storage.sql;
   private readonly scheduler = new Scheduler(this.ctx, () => this.roomName());
+  private readonly tokens = new RoomTokens(this.env, () => this.roomName());
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -81,6 +83,14 @@ export class ChannelRoom extends DurableObject<Env> {
         this.setMeta('last_activity', String(Date.now()));
       }
     });
+  }
+
+  /** Return a usable broadcaster token, refreshing at the five-minute boundary or after a 401. */
+  async getAccessToken(rejectedToken?: string): Promise<string> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const userId = this.meta('broadcaster_id');
+    if (!userId) throw new Error('room_missing_broadcaster');
+    return this.tokens.getAccessToken(userId, rejectedToken);
   }
 
   /** A single-use 60 second ticket for a WebSocket connection. */

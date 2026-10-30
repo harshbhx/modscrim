@@ -10,6 +10,53 @@ apiRoutes.use('*', requireJsonSameOrigin);
 
 apiRoutes.get('/health', (context) => context.json({ ok: true }));
 
+apiRoutes.get('/me', requireStreamer, async (context) => {
+  const uid = context.get('session').uid;
+  const row = await context.env.DB.prepare(`SELECT u.id, u.login, u.display_name, u.avatar_url, u.broadcaster_type,
+      o.status AS token_status, e.status AS subscription_status, c.room_name
+    FROM users u JOIN channels c ON c.broadcaster_id = u.id
+    LEFT JOIN oauth_tokens o ON o.user_id = u.id
+    LEFT JOIN eventsub_subscriptions e ON e.broadcaster_id = u.id AND e.type = 'channel.chat.message'
+    WHERE u.id = ? ORDER BY e.updated_at DESC LIMIT 1`)
+    .bind(uid)
+    .first<{
+      id: string;
+      login: string;
+      display_name: string;
+      avatar_url: string | null;
+      broadcaster_type: '' | 'affiliate' | 'partner';
+      token_status: string | null;
+      subscription_status: string | null;
+      room_name: string;
+    }>();
+  if (!row) throw new AppError('not_found', 'Channel not found.');
+
+  let overlayKey: string | null;
+  try {
+    overlayKey = await context.env.ROOM.getByName(row.room_name).getOverlayKey();
+  } catch {
+    throw new AppError('room_unavailable', 'The channel room is unavailable.');
+  }
+  if (!overlayKey) throw new AppError('room_unavailable', 'The channel room is unavailable.');
+
+  const baseUrl = context.env.PUBLIC_BASE_URL.replace(/\/$/, '');
+  const channel = {
+    id: row.id,
+    login: row.login,
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    broadcasterType: row.broadcaster_type
+  };
+  return context.json({
+    user: channel,
+    channel,
+    tokenStatus: row.token_status ?? 'invalid',
+    subscriptionStatus: row.subscription_status ?? 'pending',
+    overlayUrl: `${baseUrl}/overlay/${encodeURIComponent(row.login)}?key=${encodeURIComponent(overlayKey)}`,
+    modUrl: `${baseUrl}/mod/${encodeURIComponent(row.login)}`
+  });
+});
+
 /** The streamer's room: `ch:<broadcasterId>`, which is the user ID. A missing channel row means not signed in fully. */
 async function streamerRoom(env: Env, uid: string) {
   const channel = await env.DB.prepare('SELECT broadcaster_id, room_name FROM channels WHERE broadcaster_id = ?')
