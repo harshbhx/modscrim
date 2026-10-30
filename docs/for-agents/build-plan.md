@@ -41,18 +41,18 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-04 | `cleanIndex.ts` with the property test; `ruleFinder.ts`; `proof.ts` | FR-31, FR-33 | P0 | Dhairya | M2 | T-03 | [#6](https://github.com/harshbhx/modscrim/issues/6) |
 | ☐ | T-05 | `scoring.ts`, `sim.ts`, `pace.ts`, `schema.ts` | FR-16, FR-25, FR-28, FR-39 | P0 | Dhairya | M2 | T-02 | [#7](https://github.com/harshbhx/modscrim/issues/7) |
 | ☐ | T-06 | `scripts/day0.ts` | — | P0 | Dhairya | M2 | T-04 | [#8](https://github.com/harshbhx/modscrim/issues/8) |
-| ☐ | T-07 | D1 migration; `crypto.ts`, `session.ts`, cookies, Origin check | FR-02, FR-05 | P0 | Harsh | M1 | T-38 | [#9](https://github.com/harshbhx/modscrim/issues/9) |
+| ☑ | T-07 | D1 migration; `crypto.ts`, `session.ts`, cookies, Origin check | FR-02, FR-05 | P0 | Harsh | M1 | T-38 | [#9](https://github.com/harshbhx/modscrim/issues/9) |
 | ☐ | T-08 | OAuth login and callback; Helix `users`; token refresh in the room | FR-01, FR-02 | P0 | Dhairya | M3 | T-07 | [#10](https://github.com/harshbhx/modscrim/issues/10) |
-| ☐ | T-09 | `ChannelRoom` skeleton: schema, scheduler, hub, tickets, overlay key | FR-21, FR-37 | P0 | Harsh | M1 | T-07, T-37 | [#11](https://github.com/harshbhx/modscrim/issues/11) |
+| ☑ | T-09 | `ChannelRoom` skeleton: schema, scheduler, hub, tickets, overlay key | FR-21, FR-37 | P0 | Harsh | M1 | T-07, T-37 | [#11](https://github.com/harshbhx/modscrim/issues/11) |
 | ☐ | T-10 | Webhook verify and route; subscription create and reconcile; chat ingest | FR-08 to FR-10 | P0 | Dhairya | M3 | T-08, T-09 | [#12](https://github.com/harshbhx/modscrim/issues/12) |
 | ☐ | T-11 | Filters read and cache; broadcaster type | FR-06, FR-07 | P0 | Dhairya | M3 | T-08 | [#13](https://github.com/harshbhx/modscrim/issues/13) |
-| ☐ | T-12 | Drill create, start, emit, act, slip, stop, end; snapshot | FR-16 to FR-21 | P0 | Harsh | M2 | T-05, T-09, T-37 | [#14](https://github.com/harshbhx/modscrim/issues/14) |
-| ☐ | T-13 | Mod join (code), participant tokens, rate limits | FR-22 | P0 | Harsh | M2 | T-12 | [#15](https://github.com/harshbhx/modscrim/issues/15) |
-| ☐ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
+| ☑ | T-12 | Drill create, start, emit, act, slip, stop, end; snapshot | FR-16 to FR-21 | P0 | Harsh | M2 | T-05, T-09, T-37 | [#14](https://github.com/harshbhx/modscrim/issues/14) |
+| ☑ | T-13 | Mod join (code), participant tokens, rate limits | FR-22 | P0 | Harsh | M2 | T-12 | [#15](https://github.com/harshbhx/modscrim/issues/15) |
+| ☑ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
 | ☐ | T-15 | Grading queue with pacing and local fallback | FR-28, FR-29 | P0 | Dhairya | M2 | T-11, T-12 | [#17](https://github.com/harshbhx/modscrim/issues/17) |
 | ☐ | T-16 | Rules, proof, push and undo in the room; audit log | FR-31 to FR-35, FR-45 | P0 | Dhairya | M2 | T-04, T-15 | [#18](https://github.com/harshbhx/modscrim/issues/18) |
 | ☐ | T-17 | Report build and console view | FR-27 | P0 | Harsh | M2 | T-16 | [#19](https://github.com/harshbhx/modscrim/issues/19) |
-| ☐ | T-18 | Demo rooms with fixtures and GC | FR-38 | P0 | Harsh | M2 | T-12, T-14 | [#20](https://github.com/harshbhx/modscrim/issues/20) |
+| ☑ | T-18 | Demo rooms with fixtures and GC | FR-38 | P0 | Harsh | M2 | T-12, T-14 | [#20](https://github.com/harshbhx/modscrim/issues/20) |
 | ☑ | T-19 | Web: tokens, layout, landing, privacy page | — | P0 | Harsh | M2 | T-01 | [#21](https://github.com/harshbhx/modscrim/issues/21) |
 | ☐ | T-20 | Web: `useRoom` and the WebSocket client | FR-21 | P0 | Dhairya | M2 | T-09, T-37 | [#22](https://github.com/harshbhx/modscrim/issues/22) |
 | ☐ | T-21 | Web: mod console with keyboard | FR-22, FR-24 | P0 | Dhairya | M2 | T-20 | [#23](https://github.com/harshbhx/modscrim/issues/23) |
@@ -60,8 +60,8 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-23 | Web: console steps 4 to 6 | F-10 to F-14 | P0 | Dhairya | M2 | T-22 | [#25](https://github.com/harshbhx/modscrim/issues/25) |
 | ☐ | T-24 | Web: overlay | FR-37 | P0 | Dhairya | M2 | T-20 | [#26](https://github.com/harshbhx/modscrim/issues/26) |
 | ☐ | T-25 | Web: demo page and QR code | FR-38 | P0 | Dhairya | M2 | T-18, T-22 | [#27](https://github.com/harshbhx/modscrim/issues/27) |
-| ☐ | T-26 | Hourly cron: validate, purge, subscription health | FR-03, FR-11, FR-43 | P0 | Harsh | M3 | T-10 | [#28](https://github.com/harshbhx/modscrim/issues/28) |
-| ☐ | T-27 | Sign-out deletion flow and test | FR-04 | P0 | Harsh | M3 | T-10 | [#29](https://github.com/harshbhx/modscrim/issues/29) |
+| ☑ | T-26 | Hourly cron: validate, purge, subscription health | FR-03, FR-11, FR-43 | P0 | Harsh | M3 | T-10 | [#28](https://github.com/harshbhx/modscrim/issues/28) |
+| ☑ | T-27 | Sign-out deletion flow and test | FR-04 | P0 | Harsh | M3 | T-10 | [#29](https://github.com/harshbhx/modscrim/issues/29) |
 | ☐ | T-28 | Load script and NFR measurements | NFR-01 to NFR-03 | P0 | Dhairya | M3 | T-12 | [#30](https://github.com/harshbhx/modscrim/issues/30) |
 | ☐ | T-29 | P1: Twitch re-grade after push; agreement rate | FR-30, FR-36 | P1 | Dhairya | M4 | T-16 | [#31](https://github.com/harshbhx/modscrim/issues/31) |
 | ☐ | T-30 | P1: status panel | FR-44 | P1 | Dhairya | M4 | T-26 | [#32](https://github.com/harshbhx/modscrim/issues/32) |
@@ -76,7 +76,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-39 | Continuous integration on every pull request | NFR-06, NFR-12, NFR-17, NFR-21 | P0 | Dhairya | M1 | T-01 | [#43](https://github.com/harshbhx/modscrim/issues/43) |
 | ☐ | T-40 | Register the Twitch app and deploy the Worker to Cloudflare | — | P0 | Harsh | M1 | T-01 | [#44](https://github.com/harshbhx/modscrim/issues/44) |
 | ☐ | T-41 | Run the day-0 kill test and record the decision | A-01 to A-06 | P0 | Dhairya | M3 | T-06, T-40 | [#45](https://github.com/harshbhx/modscrim/issues/45) |
-| ☐ | T-42 | Hide mod names on the overlay | FR-46 | P1 | Harsh | M4 | T-09, T-24 | [#46](https://github.com/harshbhx/modscrim/issues/46) |
+| ☑ | T-42 | Hide mod names on the overlay | FR-46 | P1 | Harsh | M4 | T-09, T-24 | [#46](https://github.com/harshbhx/modscrim/issues/46) |
 | ☐ | T-43 | Mod history across drills | FR-27 | P2 | Dhairya | M4 | T-17 | [#47](https://github.com/harshbhx/modscrim/issues/47) |
 | ☐ | T-44 | End-to-end test of the demo loop | M-05 | P1 | Dhairya | M4 | T-25 | [#48](https://github.com/harshbhx/modscrim/issues/48) |
 | ☐ | T-45 | README, licence and a judge-ready public repository | M-06 | P0 | Dhairya | M6 | T-18, T-40 | [#49](https://github.com/harshbhx/modscrim/issues/49) |
@@ -90,8 +90,33 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-53 | Tests: after-action reports and demo rooms | Tests for T-17, T-18 | P0 | Dhairya | M2 | T-17, T-18 | [#59](https://github.com/harshbhx/modscrim/issues/59) |
 | ☐ | T-54 | Tests: hourly cron, retention and sign-out deletion | Tests for T-26, T-27 | P0 | Dhairya | M3 | T-26, T-27 | [#60](https://github.com/harshbhx/modscrim/issues/60) |
 | ☐ | T-55 | Tests: report export, coach note and hidden mod names | Tests for T-31, T-36, T-42 | P1 | Dhairya | M4 | T-31, T-36, T-42 | [#61](https://github.com/harshbhx/modscrim/issues/61) |
+| ☐ | T-56 | Brand kit and marketing website on modscrim.dualmindlab.tech (parent of T-57 to T-60) | — | P0 | Harsh | M4 | — | [#76](https://github.com/harshbhx/modscrim/issues/76) |
+| ☐ | T-57 | Brand assets in `brand/`: logos, fonts with OFL licences, social and stream images, `DESIGN.md` | PRD §9.7 | P0 | Harsh | M4 | — | [#77](https://github.com/harshbhx/modscrim/issues/77) |
+| ☐ | T-58 | Website pages and shared styles in `site/` (parent of T-61 to T-73) | PRD §9.1, §9.6 | P0 | Harsh | M4 | T-57 | [#78](https://github.com/harshbhx/modscrim/issues/78) |
+| ☐ | T-61 | ↳ Shared styles, brand tokens and self-hosted fonts | PRD §9.7 | P0 | Harsh | M4 | T-57 | [#81](https://github.com/harshbhx/modscrim/issues/81) |
+| ☐ | T-62 | ↳ Head meta, favicons, web manifest and OG image | — | P0 | Harsh | M4 | T-57 | [#82](https://github.com/harshbhx/modscrim/issues/82) |
+| ☐ | T-63 | ↳ Home page with the playable 30-second drill (`index.html`, `site.js`) | PRD §9.8 | P0 | Harsh | M4 | T-61, T-62 | [#83](https://github.com/harshbhx/modscrim/issues/83) |
+| ☐ | T-64 | ↳ How it works page | — | P0 | Harsh | M4 | T-63 | [#84](https://github.com/harshbhx/modscrim/issues/84) |
+| ☐ | T-65 | ↳ For mods page | PRD §9.3 | P0 | Harsh | M4 | T-63 | [#85](https://github.com/harshbhx/modscrim/issues/85) |
+| ☐ | T-66 | ↳ Safety page | PRD §10 | P0 | Harsh | M4 | T-63 | [#86](https://github.com/harshbhx/modscrim/issues/86) |
+| ☐ | T-67 | ↳ Setup guide page | — | P0 | Harsh | M4 | T-63 | [#87](https://github.com/harshbhx/modscrim/issues/87) |
+| ☐ | T-68 | ↳ FAQ page | — | P0 | Harsh | M4 | T-63 | [#88](https://github.com/harshbhx/modscrim/issues/88) |
+| ☐ | T-69 | ↳ Demo room page | PRD §9.5 | P0 | Harsh | M4 | T-63 | [#89](https://github.com/harshbhx/modscrim/issues/89) |
+| ☐ | T-70 | ↳ Product preview: streamer console | PRD §9.2 | P0 | Harsh | M4 | T-63 | [#90](https://github.com/harshbhx/modscrim/issues/90) |
+| ☐ | T-71 | ↳ Product preview: mod view | PRD §9.3 | P0 | Harsh | M4 | T-63 | [#91](https://github.com/harshbhx/modscrim/issues/91) |
+| ☐ | T-72 | ↳ Product preview: OBS overlay | PRD §9.4 | P0 | Harsh | M4 | T-63 | [#92](https://github.com/harshbhx/modscrim/issues/92) |
+| ☐ | T-73 | ↳ Product preview: shared report | — | P0 | Harsh | M4 | T-63 | [#93](https://github.com/harshbhx/modscrim/issues/93) |
+| ☐ | T-59 | Legal pages and placeholders (parent of T-74 to T-76) | PRD §10 | P0 | Harsh | M4 | T-58 | [#79](https://github.com/harshbhx/modscrim/issues/79) |
+| ☐ | T-74 | ↳ Privacy policy page | PRD §10 | P0 | Harsh | M4 | T-61, T-62 | [#94](https://github.com/harshbhx/modscrim/issues/94) |
+| ☐ | T-75 | ↳ Terms of use page | PRD §10 | P0 | Harsh | M4 | T-61, T-62 | [#95](https://github.com/harshbhx/modscrim/issues/95) |
+| ☐ | T-76 | ↳ Contact email and governing law in the legal pages | — | P0 | Harsh | M4 | T-74, T-75 | [#96](https://github.com/harshbhx/modscrim/issues/96) |
+| ☐ | T-60 | Host `site/` on Cloudflare Pages at modscrim.dualmindlab.tech (parent of T-77 to T-80) | SRS §9.6 | P0 | Harsh | M4 | T-58, T-59 | [#80](https://github.com/harshbhx/modscrim/issues/80) |
+| ☐ | T-77 | ↳ Security headers for the static site (`site/_headers`) | SRS §9.6 | P0 | Harsh | M4 | T-63 | [#97](https://github.com/harshbhx/modscrim/issues/97) |
+| ☐ | T-78 | ↳ Cloudflare Pages project, Git-connected (branch `main`, output `site`, no build) | — | P0 | Harsh | M4 | T-77 | [#98](https://github.com/harshbhx/modscrim/issues/98) |
+| ☐ | T-79 | ↳ Custom domain modscrim.dualmindlab.tech and DNS | — | P0 | Harsh | M4 | T-78 | [#99](https://github.com/harshbhx/modscrim/issues/99) |
+| ☐ | T-80 | ↳ Post-launch checks: links, OG preview, Lighthouse | PRD §9.8 | P0 | Harsh | M4 | T-79 | [#100](https://github.com/harshbhx/modscrim/issues/100) |
 
-T-37 to T-49 were added after a gap review of the PRD and SRS (protocol types, Worker foundations, CI, deploy, the day-0 run, hide names, mod history, end-to-end tests, README, accessibility, rehearsal, video, Devpost). T-50 to T-55 hold the automated tests for Harsh's Cloudflare tickets, owned by Dhairya. Every ticket is a GitHub issue with labels for priority, owner, area and type, a milestone (M1 to M6), and a card on the [project board](https://github.com/users/harshbhx/projects/3).
+T-37 to T-49 were added after a gap review of the PRD and SRS (protocol types, Worker foundations, CI, deploy, the day-0 run, hide names, mod history, end-to-end tests, README, accessibility, rehearsal, video, Devpost). T-50 to T-55 hold the automated tests for Harsh's Cloudflare tickets, owned by Dhairya. T-56 to T-80 cover the brand kit (`brand/`) and the static marketing website (`site/`) on Cloudflare Pages at `https://modscrim.dualmindlab.tech`; rows marked ↳ are nested sub-issues of the parent row above them. Every ticket is a GitHub issue with labels for priority, owner, area and type, a milestone (M1 to M6), and a card on the [project board](https://github.com/users/harshbhx/projects/3).
 
 **Critical path to submission:** T-38 → T-07 (Harsh) → T-08 → T-11 → T-15 → T-16 (Dhairya) → T-47 → T-48 → T-49 (Dhairya). Harsh's T-38, T-07 and T-09 unblock almost everything, so they go first. Dhairya's core tickets (T-03 to T-05, T-37) need nothing from Harsh and run in parallel.
 

@@ -51,8 +51,8 @@ The full `app/wrangler.jsonc` and `app/vite.config.ts` are in SRS §12.2 and §1
 
 | Name | Kind | Value | Purpose |
 |---|---|---|---|
-| `PUBLIC_BASE_URL` | secret (not sensitive) | `https://mod-fire-drill.<subdomain>.workers.dev`; `http://localhost:5173` locally | Redirect URI, webhook callback, links, `Origin` check |
-| `TWITCH_CLIENT_ID` | var | From the Twitch console | OAuth and Helix |
+| `PUBLIC_BASE_URL` | secret (not sensitive) | `https://app.modscrim.dualmindlab.tech` in production; `http://localhost:5173` locally | Redirect URI, webhook callback, links, `Origin` check |
+| `TWITCH_CLIENT_ID` | var | From the Twitch console (placeholder in `app/wrangler.jsonc` until the app is registered) | OAuth and Helix |
 | `TWITCH_CLIENT_SECRET` | secret | From the Twitch console | Token exchange |
 | `EVENTSUB_SECRET` | secret | `openssl rand -hex 24` (10 to 100 ASCII characters) | Webhook signatures |
 | `SESSION_HMAC_KEY` | secret | `openssl rand -hex 32` | Cookies, tickets, participant tokens |
@@ -67,6 +67,8 @@ The full `app/wrangler.jsonc` and `app/vite.config.ts` are in SRS §12.2 and §1
 | `COACH_AI_ENABLED` | var | `false` | FR-42 |
 
 **Why `PUBLIC_BASE_URL` is a secret:** with `secrets.required` set, only the listed keys load from `app/.dev.vars`, so it must be listed there to be overridable locally. `app/.dev.vars` is git-ignored.
+
+**Hosts:** the Worker `mod-fire-drill` serves `https://app.modscrim.dualmindlab.tech` (Workers Custom Domain, set in `routes`) and `https://mod-fire-drill.creharsh.workers.dev`. The static website on `https://modscrim.dualmindlab.tech` is a separate Pages project built from `site/`.
 
 **Local limitation:** Twitch only calls HTTPS callbacks on port 443, so local dev skips chat subscriptions. Test the webhook with the Twitch CLI (`twitch.md` §7).
 
@@ -88,13 +90,13 @@ The full `app/wrangler.jsonc` and `app/vite.config.ts` are in SRS §12.2 and §1
 ## 5. First deployment (SRS §12.6)
 
 1. `npx wrangler login`
-2. `npx wrangler d1 create mfd`; copy the ID into `wrangler.jsonc`
+2. `npx wrangler d1 create mfd`; copy the ID into `wrangler.jsonc` (done: `e28e6c2c-9a50-4f08-a622-a563c3baadfb`)
 3. `npm run db:migrate:remote`
-4. Find the account's `workers.dev` subdomain; `PUBLIC_BASE_URL = https://mod-fire-drill.<subdomain>.workers.dev`
+4. `PUBLIC_BASE_URL = https://app.modscrim.dualmindlab.tech`, served through `"routes": [{ "pattern": "app.modscrim.dualmindlab.tech", "custom_domain": true }]`; `workers.dev` stays on as `https://mod-fire-drill.creharsh.workers.dev`
 5. `npx wrangler secret put` for `PUBLIC_BASE_URL`, `TWITCH_CLIENT_SECRET`, `EVENTSUB_SECRET`, `SESSION_HMAC_KEY`, `TOKEN_ENC_KEY`; set `TWITCH_CLIENT_ID` in `vars`
 6. `npm run deploy`
-7. Add `<URL>/auth/callback` to the Twitch app's redirect URLs
-8. Open `<URL>/demo` and run a demo drill
+7. Add `https://app.modscrim.dualmindlab.tech/auth/callback` to the Twitch app's redirect URLs (HTTPS only; Twitch rejects `localhost`). EventSub calls `https://app.modscrim.dualmindlab.tech/eventsub`
+8. Open `https://app.modscrim.dualmindlab.tech/demo` and run a demo drill
 9. Sign in with the test channel; the console shows "Connected" and the chat subscription becomes `enabled`
 10. P1: `npx wrangler r2 bucket create mfd-reports`, `npx wrangler queues create mfd-reports`, restore the P1 block, deploy, `npm run subscribe-revoke`
 
