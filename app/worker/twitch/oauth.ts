@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { seal, unseal } from '../auth/crypto.js';
+import { log } from '../lib/log.js';
 
 const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const TOKEN_RESPONSE = z.object({
@@ -148,6 +149,25 @@ const SUBSCRIPTION_LIST_RESPONSE = z.object({
   pagination: z.object({ cursor: z.string().optional() }).optional()
 });
 
+function rateLimitHeader(response: Response, name: string): number | null {
+  const value = response.headers.get(name);
+  if (value === null || !/^\d+$/.test(value)) return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : null;
+}
+
+function recordSubscriptionRateLimit(response: Response, phase: 'create' | 'list'): void {
+  log('eventsub.subscription', {
+    room: 'eventsub',
+    subType: `channel.chat.message.${phase}`,
+    status: response.ok ? 'http_ok' : 'http_error',
+    httpStatus: response.status,
+    rateLimit: rateLimitHeader(response, 'Ratelimit-Limit'),
+    remaining: rateLimitHeader(response, 'Ratelimit-Remaining'),
+    reset: rateLimitHeader(response, 'Ratelimit-Reset')
+  });
+}
+
 async function findExistingChatSubscription(env: Env, appToken: string, broadcasterId: string) {
   let cursor: string | undefined;
   do {
@@ -157,6 +177,7 @@ async function findExistingChatSubscription(env: Env, appToken: string, broadcas
     const response = await fetch(url, {
       headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${appToken}` }
     });
+    recordSubscriptionRateLimit(response, 'list');
     if (!response.ok) return null;
     const parsed = SUBSCRIPTION_LIST_RESPONSE.safeParse(await response.json());
     if (!parsed.success) return null;
@@ -204,6 +225,7 @@ export async function ensureChatSubscription(env: Env, broadcasterId: string): P
         }
       })
     });
+    recordSubscriptionRateLimit(response, 'create');
     if (response.status === 409) {
       const existing = await findExistingChatSubscription(env, appToken, broadcasterId);
       if (!existing) throw new TwitchOAuthError(response.status);
