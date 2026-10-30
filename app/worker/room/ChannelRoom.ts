@@ -12,6 +12,7 @@ import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
 import { DrillEngine, DrillError } from './drill.js';
+import { chatRetentionMs, DAY_MS, purgeExpired, type PurgeResult } from './chatlog.js';
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -35,6 +36,8 @@ export class ChannelRoom extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.drills.registerJobs((kind, handler) => this.registerJob(kind, handler));
+    // Retention (FR-43): the daily purge reschedules itself 24 h later.
+    this.scheduler.register('chatlog.purge', (job) => this.dailyPurge(job.now));
     // Migrations run only for rooms bootstrapped before; a stray request creates no tables.
     ctx.blockConcurrencyWhile(async () => {
       if (isBootstrapped(this.sql)) migrate(this.sql);
@@ -90,6 +93,7 @@ export class ChannelRoom extends DurableObject<Env> {
         this.setMeta('last_activity', String(Date.now()));
       }
     });
+    await this.ensureDailyPurge(Date.now());
     if (input.mode === 'live') {
       try {
         await this.refreshFilters();
@@ -207,6 +211,39 @@ export class ChannelRoom extends DurableObject<Env> {
       this.touch();
       return deleted;
     });
+  }
+
+  // ---- retention and token health (SRS §8.4, T-26) -------------------------------------------
+
+  /** Hourly cron (FR-03): validate the broadcaster token at Twitch; a 401 marks it invalid. */
+  async validateToken(): Promise<'ok' | 'invalid'> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    const userId = this.meta('broadcaster_id');
+    if (!userId || this.meta('mode') !== 'live') return 'invalid';
+    return this.tokens.validate(userId, Date.now());
+  }
+
+  /** Hourly cron (FR-43): apply retention now and report the newest chat time for D1 `channels`. */
+  async purge(now: number): Promise<PurgeResult | null> {
+    if (!this.bootstrapped()) return null;
+    const result = this.ctx.storage.transactionSync(() => purgeExpired(this.sql, now, chatRetentionMs(this.env)));
+    await this.ensureDailyPurge(now);
+    return result;
+  }
+
+  /** The `chatlog.purge` job: same retention, then move itself 24 h later (idempotent). */
+  private async dailyPurge(now: number): Promise<void> {
+    this.ctx.storage.transactionSync(() => purgeExpired(this.sql, now, chatRetentionMs(this.env)));
+    await this.scheduler.schedule('chatlog.purge', 'daily', now + DAY_MS);
+  }
+
+  /** Live rooms keep exactly one daily purge job; an existing one keeps its due time. */
+  private async ensureDailyPurge(now: number): Promise<void> {
+    if (this.meta('mode') !== 'live') return;
+    const scheduled = this.sql
+      .exec("SELECT 1 FROM schedule WHERE kind = 'chatlog.purge' AND key = 'daily'")
+      .toArray().length > 0;
+    if (!scheduled) await this.scheduler.schedule('chatlog.purge', 'daily', now + DAY_MS);
   }
 
   /** A single-use 60 second ticket for a WebSocket connection. */
