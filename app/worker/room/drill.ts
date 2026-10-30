@@ -85,6 +85,8 @@ type Deps = {
   touch: (now: number) => void;
   /** Participant IDs of mods with an open socket; they join each new draft without a code (FR-22). */
   connectedMods: () => string[];
+  /** Save the drill's report and broadcast `report.ready` (FR-27): the room's `refreshReport` hook. */
+  refreshReport: (drillId: string, now: number) => void;
 };
 
 const DRILL_COLUMNS = 'id, seed, config, status, join_code, created_at, started_at, ended_at';
@@ -477,7 +479,10 @@ export class DrillEngine {
     });
   }
 
-  /** Broadcast the end: slips, then `drill.ended` with the reveal for console and mods only (FR-26). */
+  /**
+   * Broadcast the end: slips, then `drill.ended` with the reveal for console and mods only (FR-26), then
+   * save the first version of the report and broadcast `report.ready` (FR-27).
+   */
   private announceEnd(drillId: string, result: Finish): void {
     for (const lineId of result.slipped) {
       const msg: ServerMsg = { type: 'drill.slipped', data: { lineId } };
@@ -490,8 +495,7 @@ export class DrillEngine {
     this.send((role) =>
       role === 'overlay' ? { type: 'drill.ended', data: { score } } : { type: 'drill.ended', data: { score, reveal } }
     );
-    // TODO(T-17): save the first version of the report here and broadcast `report.ready` with `broadcast`:
-    // the overlay gets the card only, and `forOverlay` hides its mod names when `hide_names` is on (FR-46).
+    this.deps.refreshReport(drillId, result.endedAt);
     log('drill.ended', {
       room: this.deps.roomName(),
       drill: drillId,
