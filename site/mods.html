@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim for mods</title>
+<meta name="description" content="How mods join a ModScrim drill, the keyboard controls and how scoring works.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim for mods">
+<meta property="og:description" content="How mods join a ModScrim drill, the keyboard controls and how scoring works.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/mods">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/mods">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html" aria-current="page">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html" aria-current="page">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
+  <div class="wrap phead">
+    <h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">For mods</h1>
+    <p class="lead">Practise on fake raids without an audience, get a score, and get faster. You join from any device with a link and a 6-digit code.</p>
+  </div>
+</section>
+<section class="page" aria-label="How mods take part">
+  <div class="wrap">
+    <div class="how" style="gap:56px">
+      <div>
+        <h2 class="d2">Your part in a drill</h2>
+        <ol class="plan" style="margin-top:40px">
+          <li><span class="k">1</span><div><h3 class="h3">Open the mod link</h3><p>Your streamer shares a link that ends in <code>/mod/</code> and their channel name. Type the 6-digit code and the name you want on the scoreboard.</p></div></li>
+          <li><span class="k">2</span><div><h3 class="h3">Wait for the whistle</h3><p>&ldquo;You&rsquo;re in. Remove attacks, leave regulars alone.&rdquo; You&rsquo;ll see who else has joined.</p></div></li>
+          <li><span class="k">3</span><div><h3 class="h3">Clear the practice chat</h3><p>Delete, time out or ban each attack. Leave banter alone: acting on a regular counts as a false ban. If two mods act on the same line, whoever reached the server first gets it.</p></div></li>
+          <li><span class="k">4</span><div><h3 class="h3">See your score</h3><p>Caught, false bans and your average reaction time, the team scoreboard, and the reveal: which lines were attacks and which tricks they used.</p></div></li>
+        </ol>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="shot">
+          <p class="h3" style="margin-bottom:14px">Keyboard</p>
+          <table class="dtable" style="min-width:0"><tbody>
+            <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Move between lines</td></tr>
+            <tr><td><kbd>D</kbd></td><td>Delete the focused line</td></tr>
+            <tr><td><kbd>T</kbd></td><td>Time out its sender</td></tr>
+            <tr><td><kbd>B</kbd></td><td>Ban its sender</td></tr>
+          </tbody></table>
+          <p class="micro muted" style="margin-top:12px">Every action also has a button. The mod view works on phones from 360 pixels wide, where every button is at least 44 pixels tall.</p>
+        </div>
+        <div class="shot" style="padding:12px">
+          <p class="h3" style="margin:6px 8px 12px">What each line tells you</p>
+          <div class="msg caught" style="cursor:default"><span class="u" style="color:#FFC48F">nitrodrops_93</span><span class="t">fr33 nitro → nitrodrop.invalid</span><span class="st st-caught">Banned by you · 2.1 s</span></div>
+          <div class="msg foul" style="cursor:default"><span class="u" style="color:#F2E58A">grandpa_gamer</span><span class="t">LOL the jump at the end</span><span class="st st-foul">False ban: that was a regular</span></div>
+          <div class="msg slipped" style="cursor:default"><span class="u" style="color:#A6D8EC">grow_fast_77</span><span class="t">want more v i e w e r s?</span><span class="st st-slipped">Slipped through</span></div>
+          <div class="msg" style="cursor:default"><span class="u" style="color:#8FE0AE">giftsnow_bot</span><span class="t">skins giveaway is live</span><span class="st st-other">Sam got it first</span></div>
+        </div>
+        <a class="btn btn-orange" href="mod.html" style="align-self:flex-start">Try the mod view</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="sec" style="padding-top:0" aria-labelledby="week-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="week-title" class="d2">Every drill adds a column</h2>
+      <p class="lead muted">Run a drill before you go live and compare reports: fewer lines slipping through, fewer false bans, faster reactions.</p>
+    </div>
+    <div class="line on-green" style="max-width:900px">
+      <div class="line-scroll">
+        <table>
+          <thead><tr><td></td><th scope="col">Mon</th><th scope="col">Tue</th><th scope="col">Wed</th><th scope="col">Thu</th><th scope="col">Fri</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Slipped</th><td><span class="pl raid">6</span></td><td><span class="pl raid">5</span></td><td><span class="pl raid">3</span></td><td><span class="pl raid">2</span></td><td class="now"><span class="pl raid">1</span></td></tr>
+            <tr><th scope="row">False bans</th><td><span class="pl fouls">3</span></td><td><span class="pl fouls">2</span></td><td><span class="pl fouls">2</span></td><td><span class="pl fouls">1</span></td><td class="now"><span class="pl fouls">0</span></td></tr>
+            <tr><th scope="row">Avg reaction</th><td><span class="pl">4.8</span></td><td><span class="pl">4.1</span></td><td><span class="pl">3.3</span></td><td><span class="pl">2.9</span></td><td class="now"><span class="pl">2.4</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="line-note">Sample week for one mod team, 14 attack lines per drill. Reaction times in seconds. A mod-history view across drills is planned; today each drill has its own report.</p>
+    </div>
+  </div>
+</section>
+<section class="sec" style="padding-top:0" aria-labelledby="modfaq-title">
+  <div class="wrap">
+    <div class="hr">
+      <div class="hr-head"><h2 id="modfaq-title" class="d2">Good to know</h2></div>
+      <ul class="hr-list">
+        <li><h3 class="h3">It&rsquo;s opt-in</h3><p>You only see the practice chat when you join a drill, and it always carries the &ldquo;Practice chat only&rdquo; banner.</p></li>
+        <li><h3 class="h3">Your actions don&rsquo;t touch Twitch</h3><p>Delete, time out and ban only score the drill. Nobody real is removed from anything.</p></li>
+        <li><h3 class="h3">Your name on stream is your streamer&rsquo;s call</h3><p>The overlay can show &ldquo;Mod 1&rdquo;, &ldquo;Mod 2&rdquo; instead of names. Ask your streamer to switch it on if you&rsquo;d rather stay anonymous.</p></li>
+        <li><h3 class="h3">Kai is not a person</h3><p>Kai (sim) is a simulated co-mod for rehearsing alone. It&rsquo;s always labelled and scored separately.</p></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main><section class="close on-green" aria-labelledby="close-title">
+  <div class="wrap">
+    <div class="close-in" style="grid-template-columns:minmax(0,3fr) minmax(0,9fr)">
+      <img class="mark" src="img/modscrim-mark-reverse.svg" alt="" width="260" height="186" style="max-width:240px">
+      <div class="close-copy">
+        <h2 id="close-title" class="d2">Join your team&rsquo;s next drill.</h2>
+        <p class="lead">Ask your streamer for the mod link and the code, or try the mod view now with the sample channel.</p>
+        <div class="ctas"><a class="btn btn-orange" href="mod.html">Try the mod view</a><a class="btn btn-line" href="faq.html">Read the FAQ</a></div>
+      </div>
+    </div>
+  </div>
+</section><div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

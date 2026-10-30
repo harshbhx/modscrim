@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim demo room</title>
+<meta name="description" content="Run a full ModScrim drill with a sample channel, no Twitch account needed.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim demo room">
+<meta property="og:description" content="Run a full ModScrim drill with a sample channel, no Twitch account needed.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/demo">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/demo">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html" aria-current="page">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html" aria-current="page">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
+  <div class="wrap phead">
+    <h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">Try a demo room</h1>
+    <p class="lead">Run the whole loop without a Twitch account: a private practice room with a sample channel, a simulated co-mod and every step from filters to push.</p>
+  </div>
+</section>
+<section class="page" aria-label="Demo room">
+  <div class="wrap">
+    <div class="grid-73" style="gap:56px">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <h2 class="d2">What you get</h2>
+        <ul class="hr-list" style="margin-top:8px">
+          <li><h3 class="h3">A sample channel</h3><p><code>pixelpanda_tv</code>, with five public blocked terms and a curated 71-line chat log for the false-ban check.</p></li>
+          <li><h3 class="h3">A co-mod who never sleeps</h3><p>Kai (sim) acts on about 60 percent of attacks after a few seconds and sometimes falls for tempting banter, so you can see a false ban happen. Kai is always labelled and scored separately.</p></li>
+          <li><h3 class="h3">The full loop</h3><p>Drill, score, grade, find rules, prove them on a fresh wave and run a simulated push and undo.</p></li>
+          <li><h3 class="h3">Grading is a local estimate</h3><p>Demo rooms never call Twitch, so grades come from ModScrim&rsquo;s own matcher and say so. On a real channel, Twitch does the grading.</p></li>
+          <li><h3 class="h3">It cleans up after itself</h3><p>Your room is private to your browser and deletes itself two hours after its last activity.</p></li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="shot" style="padding:32px">
+          <p class="d3">Start a demo drill</p>
+          <p class="muted" style="margin:12px 0 24px">Opens the streamer console for your private room.</p>
+          <a class="btn btn-orange" href="console.html">Start a demo drill</a>
+        </div>
+        <div class="shot" style="padding:32px">
+          <p class="d3">Be the mod on your phone</p>
+          <p class="muted" style="margin:12px 0 18px">Open the mod view on another device and join with the room&rsquo;s code.</p>
+          <div class="copy-row"><code id="demo-mod-link">https://modscrim.dualmindlab.tech/demo/room-7k2q/mod</code><button class="btn btn-line btn-xs" type="button" data-copy="demo-mod-link">Copy link</button></div>
+          <p style="margin-top:16px">Join code <span class="joincode" style="font-size:32px">482 913</span></p>
+          <a class="btn btn-line btn-sm" href="mod.html" style="margin-top:18px">Open the mod view here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main><div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

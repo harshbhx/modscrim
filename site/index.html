@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim</title>
+<meta name="description" content="Raid drills for Twitch mod teams: a practice chat, a scoreboard, Twitch-graded filters and blocked terms you push with one-click undo.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim">
+<meta property="og:description" content="Raid drills for Twitch mod teams: a practice chat, a scoreboard, Twitch-graded filters and blocked terms you push with one-click undo.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <section class="hero top on-green" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="hero-top">
+        <h1 id="hero-title" class="d1">Raid drills for your mod team.</h1>
+        <div class="hero-copy">
+          <p class="lead">ModScrim floods a practice chat that only your team can see with spam built to slip past your channel&rsquo;s own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.</p>
+          <div class="ctas">
+            <a class="btn btn-orange" href="console.html">Start a drill</a>
+            <a class="btn btn-line" href="#drill">Try the 30-second drill</a>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="drill" data-drill="home">
+        <div class="sb" role="group" aria-label="Scoreboard">
+          <span class="sb-tag">Practice</span>
+          <div class="slot slot-mods"><span class="slot-l">Mods</span><span class="plates" data-score="mods"><span class="pl"></span><span class="pl">0</span></span></div>
+          <div class="slot slot-raid"><span class="slot-l">Raid</span><span class="plates" data-score="raid"><span class="pl"></span><span class="pl">0</span></span></div>
+          <div class="slot slot-fouls"><span class="slot-l">Fouls</span><span class="plates" data-score="fouls"><span class="pl">0</span></span></div>
+          <div class="slot slot-clock"><span class="slot-l">Clock</span><span class="plates" data-score="clock"><span class="pl">0</span><span class="pl sep">:</span><span class="pl">3</span><span class="pl">0</span></span></div>
+          <p class="vh" aria-live="polite" data-live>Caught 0, slipped 0, fouls 0.</p>
+        </div>
+        <div class="field-body">
+          <div class="chat">
+            <div class="chat-head">
+              <span class="tag tag-practice">Practice chat</span>
+              <span class="micro">This demo runs in your browser. Nothing is posted to Twitch.</span>
+            </div>
+            <div class="feedwrap">
+              <div class="feed" data-feed role="log" aria-label="Practice chat messages" tabindex="-1"></div>
+              <button class="btn btn-green btn-sm paused" type="button" data-paused hidden>Chat paused. Jump to newest</button>
+              <div class="cover" data-cover>
+                <div class="cover-in">
+                  <p class="h3" style="color:var(--chalk)">A small raid is about to land.</p>
+                  <p>You have 30 seconds. Click a message to delete it. Delete the spam and leave your regulars alone: deleting a regular is a foul. Anything nobody removes within 9 seconds slips through.</p>
+                  <button class="btn btn-orange" type="button" data-start>Start the 30-second drill</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="notes" data-notes aria-label="Coach's notes"></aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="how" aria-labelledby="how-title" style="padding-top:128px">
+    <div class="wrap">
+      <div class="how">
+        <div>
+          <h2 id="how-title" class="d2">How a drill runs</h2>
+          <p class="lead muted how-lead">About six minutes from the first whistle to a report. Your mods practise on fake accounts in a chat only they can see, and your filters get tested against attacks they have never seen.</p>
+          <ol class="plan">
+            <li><time datetime="PT0S">0:00</time><div><h3 class="h3">Pick a play</h3><p>Choose the tactics: fake giveaway links, follower and viewer spam, art and promo bots. Set the length, the speed and how long a line can sit before it slips through.</p></div></li>
+            <li><time datetime="PT30S">0:30</time><div><h3 class="h3">First whistle</h3><p>Your mods join from any device with a 6-digit code. Every screen says practice, and your viewers see a safe overlay with the attack text blurred out.</p></div></li>
+            <li><time datetime="PT35S">0:35</time><div><h3 class="h3">The raid lands</h3><p>A line every second and a half, mixed with harmless banter. Mods delete, time out or ban. The first action wins; a line nobody touches for 9 seconds slips through.</p></div></li>
+            <li><time datetime="PT2M">2:00</time><div><h3 class="h3">Final whistle</h3><p>Each mod gets caught, false bans and average reaction time, and the reveal shows which lines were attacks and which tricks they used.</p></div></li>
+            <li><time datetime="PT2M30S">2:30</time><div><h3 class="h3">Twitch grades your filters</h3><p>Every attack line goes through Twitch&rsquo;s Check AutoMod Status: &ldquo;9 of 14 attack lines would get past your filters.&rdquo;</p></div></li>
+            <li><time datetime="PT3M30S">3:30</time><div><h3 class="h3">Fix the rules</h3><p>Up to six blocked terms that catch what got past, each checked against last week&rsquo;s real chat so it can&rsquo;t ban a regular.</p></div></li>
+            <li><time datetime="PT4M30S">4:30</time><div><h3 class="h3">Prove it on a fresh wave</h3><p>A new wave built with tricks the rule finder never saw. You see blocked before and after, and real-chat matches, which must be zero.</p></div></li>
+            <li><time datetime="PT5M">5:00</time><div><h3 class="h3">Approve and push</h3><p>Nothing reaches Twitch until you press the button. Undo removes every term the drill pushed.</p></div></li>
+          </ol>
+        </div>
+        <figure class="play">
+        <svg viewBox="0 0 520 596" role="img" aria-labelledby="play-t">
+          <title id="play-t">Play diagram: raid accounts run at your chat, your mods block four of them, one slips through.</title>
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#FF6A1F"/></marker></defs>
+          <g fill="none" stroke="#123D2E" stroke-opacity=".28" stroke-width="2">
+            <rect x="10" y="10" width="500" height="540"/><path d="M190 10 A70 70 0 0 0 330 10"/>
+            <rect x="110" y="410" width="300" height="140"/><rect x="190" y="490" width="140" height="60"/><path d="M212 410 A62 62 0 0 1 308 410"/>
+          </g>
+          <rect x="222" y="550" width="76" height="14" rx="2" fill="#123D2E"/>
+          <g fill="none" stroke="#FF6A1F" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9">
+            <path d="M96 98 Q 108 200 140 280"/><path d="M262 112 L 261 248"/><path d="M424 114 Q 414 210 384 282"/><path d="M210 178 Q 216 260 232 316"/>
+          </g>
+          <path d="M318 186 C 340 300, 320 430, 266 536" fill="none" stroke="#FF6A1F" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9" marker-end="url(#ah)"/>
+          <g stroke="#FF6A1F" stroke-width="4" stroke-linecap="round"><path d="M128 288 L 152 278"/><path d="M249 252 L 273 252"/><path d="M374 274 L 396 288"/><path d="M221 323 L 244 314"/></g>
+          <g fill="#FFFFFF" stroke="#FF6A1F" stroke-width="4">
+            <circle cx="92" cy="80" r="16"/><circle cx="178" cy="56" r="16"/><circle cx="262" cy="94" r="16"/><circle cx="352" cy="58" r="16"/><circle cx="428" cy="96" r="16"/><circle cx="208" cy="160" r="16"/><circle cx="316" cy="168" r="16"/>
+          </g>
+          <g stroke="#123D2E" stroke-width="5.5" stroke-linecap="round">
+            <path d="M136 300 L 162 326 M162 300 L 136 326"/><path d="M248 264 L 274 290 M274 264 L 248 290"/><path d="M372 296 L 398 322 M398 296 L 372 322"/><path d="M224 332 L 250 358 M250 332 L 224 358"/>
+          </g>
+          <g font-family="Atkinson Hyperlegible Next, system-ui, sans-serif" font-size="15" font-weight="700" fill="#123D2E" paint-order="stroke" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round">
+            <text x="490" y="40" text-anchor="end">Raid accounts</text><text x="30" y="372">Your mods</text><text x="260" y="588" text-anchor="middle">Your chat</text>
+            <text x="338" y="472" fill="#B33D00">Slipped through,</text><text x="338" y="491" fill="#B33D00">so it becomes a rule</text>
+          </g>
+        </svg>
+          <figcaption>Circles are raid accounts, crosses are your mods. A dotted route ending in a bar is a message your team removed.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="referee" aria-labelledby="ref-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="ref-title" class="d2">Twitch keeps score on your filters</h2>
+        <p class="lead muted">The headline numbers come from Twitch&rsquo;s own Check AutoMod Status, not from ModScrim grading itself. Where Twitch&rsquo;s hourly limit runs out, the number says &ldquo;local estimate&rdquo; instead.</p>
+      </div>
+      <div class="box-wrap">
+        <div class="line on-green">
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 20px">
+            <p class="big-n num">9 of 14</p>
+            <p style="max-width:22em">attack lines would get past your filters <span class="engine">graded by Twitch</span></p>
+          </div>
+          <div class="bars" style="margin-top:28px">
+            <p class="micro muted">Fresh wave of 30 attacks, with tricks the rule finder never saw</p>
+            <div class="bar"><span>Before</span><span class="bar-track"><span class="bar-fill" style="display:block;width:33%"></span></span><span class="num">10 of 30</span></div>
+            <div class="bar"><span>After</span><span class="bar-track"><span class="bar-fill good" style="display:block;width:63%"></span></span><span class="num">19 of 30</span></div>
+            <div class="bar"><span>Real chat</span><span class="bar-track"></span><span class="num">0 matches</span></div>
+          </div>
+          <p class="line-note">Example numbers from the sample channel. Lines that use spaced letters, dotted letters or look-alike letters are listed as &ldquo;needs a bot rule&rdquo;, because blocked terms can&rsquo;t express them.</p>
+        </div>
+        <div class="rulecard">
+          <header><b>Rules from this drill</b><span class="micro muted">Checked against 1,284 real messages</span></header>
+          <ul class="rulelist" data-rules>
+            <li data-state="live"><div class="what"><span class="kind">Blocked term, catches 2</span><code>giftsnow*</code></div><div class="acts"><span class="state state-live">Live</span><button class="btn btn-line-dark btn-xs" type="button">Undo</button></div></li>
+            <li data-state="live"><div class="what"><span class="kind">Blocked term, catches 1</span><code>fr33</code></div><div class="acts"><span class="state state-live">Live</span><button class="btn btn-line-dark btn-xs" type="button">Undo</button></div></li>
+            <li data-state="ready"><div class="what"><span class="kind">Blocked term, catches 3</span><code>viewbump*</code></div><div class="acts"><span class="state state-ready">Ready</span><button class="btn btn-green btn-xs" type="button">Push to channel</button></div></li>
+            <li><div class="what"><span class="kind">Rejected: matches a regular&rsquo;s &ldquo;dm me the build later&rdquo;</span><code>dm me</code></div><div class="acts"><span class="state state-bad">Would ban a regular</span></div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="house-rules" aria-labelledby="rules-title">
+    <div class="wrap">
+      <div class="hr">
+        <div class="hr-head">
+          <h2 id="rules-title" class="d2">House rules</h2>
+          <p class="lead muted">ModScrim is a practice tool. These rules keep practice from ever touching the real thing.</p>
+          <p><a class="textlink" href="safety.html">Read the full safety page</a></p>
+        </div>
+        <ul class="hr-list">
+          <li><h3 class="h3">Practice stays in practice</h3><p>Generated attacks only appear in the practice chat. ModScrim never posts them to Twitch, and every link ends in <code>.invalid</code>, so it can&rsquo;t open.</p></li>
+          <li><h3 class="h3">Viewers see a safe overlay</h3><p>The OBS overlay shows usernames, outcomes and the scoreboard, with every attack message drawn as a blurred bar. Viewers never learn a working trick.</p></li>
+          <li><h3 class="h3">You push every change</h3><p>No term reaches your channel until you press Approve, and every push has an Undo. ModScrim reads your AutoMod settings and never changes them.</p></li>
+          <li><h3 class="h3">Your chat log stays yours</h3><p>Kept for 7 days, used only to check that new rules don&rsquo;t ban your regulars, never shown on stream, and deleted when you ask or sign out.</p></li>
+          <li><h3 class="h3">Not affiliated with Twitch</h3><p>ModScrim is an independent tool that signs in with Twitch. It isn&rsquo;t made or endorsed by Twitch.</p></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="close on-green" aria-labelledby="close-title">
+  <div class="wrap">
+    <div class="close-in">
+      <img class="mark" src="img/modscrim-mark-reverse.svg" alt="" width="420" height="300">
+      <div class="close-copy">
+        <h2 id="close-title" class="d2">Run your first drill tonight.</h2>
+        <p class="lead">Sign in with Twitch, share the mod link and blow the whistle. Setup takes about three minutes, and nothing needs installing.</p>
+        <div class="ctas">
+          <a class="btn btn-orange" href="console.html">Start a drill</a>
+          <a class="btn btn-line" href="setup.html">Read the setup guide</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

@@ -90,8 +90,33 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-53 | Tests: after-action reports and demo rooms | Tests for T-17, T-18 | P0 | Dhairya | M2 | T-17, T-18 | [#59](https://github.com/harshbhx/modscrim/issues/59) |
 | ☐ | T-54 | Tests: hourly cron, retention and sign-out deletion | Tests for T-26, T-27 | P0 | Dhairya | M3 | T-26, T-27 | [#60](https://github.com/harshbhx/modscrim/issues/60) |
 | ☐ | T-55 | Tests: report export, coach note and hidden mod names | Tests for T-31, T-36, T-42 | P1 | Dhairya | M4 | T-31, T-36, T-42 | [#61](https://github.com/harshbhx/modscrim/issues/61) |
+| ☐ | T-56 | Brand kit and marketing website on modscrim.dualmindlab.tech (parent of T-57 to T-60) | — | P0 | Harsh | M4 | — | [#76](https://github.com/harshbhx/modscrim/issues/76) |
+| ☐ | T-57 | Brand assets in `brand/`: logos, fonts with OFL licences, social and stream images, `DESIGN.md` | PRD §9.7 | P0 | Harsh | M4 | — | [#77](https://github.com/harshbhx/modscrim/issues/77) |
+| ☐ | T-58 | Website pages and shared styles in `site/` (parent of T-61 to T-73) | PRD §9.1, §9.6 | P0 | Harsh | M4 | T-57 | [#78](https://github.com/harshbhx/modscrim/issues/78) |
+| ☐ | T-61 | ↳ Shared styles, brand tokens and self-hosted fonts | PRD §9.7 | P0 | Harsh | M4 | T-57 | [#81](https://github.com/harshbhx/modscrim/issues/81) |
+| ☐ | T-62 | ↳ Head meta, favicons, web manifest and OG image | — | P0 | Harsh | M4 | T-57 | [#82](https://github.com/harshbhx/modscrim/issues/82) |
+| ☐ | T-63 | ↳ Home page with the playable 30-second drill (`index.html`, `site.js`) | PRD §9.8 | P0 | Harsh | M4 | T-61, T-62 | [#83](https://github.com/harshbhx/modscrim/issues/83) |
+| ☐ | T-64 | ↳ How it works page | — | P0 | Harsh | M4 | T-63 | [#84](https://github.com/harshbhx/modscrim/issues/84) |
+| ☐ | T-65 | ↳ For mods page | PRD §9.3 | P0 | Harsh | M4 | T-63 | [#85](https://github.com/harshbhx/modscrim/issues/85) |
+| ☐ | T-66 | ↳ Safety page | PRD §10 | P0 | Harsh | M4 | T-63 | [#86](https://github.com/harshbhx/modscrim/issues/86) |
+| ☐ | T-67 | ↳ Setup guide page | — | P0 | Harsh | M4 | T-63 | [#87](https://github.com/harshbhx/modscrim/issues/87) |
+| ☐ | T-68 | ↳ FAQ page | — | P0 | Harsh | M4 | T-63 | [#88](https://github.com/harshbhx/modscrim/issues/88) |
+| ☐ | T-69 | ↳ Demo room page | PRD §9.5 | P0 | Harsh | M4 | T-63 | [#89](https://github.com/harshbhx/modscrim/issues/89) |
+| ☐ | T-70 | ↳ Product preview: streamer console | PRD §9.2 | P0 | Harsh | M4 | T-63 | [#90](https://github.com/harshbhx/modscrim/issues/90) |
+| ☐ | T-71 | ↳ Product preview: mod view | PRD §9.3 | P0 | Harsh | M4 | T-63 | [#91](https://github.com/harshbhx/modscrim/issues/91) |
+| ☐ | T-72 | ↳ Product preview: OBS overlay | PRD §9.4 | P0 | Harsh | M4 | T-63 | [#92](https://github.com/harshbhx/modscrim/issues/92) |
+| ☐ | T-73 | ↳ Product preview: shared report | — | P0 | Harsh | M4 | T-63 | [#93](https://github.com/harshbhx/modscrim/issues/93) |
+| ☐ | T-59 | Legal pages and placeholders (parent of T-74 to T-76) | PRD §10 | P0 | Harsh | M4 | T-58 | [#79](https://github.com/harshbhx/modscrim/issues/79) |
+| ☐ | T-74 | ↳ Privacy policy page | PRD §10 | P0 | Harsh | M4 | T-61, T-62 | [#94](https://github.com/harshbhx/modscrim/issues/94) |
+| ☐ | T-75 | ↳ Terms of use page | PRD §10 | P0 | Harsh | M4 | T-61, T-62 | [#95](https://github.com/harshbhx/modscrim/issues/95) |
+| ☐ | T-76 | ↳ Contact email and governing law in the legal pages | — | P0 | Harsh | M4 | T-74, T-75 | [#96](https://github.com/harshbhx/modscrim/issues/96) |
+| ☐ | T-60 | Host `site/` on Cloudflare Pages at modscrim.dualmindlab.tech (parent of T-77 to T-80) | SRS §9.6 | P0 | Harsh | M4 | T-58, T-59 | [#80](https://github.com/harshbhx/modscrim/issues/80) |
+| ☐ | T-77 | ↳ Security headers for the static site (`site/_headers`) | SRS §9.6 | P0 | Harsh | M4 | T-63 | [#97](https://github.com/harshbhx/modscrim/issues/97) |
+| ☐ | T-78 | ↳ Cloudflare Pages project, Git-connected (branch `main`, output `site`, no build) | — | P0 | Harsh | M4 | T-77 | [#98](https://github.com/harshbhx/modscrim/issues/98) |
+| ☐ | T-79 | ↳ Custom domain modscrim.dualmindlab.tech and DNS | — | P0 | Harsh | M4 | T-78 | [#99](https://github.com/harshbhx/modscrim/issues/99) |
+| ☐ | T-80 | ↳ Post-launch checks: links, OG preview, Lighthouse | PRD §9.8 | P0 | Harsh | M4 | T-79 | [#100](https://github.com/harshbhx/modscrim/issues/100) |
 
-T-37 to T-49 were added after a gap review of the PRD and SRS (protocol types, Worker foundations, CI, deploy, the day-0 run, hide names, mod history, end-to-end tests, README, accessibility, rehearsal, video, Devpost). T-50 to T-55 hold the automated tests for Harsh's Cloudflare tickets, owned by Dhairya. Every ticket is a GitHub issue with labels for priority, owner, area and type, a milestone (M1 to M6), and a card on the [project board](https://github.com/users/harshbhx/projects/3).
+T-37 to T-49 were added after a gap review of the PRD and SRS (protocol types, Worker foundations, CI, deploy, the day-0 run, hide names, mod history, end-to-end tests, README, accessibility, rehearsal, video, Devpost). T-50 to T-55 hold the automated tests for Harsh's Cloudflare tickets, owned by Dhairya. T-56 to T-80 cover the brand kit (`brand/`) and the static marketing website (`site/`) on Cloudflare Pages at `https://modscrim.dualmindlab.tech`; rows marked ↳ are nested sub-issues of the parent row above them. Every ticket is a GitHub issue with labels for priority, owner, area and type, a milestone (M1 to M6), and a card on the [project board](https://github.com/users/harshbhx/projects/3).
 
 **Critical path to submission:** T-38 → T-07 (Harsh) → T-08 → T-11 → T-15 → T-16 (Dhairya) → T-47 → T-48 → T-49 (Dhairya). Harsh's T-38, T-07 and T-09 unblock almost everything, so they go first. Dhairya's core tickets (T-03 to T-05, T-37) need nothing from Harsh and run in parallel.
 
