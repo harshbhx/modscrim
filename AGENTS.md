@@ -1,6 +1,6 @@
 # AGENTS.md: Mod Fire Drill
 
-Instructions for every AI coding agent working in this repository: Codex, Claude Code, Cursor, Copilot or any other. Read this file at the start of every session, then open the docs your ticket needs.
+Instructions for every AI coding agent working in this repository. Read this file at the start of every session, then open the docs your ticket needs.
 
 ## What this is
 
@@ -110,7 +110,7 @@ npx vitest run packages/core/test/matcher.test.ts -t "spaced"
 ## Repository map (target, SRS §12.1)
 
 ```
-AGENTS.md  CLAUDE.md  README.md  LICENSE  package.json  tsconfig.base.json
+AGENTS.md  README.md  LICENSE  package.json  tsconfig.base.json
 docs/            for-agents/ (PRD.md, SRS.md, context docs) · for-humans/ (PDFs) · LOG.md
 packages/core/   @mfd/core: pure engine (prng, matcher, tricks, templates, waves, schema,
                  ruleFinder, cleanIndex, proof, scoring, sim, pace, coach, fixtures, views, protocol)
