@@ -51,7 +51,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☑ | T-14 | Kai (sim) jobs | FR-39 | P0 | Harsh | M2 | T-12 | [#16](https://github.com/harshbhx/modscrim/issues/16) |
 | ☐ | T-15 | Grading queue with pacing and local fallback | FR-28, FR-29 | P0 | Dhairya | M2 | T-11, T-12 | [#17](https://github.com/harshbhx/modscrim/issues/17) |
 | ☐ | T-16 | Rules, proof, push and undo in the room; audit log | FR-31 to FR-35, FR-45 | P0 | Dhairya | M2 | T-04, T-15 | [#18](https://github.com/harshbhx/modscrim/issues/18) |
-| ☐ | T-17 | Report build and console view | FR-27 | P0 | Harsh | M2 | T-16 | [#19](https://github.com/harshbhx/modscrim/issues/19) |
+| ☑ | T-17 | Report build and console view | FR-27 | P0 | Harsh | M2 | T-16 | [#19](https://github.com/harshbhx/modscrim/issues/19) |
 | ☑ | T-18 | Demo rooms with fixtures and GC | FR-38 | P0 | Harsh | M2 | T-12, T-14 | [#20](https://github.com/harshbhx/modscrim/issues/20) |
 | ☑ | T-19 | Web: tokens, layout, landing, privacy page | — | P0 | Harsh | M2 | T-01 | [#21](https://github.com/harshbhx/modscrim/issues/21) |
 | ☐ | T-20 | Web: `useRoom` and the WebSocket client | FR-21 | P0 | Dhairya | M2 | T-09, T-37 | [#22](https://github.com/harshbhx/modscrim/issues/22) |
