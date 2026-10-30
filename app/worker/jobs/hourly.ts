@@ -92,6 +92,12 @@ async function repairChatSubscriptions(env: Env, broadcasterIds: string[], now: 
 
   let repaired = 0;
   for (const broadcasterId of broadcasterIds) {
+    // A sign-out that finished since the channel list was read must not get a new subscription row.
+    const stillConnected = await env.DB.prepare("SELECT 1 FROM oauth_tokens WHERE user_id = ? AND status = 'ok'")
+      .bind(broadcasterId)
+      .first();
+    if (!stillConnected) continue;
+
     const mine = listed.filter((subscription) => isChatSubscriptionFor(subscription, broadcasterId));
     const healthy = mine.find((subscription) => HEALTHY_SUBSCRIPTION.has(subscription.status));
     if (healthy) {
