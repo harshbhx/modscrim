@@ -1,44 +1,137 @@
-/* Colour tokens (PRD §9.7). Text pairs meet 4.5:1 in both themes. */
+/*
+ * ModScrim tokens (Practice Field), ported from site/css/tokens.css and brand/DESIGN.md.
+ * The brand kit is the design source of truth and overrides PRD §9.7's colour and font list.
+ *
+ * Two grounds share one set of semantic names:
+ *   chalk (light): green ink on chalk, the default.
+ *   green (dark):  chalk ink on wall green, used when the OS asks for dark, and always for
+ *                  the header and footer bands (.on-green).
+ * Text contrast (WCAG 2.2): green on chalk 10.6:1, moss on chalk 5.7:1, chalk on green 10.6:1,
+ * muted on green 6.1:1, deep green on whistle orange 5.4:1, orange-700 on chalk 5.1:1.
+ * Whistle orange is never text: on chalk it is 2.5:1 and on wall green 4.2:1, so orange text
+ * uses orange-700 on chalk and orange-400 (5.0:1) on green.
+ */
 :root {
-  --font-heading: 'Archivo', system-ui, sans-serif;
-  --font-body: 'Source Sans 3', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --green-950: #051a12;
+  --green-900: #082319;
+  --green-850: #0b2a1f;
+  --green-800: #103528;
+  --green-700: #123d2e;
+  --green-600: #1a4c39;
+  --green-500: #2a6149;
+  --green-300: #a9bdb2;
+  --moss-600: #4e6358;
+  --chalk-300: #c9d3c5;
+  --chalk-200: #e2e7db;
+  --chalk-100: #eef1e8;
+  --white: #ffffff;
+  --orange-400: #ff844a;
+  --orange-500: #ff6a1f;
+  --orange-700: #b33d00;
+  --yellow-400: #ffd23f;
+  --mint-300: #8fe0ae;
+  --mint-800: #1e5a40;
+  --mint-100: #c4f2d6;
 
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --text: #1a1a1f;
-  --text-muted: #55555f;
-  --border: #c9c7c0;
-  --alarm: #b82e08;
-  --on-alarm: #ffffff;
-  --hazard: #f5c400;
-  --caught: #1b6b3a;
-  --false-ban: #b3261e;
-  --slipped: #8a5a00;
-  --focus: #1d4ed8;
+  --font-display: 'Big Shoulders', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, Menlo, Consolas, monospace;
 
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 1rem;
-  --space-4: 1.5rem;
-  --space-5: 3rem;
-  --radius: 8px;
-  --measure: 40rem;
+  --t-display-l: 800 72px/0.95 var(--font-display);
+  --t-display-m: 800 36px/1 var(--font-display);
+  --t-title: 700 21px/1.3 var(--font-body);
+  --t-lead: 400 21px/1.5 var(--font-body);
+  --t-body: 400 18px/1.55 var(--font-body);
+  --t-body-s: 400 16px/1.5 var(--font-body);
+  --t-caption: 400 14px/1.4 var(--font-body);
+  --t-button: 700 17px/1.2 var(--font-body);
+  --t-chat: 400 16px/1.45 var(--font-mono);
+  --t-term: 600 17px/1.4 var(--font-mono);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  --radius-plate: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --measure: 34em;
+  --page-max: 1440px;
+  --gutter: 64px;
+
+  /* Chalk ground (light). */
+  --bg: var(--chalk-100);
+  --surface: var(--white);
+  --sunken: var(--chalk-200);
+  --line: var(--chalk-300);
+  --line-strong: var(--green-700);
+  --text: var(--green-700);
+  --text-muted: var(--moss-600);
+  --accent-text: var(--orange-700);
+  --action: var(--orange-500);
+  --action-hover: var(--orange-400);
+  --on-action: var(--green-850);
+  --focus: var(--green-700);
+  --shadow-card: 0 0 0 1px var(--chalk-300);
+
+  /* Practice label and outcomes: one meaning each, always shown with a word. */
+  --practice-bg: var(--yellow-400);
+  --practice-text: var(--green-850);
+  --caught-bg: var(--mint-800);
+  --caught-text: var(--mint-100);
+  --foul-bg: var(--yellow-400);
+  --foul-text: var(--green-850);
+  --slipped-bg: var(--orange-500);
+  --slipped-text: var(--green-850);
 }
 
+/* Green ground (dark), when the OS asks for dark. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121216;
-    --surface: #1c1c22;
-    --text: #ececf1;
-    --text-muted: #b4b4c0;
-    --border: #3a3a45;
-    --alarm: #ff7a50;
-    --on-alarm: #121216;
-    --hazard: #f5c400;
-    --caught: #5fd68a;
-    --false-ban: #ff8a80;
-    --slipped: #ffc247;
-    --focus: #8ab4ff;
+    --bg: var(--green-700);
+    --surface: var(--green-850);
+    --sunken: var(--green-900);
+    --line: var(--green-500);
+    --line-strong: var(--chalk-100);
+    --text: var(--chalk-100);
+    --text-muted: var(--green-300);
+    --accent-text: var(--orange-400);
+    --focus: var(--yellow-400);
+    --shadow-card: 0 0 0 1px var(--green-500);
+  }
+}
+
+/* Green bands (header, hero, footer) in both themes. */
+.on-green {
+  --bg: var(--green-700);
+  --surface: var(--green-850);
+  --sunken: var(--green-900);
+  --line: var(--green-500);
+  --line-strong: var(--chalk-100);
+  --text: var(--chalk-100);
+  --text-muted: var(--green-300);
+  --accent-text: var(--orange-400);
+  --focus: var(--yellow-400);
+  background: var(--bg);
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 16px;
   }
 }
