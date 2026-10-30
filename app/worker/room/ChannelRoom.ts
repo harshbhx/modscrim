@@ -61,6 +61,7 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('line.emit', (job) => this.drills.emit(job));
     this.scheduler.register('line.slip', (job) => this.drills.slip(job));
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
+    this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
   }
 
   // ---- meta -------------------------------------------------------------------------------
@@ -434,10 +435,14 @@ export class ChannelRoom extends DurableObject<Env> {
     broadcast(this.ctx, (role) => ({ type: 'drill.state', data: { drill: this.drills.snapshot(role), participants } }));
   }
 
+  /** Human mods of the room, plus Kai (sim) only while Kai is in the drill on screen. */
   private participants(exclude?: WebSocket): DrillSnapshot['participants'] {
     return this.sql
       .exec<{ id: string; display_name: string; is_sim: number }>(
-        'SELECT id, display_name, is_sim FROM participants ORDER BY joined_at, id'
+        `SELECT id, display_name, is_sim FROM participants
+          WHERE is_sim = 0 OR id IN (SELECT participant_id FROM drill_participants WHERE drill_id = ?)
+          ORDER BY joined_at, id`,
+        this.drills.currentDrillId() ?? ''
       )
       .toArray()
       .map((p) => ({
