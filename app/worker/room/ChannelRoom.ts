@@ -10,6 +10,7 @@ import {
   type FiltersView,
   type JobKind,
   type ModAction,
+  type Report,
   type Role,
   type ServerMsg
 } from '@mfd/core';
@@ -31,6 +32,7 @@ import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from '
 import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
 import { joinAsMod, JoinInputZ } from './mods.js';
+import { readReport } from './report.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
@@ -432,6 +434,14 @@ export class ChannelRoom extends DurableObject<Env> {
   async getDrill(drillId: string): Promise<DrillView> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
     return this.drills.view(drillId);
+  }
+
+  // ---- reports (SRS §8.4, T-17) ------------------------------------------------------------
+
+  /** The drill's saved after-action report (FR-27), or null before the drill has ended. Console only (S-06). */
+  async getReport(drillId: string): Promise<Report | null> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return readReport(this.sql, drillId);
   }
 
   // ---- mods (SRS §8.4, T-13) ---------------------------------------------------------------

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { requireStreamer } from '../auth/streamer.js';
 import { requireJsonSameOrigin } from '../auth/origin.js';
-import { drillCall, drillIdOf, readDrillConfig } from '../lib/drillHttp.js';
+import { drillCall, drillIdOf, readDrillConfig, reportOrNotFound } from '../lib/drillHttp.js';
 import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
 import { OverlaySettingsZ } from '../room/hub.js';
@@ -239,4 +239,12 @@ apiRoutes.get('/drills/:id', requireStreamer, async (context) => {
   const { room } = await streamerRoom(context.env, context.get('session').uid);
   const view = await drillCall(() => room.getDrill(drillId), 'The drill is unavailable.');
   return context.json(view);
+});
+
+/** GET /api/drills/:id/report: the after-action report (FR-27); 404 until the drill has ended. */
+apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const report = await drillCall(() => room.getReport(drillId), 'The report is unavailable.');
+  return context.json(reportOrNotFound(report));
 });
