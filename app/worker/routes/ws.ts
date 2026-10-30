@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { errorResponse } from '../lib/errors.js';
+import { DemoIdZ } from '../room/demo.js';
 
 export const wsRoutes = new Hono<{ Bindings: Env }>();
 
@@ -13,5 +14,7 @@ wsRoutes.get('/:kind/:id', async (context) => {
     const known = await context.env.DB.prepare('SELECT 1 FROM channels WHERE broadcaster_id = ?').bind(id).first();
     if (!known) return errorResponse('not_found', 'Not found.');
   }
+  // Demo rooms are `demo:<uuid>` and 404 themselves if never bootstrapped (or already collected).
+  if (kind === 'demo' && !DemoIdZ.safeParse(id).success) return errorResponse('not_found', 'Not found.');
   return context.env.ROOM.getByName(`${kind}:${id}`).fetch(context.req.raw);
 });
