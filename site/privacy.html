@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ModScrim privacy policy</title>
+<meta name="description" content="What ModScrim stores, why, for how long, and how to delete it.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="ModScrim privacy policy">
+<meta property="og:description" content="What ModScrim stores, why, for how long, and how to delete it.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/privacy">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ModScrim whistle logo, a practice chat with caught and slipped messages, and a scoreboard reading mods 38, raid 4.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/privacy">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+    </div>
+  </div>
+</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
+  <div class="wrap phead">
+    <p class="crumb"><a href="index.html">Home</a> / Privacy policy</p><h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">Privacy policy</h1>
+    <p class="lead">What ModScrim stores, why, for how long, and how to delete it.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap two"><nav class="side" aria-label="On this page"><h2>On this page</h2><a href="#summary">The short version</a><a href="#who">Who we are</a><a href="#collect">What we collect</a><a href="#use">How we use it</a><a href="#twitch">What we do on Twitch</a><a href="#keep">How long we keep it</a><a href="#cookies">Cookies and browser storage</a><a href="#share">Who else handles it</a><a href="#viewers">If you chat on a channel that uses ModScrim</a><a href="#rights">Your choices and rights</a><a href="#security">Security</a><a href="#children">Children</a><a href="#changes">Changes</a><a href="#contact">Contact</a></nav><div class="prose">
+    <p class="micro muted">Last updated 30 October 2026</p>
+    <h2 id="summary">The short version</h2>
+    <ul>
+      <li>We store the minimum needed to run drills for your channel: your Twitch profile, encrypted Twitch tokens, a 7-day chat log and your drill results.</li>
+      <li>The chat log is used for one thing: checking that a new blocked term won&rsquo;t ban your regulars. It is never shown on stream, never sold and never used to train AI models.</li>
+      <li>We don&rsquo;t run ads or third-party analytics, and we don&rsquo;t sell data.</li>
+      <li>You can delete the chat log at any time, pause logging, or delete everything by signing out.</li>
+    </ul>
+
+    <h2 id="who">Who we are</h2>
+    <p>ModScrim is run by Harsh Bhanushali and Dhairya Patel (&ldquo;we&rdquo;). It is an independent project and is not affiliated with or endorsed by Twitch. This policy covers the ModScrim website and app, including the streamer console, the mod view, the OBS overlay and demo rooms.</p>
+
+    <h2 id="collect">What we collect</h2>
+    <h3>If you sign in as a streamer</h3>
+    <ul>
+      <li><strong>Twitch profile:</strong> your Twitch user ID, login, display name, avatar link and broadcaster type (partner, affiliate or neither). We use the broadcaster type to respect Twitch&rsquo;s grading limits for your channel.</li>
+      <li><strong>Twitch tokens:</strong> the access and refresh tokens Twitch issues when you approve ModScrim, and the permissions you granted. They are encrypted before storage and never sent to a browser.</li>
+      <li><strong>Your channel&rsquo;s filters:</strong> your public blocked terms and AutoMod levels, read from Twitch and cached so the console can show them.</li>
+      <li><strong>Chat log:</strong> messages posted in your channel&rsquo;s chat while logging is on. For each message we keep the message ID, the chatter&rsquo;s user ID and login, the text, a tokenised copy of the text used for matching, and the time. We skip messages that arrive through shared chat from other channels.</li>
+      <li><strong>Drill data:</strong> the settings you choose, the generated lines, every mod action with its time, scores, grades from Twitch or the local matcher, proposed, rejected and pushed terms, fresh-wave results and the after-action report.</li>
+      <li><strong>Audit log:</strong> a record of pushes, undos, sign-ins, sign-outs, revocations, chat-log deletions and overlay key changes, with the time and who did it.</li>
+    </ul>
+    <h3>If you join a drill as a mod</h3>
+    <ul>
+      <li>The display name you type, your actions and their times, and your scores. If you sign in with Twitch instead of typing a name, we use your Twitch user ID to confirm you moderate the channel, then discard the token.</li>
+      <li>A participant token kept in your browser&rsquo;s session storage so you can reconnect after a refresh.</li>
+    </ul>
+    <h3>If you use a demo room</h3>
+    <p>Demo rooms use a sample channel and never call Twitch. We keep what you do in the room until it deletes itself two hours after its last activity.</p>
+    <h3>From every visitor</h3>
+    <p>To stop abuse we count join attempts and demo-room creations per IP address for a short time (see <a href="#keep">How long we keep it</a>). Our hosting provider, Cloudflare, processes IP addresses and request details to deliver and protect the service.</p>
+
+    <h2 id="use">How we use it</h2>
+    <ul>
+      <li>To run drills: show the practice chat to your mods, keep score and produce reports.</li>
+      <li>To grade your filters with Twitch and to propose blocked terms.</li>
+      <li>To run the false-ban check, which compares proposed terms with your recent chat so a term that would match a regular is rejected. This is the only use of the chat log.</li>
+      <li>To keep the service secure, prevent abuse and fix problems.</li>
+    </ul>
+    <p>We don&rsquo;t use your data for advertising, we don&rsquo;t sell it, and we don&rsquo;t use chat logs to train AI models. An optional coach&rsquo;s note may be written by Cloudflare Workers AI from your drill&rsquo;s numbers only; no chat text or attack text is sent, and the note is labelled &ldquo;AI-written&rdquo;.</p>
+    <p>Where the law asks for a legal basis, we rely on providing the service you asked for (your sign-in and drills) and on our legitimate interest in keeping it secure.</p>
+
+    <h2 id="twitch">What we do on Twitch</h2>
+    <p>With the permissions you grant, ModScrim reads your blocked terms and AutoMod levels, checks attack lines with Twitch&rsquo;s Check AutoMod Status, receives your chat for the chat log, and adds or removes blocked terms only when you press Approve and push or Undo. It never changes your AutoMod settings and never posts attack text to chat.</p>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Permission</th><th>Why ModScrim asks</th><th>Used in</th></tr></thead><tbody><tr><td><code>moderator:read:blocked_terms</code></td><td>Read your public blocked terms</td><td>Step 1, Read filters</td></tr><tr><td><code>moderator:manage:blocked_terms</code></td><td>Add the terms you approve, and remove them when you press Undo</td><td>Step 6, push and undo</td></tr><tr><td><code>moderator:read:automod_settings</code></td><td>Read your AutoMod levels. ModScrim never changes them</td><td>Step 1, Read filters</td></tr><tr><td><code>moderation:read</code></td><td>Check attack lines against your filters with Check AutoMod Status, and see who your mods are</td><td>Step 4 and mod sign-in</td></tr><tr><td><code>user:read:chat, user:bot, channel:bot</code></td><td>Receive your channel&rsquo;s chat for the 7-day false-ban check</td><td>Step 1 and Step 5</td></tr><tr><td><code>user:write:chat</code></td><td>Post one fixed line when a drill starts. Requested only if you turn the announcement on</td><td>Optional</td></tr></tbody></table></div>
+
+    <h2 id="keep">How long we keep it</h2>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Data</th><th>Kept</th></tr></thead><tbody><tr><td>Your Twitch profile (user ID, login, display name, avatar link, broadcaster type)</td><td>Until you sign out or revoke ModScrim</td></tr><tr><td>Your Twitch tokens, encrypted</td><td>Until you sign out or revoke ModScrim</td></tr><tr><td>Chat log for the false-ban check</td><td>7 days, then deleted automatically; sooner if you press Delete chat log</td></tr><tr><td>Drills: lines, mod actions, scores, grades, proposed and pushed terms</td><td>30 days, or until you sign out</td></tr><tr><td>After-action reports and report exports</td><td>Until you sign out</td></tr><tr><td>Audit log of pushes, undos, sign-ins, sign-outs, chat-log deletions and overlay key changes</td><td>Until you sign out</td></tr><tr><td>Mod display names</td><td>Until the streamer signs out</td></tr><tr><td>Mod actions and scores</td><td>With the drill they belong to, 30 days at most</td></tr><tr><td>A mod&rsquo;s participant token</td><td>In that mod&rsquo;s browser session storage; it expires after 12 hours</td></tr><tr><td>Join-attempt counters, by IP address</td><td>2 minutes</td></tr><tr><td>Demo rooms</td><td>2 hours after their last activity</td></tr><tr><td>Server logs</td><td>Cloudflare&rsquo;s platform retention, a few days and at most 7. Logs never contain tokens, chat text or attack text</td></tr></tbody></table></div>
+
+    <h2 id="cookies">Cookies and browser storage</h2>
+    <p>We use only the cookies the service needs. There are no advertising or analytics cookies.</p>
+    <ul>
+      <li><code>__Host-mfd_s</code>: keeps you signed in to the console for up to 7 days.</li>
+      <li><code>__Host-mfd_oauth</code>: protects the Twitch sign-in step; it expires after 10 minutes.</li>
+      <li>A demo-room cookie that ties your browser to your own demo room.</li>
+      <li>Session storage in a mod&rsquo;s browser holds the participant token for the current drill.</li>
+    </ul>
+
+    <h2 id="share">Who else handles it</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> hosts ModScrim and stores its data (Workers, Durable Objects, D1, Queues and R2). Data may be processed in any country where Cloudflare operates.</li>
+      <li><strong>Twitch</strong> receives the requests ModScrim makes on your behalf, as described above.</li>
+    </ul>
+    <p>We share data with anyone else only if the law requires it. Share links for reports are off by default; when you turn one on, anyone with the link can see that report&rsquo;s numbers, never chat lines or attack text.</p>
+
+    <h2 id="viewers">If you chat on a channel that uses ModScrim</h2>
+    <p>If a streamer whose chat you post in uses ModScrim, your messages from the last 7 days may be stored in that channel&rsquo;s chat log, with your user ID and login, for the false-ban check. They aren&rsquo;t shown on stream, aren&rsquo;t combined with other channels and are deleted after 7 days. To ask for earlier deletion, ask the streamer to press Delete chat log, or contact us.</p>
+
+    <h2 id="rights">Your choices and rights</h2>
+    <ul>
+      <li><strong>Delete chat log</strong> empties the log immediately. <strong>Pause logging</strong> stops new messages being stored.</li>
+      <li><strong>Sign out and delete my data</strong> revokes your tokens at Twitch, removes the chat subscription and deletes your profile, tokens, chat log, drills, reports, exports and audit log. Deletion completes within a minute.</li>
+      <li>If you remove ModScrim from your Twitch connections instead, we delete the same data once Twitch notifies us of the change. Signing out first is the quickest way to be sure.</li>
+      <li>Depending on where you live, you may have rights to access, correct, delete or export your data and to object to some processing. Contact us and we&rsquo;ll respond within 30 days. You can also complain to your local data protection authority.</li>
+    </ul>
+
+    <h2 id="security">Security</h2>
+    <p>Twitch tokens are encrypted with AES-256-GCM and the key is held in Cloudflare&rsquo;s secret store. Session cookies are HttpOnly, Secure and limited to our site. Every message from Twitch is checked with a signature before we use it. Overlay links carry a private key you can rotate at any time. No system is perfectly secure; if you find a problem, please report it privately through the <a href="https://github.com/harshbhx/modscrim">source repository</a>.</p>
+
+    <h2 id="children">Children</h2>
+    <p>ModScrim follows Twitch&rsquo;s age requirements and isn&rsquo;t directed at children under 13. If you believe a child has given us data, contact us and we&rsquo;ll delete it.</p>
+
+    <h2 id="changes">Changes</h2>
+    <p>If we change this policy, we&rsquo;ll update the date at the top and, for significant changes, tell signed-in streamers in the console before the change takes effect.</p>
+
+    <h2 id="contact">Contact</h2>
+    <p>Harsh Bhanushali and Dhairya Patel, [CONTACT EMAIL], [POSTAL ADDRESS IF REQUIRED].</p></div></div></section>
+</main><div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>
