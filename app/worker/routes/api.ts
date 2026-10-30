@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { requireStreamer } from '../auth/streamer.js';
 import { requireJsonSameOrigin } from '../auth/origin.js';
 import { AppError } from '../lib/errors.js';
+import { DrillConfigInputZ, type DrillConfigInput } from '@mfd/core';
+import { DrillError } from '../room/drill.js';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -10,6 +12,26 @@ export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: 
 apiRoutes.use('*', requireJsonSameOrigin);
 
 apiRoutes.get('/health', (context) => context.json({ ok: true }));
+
+apiRoutes.get('/filters', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    const filters = await room.getFilters();
+    return context.json(filters);
+  } catch {
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
+
+apiRoutes.post('/filters/refresh', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    const filters = await room.refreshFilters();
+    return context.json(filters);
+  } catch {
+    throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
 
 apiRoutes.get('/chatlog/stats', requireStreamer, async (context) => {
   const { room } = await streamerRoom(context.env, context.get('session').uid);
@@ -52,6 +74,67 @@ apiRoutes.delete('/chatlog', requireStreamer, async (context) => {
   } catch (error) {
     if (error instanceof AppError) throw error;
     throw new AppError('room_unavailable', 'The room is unavailable.');
+  }
+});
+
+apiRoutes.post('/drills', requireStreamer, async (context) => {
+  const body = await readDrillConfig(context.req);
+  const uid = context.get('session').uid;
+  const { room } = await streamerRoom(context.env, uid);
+  try {
+    const created = await room.createDrill(body);
+    const user = await context.env.DB.prepare('SELECT login FROM users WHERE id = ?').bind(uid).first<{ login: string }>();
+    if (!user) throw new AppError('not_found', 'Channel not found.');
+    return context.json({ ...created, modUrl: `${context.env.PUBLIC_BASE_URL.replace(/\/$/, '')}/mod/${encodeURIComponent(user.login)}` }, 201);
+  } catch (error) {
+    throwDrillError(error);
+  }
+});
+
+apiRoutes.get('/drills/:id', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    return context.json(await room.getDrill(context.req.param('id')));
+  } catch (error) {
+    throwDrillError(error);
+  }
+});
+
+apiRoutes.patch('/drills/:id', requireStreamer, async (context) => {
+  const body = await readDrillConfig(context.req);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    return context.json(await room.updateDraft(context.req.param('id'), body));
+  } catch (error) {
+    throwDrillError(error);
+  }
+});
+
+apiRoutes.post('/drills/:id/cancel', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    await room.cancelDraft(context.req.param('id'));
+    return context.json({ status: 'cancelled' });
+  } catch (error) {
+    throwDrillError(error);
+  }
+});
+
+apiRoutes.post('/drills/:id/start', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    return context.json(await room.startDrill(context.req.param('id')));
+  } catch (error) {
+    throwDrillError(error);
+  }
+});
+
+apiRoutes.post('/drills/:id/stop', requireStreamer, async (context) => {
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  try {
+    return context.json(await room.stopDrill(context.req.param('id')));
+  } catch (error) {
+    throwDrillError(error);
   }
 });
 
@@ -109,6 +192,27 @@ async function streamerRoom(env: Env, uid: string) {
     .first<{ broadcaster_id: string; room_name: string }>();
   if (!channel) throw new AppError('not_found', 'Channel not found.');
   return { id: channel.broadcaster_id, room: env.ROOM.getByName(channel.room_name) };
+}
+
+async function readDrillConfig(request: { json(): Promise<unknown> }): Promise<DrillConfigInput> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid drill configuration.');
+  }
+  const parsed = DrillConfigInputZ.safeParse(body);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new AppError('invalid', issue?.message ?? 'Invalid drill configuration.', String(issue?.path[0] ?? 'config'));
+  }
+  return parsed.data;
+}
+
+function throwDrillError(error: unknown): never {
+  if (error instanceof DrillError) throw new AppError(error.code, error.message, error.field);
+  if (error instanceof AppError) throw error;
+  throw new AppError('room_unavailable', 'The channel room is unavailable.');
 }
 
 /** POST /api/ws-ticket: a single-use console ticket and the socket URL. */

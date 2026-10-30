@@ -1,6 +1,8 @@
 import { DurableObject } from 'cloudflare:workers';
-import type { ChatMessageEvent, DrillSnapshot, JobKind, Role, ServerMsg } from '@mfd/core';
+import { z } from 'zod';
+import type { ChatMessageEvent, DrillConfigInput, DrillSnapshot, DrillView, FiltersView, JobKind, Role, ServerMsg } from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
+import { log } from '../lib/log.js';
 import { attachmentOf, broadcast, closeRole, send, tagsFor, type Attachment } from './hub.js';
 import { ClientMsgZ } from './messages.js';
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
@@ -8,6 +10,8 @@ import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
+import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
+import { DrillEngine, DrillError } from './drill.js';
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -25,10 +29,12 @@ export type BootstrapInput = {
 export class ChannelRoom extends DurableObject<Env> {
   private readonly sql = this.ctx.storage.sql;
   private readonly scheduler = new Scheduler(this.ctx, () => this.roomName());
+  private readonly drills = new DrillEngine(this.ctx, this.scheduler, () => this.roomName());
   private readonly tokens = new RoomTokens(this.env, () => this.roomName());
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    this.drills.registerJobs((kind, handler) => this.registerJob(kind, handler));
     // Migrations run only for rooms bootstrapped before; a stray request creates no tables.
     ctx.blockConcurrencyWhile(async () => {
       if (isBootstrapped(this.sql)) migrate(this.sql);
@@ -84,6 +90,79 @@ export class ChannelRoom extends DurableObject<Env> {
         this.setMeta('last_activity', String(Date.now()));
       }
     });
+    if (input.mode === 'live') {
+      try {
+        await this.refreshFilters();
+      } catch {
+        log('twitch.filters', { room: input.roomName, ok: false });
+      }
+    }
+  }
+
+  async getFilters(): Promise<FiltersView> {
+    if (!this.bootstrapped()) return { terms: [], automod: null, fetchedAt: null };
+    const terms = this.sql.exec<{ id: string; text: string }>(
+      'SELECT id, text FROM blocked_terms ORDER BY rowid'
+    ).toArray();
+    const fetchedValue = this.meta('filters_fetched_at');
+    const fetchedAt = fetchedValue !== null && /^\d+$/.test(fetchedValue) ? Number(fetchedValue) : null;
+    const automodValue = this.meta('automod_json');
+    let automod: FiltersView['automod'] = null;
+    if (automodValue) {
+      try {
+        const parsed = z.record(z.string(), z.number().int().min(0).max(4).nullable()).safeParse(JSON.parse(automodValue));
+        if (parsed.success) automod = parsed.data;
+      } catch {
+        automod = null;
+      }
+    }
+    return { terms, automod, fetchedAt };
+  }
+
+  async refreshFilters(): Promise<FiltersView> {
+    if (!this.bootstrapped()) return { terms: [], automod: null, fetchedAt: null };
+    if (this.meta('mode') === 'demo') return this.getFilters();
+    const broadcasterId = this.meta('broadcaster_id');
+    if (!broadcasterId) throw new Error('room_missing_broadcaster');
+
+    const read = async (accessToken: string) => {
+      const [user, terms, automod] = await Promise.all([
+        getUsers(this.env, accessToken),
+        getBlockedTerms(this.env, broadcasterId, accessToken),
+        getAutoModSettings(this.env, broadcasterId, accessToken)
+      ]);
+      if (user.id !== broadcasterId) throw new Error('twitch_user_mismatch');
+      return { user, terms, automod };
+    };
+
+    let accessToken = await this.getAccessToken();
+    let snapshot: Awaited<ReturnType<typeof read>>;
+    try {
+      snapshot = await read(accessToken);
+    } catch (error) {
+      if (!(error instanceof HelixError) || error.status !== 401) throw error;
+      accessToken = await this.getAccessToken(accessToken);
+      snapshot = await read(accessToken);
+    }
+
+    const fetchedAt = Date.now();
+    this.ctx.storage.transactionSync(() => {
+      this.sql.exec('DELETE FROM blocked_terms');
+      for (const term of snapshot.terms) {
+        this.sql.exec(
+          'INSERT INTO blocked_terms (id, text, created_at, fetched_at) VALUES (?, ?, ?, ?)',
+          term.id,
+          term.text,
+          term.createdAt,
+          fetchedAt
+        );
+      }
+      this.setMeta('automod_json', JSON.stringify(snapshot.automod));
+      this.setMeta('filters_fetched_at', String(fetchedAt));
+      this.setMeta('broadcaster_type', snapshot.user.broadcaster_type);
+    });
+    log('twitch.filters', { room: this.roomName(), ok: true, terms: snapshot.terms.length, broadcasterType: snapshot.user.broadcaster_type });
+    return this.getFilters();
   }
 
   /** Return a usable broadcaster token, refreshing at the five-minute boundary or after a 401. */
@@ -171,6 +250,41 @@ export class ChannelRoom extends DurableObject<Env> {
     await this.ctx.storage.deleteAll();
   }
 
+  async createDrill(input: DrillConfigInput): Promise<{ drillId: string; joinCode: string }> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    this.touch();
+    return this.drills.createDrill(input);
+  }
+
+  async updateDraft(drillId: string, input: DrillConfigInput): Promise<DrillView> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    this.touch();
+    return this.drills.updateDraft(drillId, input);
+  }
+
+  async cancelDraft(drillId: string): Promise<void> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    this.touch();
+    return this.drills.cancelDraft(drillId);
+  }
+
+  async startDrill(drillId: string): Promise<{ startedAt: number }> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    this.touch();
+    return this.drills.startDrill(drillId);
+  }
+
+  async stopDrill(drillId: string): Promise<{ endedAt: number }> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    this.touch();
+    return this.drills.stopDrill(drillId);
+  }
+
+  async getDrill(drillId: string): Promise<DrillView> {
+    if (!this.bootstrapped()) throw new DrillError('not_found', 'Channel room not found.');
+    return this.drills.getDrill(drillId);
+  }
+
   // ---- scheduler (SRS §8.5) ----------------------------------------------------------------
 
   /** Features register the handler for the job kinds they own. Handlers must be idempotent. */
@@ -237,9 +351,9 @@ export class ChannelRoom extends DurableObject<Env> {
     return { role: 'console' };
   }
 
-  /** The per-role `drill.state`. TODO(T-12): fill `drill` from the drill tables; redact for overlays. */
-  private snapshot(_role: Role, _pid?: string): DrillSnapshot {
-    return { drill: null, participants: this.participants() };
+  /** The per-role `drill.state`; overlays receive only redacted line data. */
+  private snapshot(role: Role, _pid?: string): DrillSnapshot {
+    return this.drills.snapshot(role);
   }
 
   private participants(exclude?: WebSocket): DrillSnapshot['participants'] {
@@ -272,7 +386,12 @@ export class ChannelRoom extends DurableObject<Env> {
       send(ws, { type: 'drill.state', data: this.snapshot(att.role, att.pid) });
       return;
     }
-    // TODO(T-12): `mod.action` is applied by the drill engine (`applyAction`).
+    const now = Date.now();
+    if (msg.data.type === 'mod.action' && att.role === 'mod' && att.pid) {
+      const result = this.drills.applyAction(att.pid, msg.data.data.lineId, msg.data.data.action, now);
+      if (result.ok) this.drills.broadcastAction(result);
+      else send(ws, { type: 'action.rejected', data: { lineId: msg.data.data.lineId, reason: result.reason, ...(result.by ? { by: result.by } : {}) } });
+    }
   }
 
   override async webSocketClose(ws: WebSocket, code: number): Promise<void> {
@@ -294,4 +413,3 @@ export class ChannelRoom extends DurableObject<Env> {
     broadcast(this.ctx, () => msg, exclude ? { exclude } : {});
   }
 }
-
