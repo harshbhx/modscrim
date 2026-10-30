@@ -32,6 +32,15 @@ export class Scheduler {
   }
 
   async schedule(kind: JobKind, key: string, dueAt: number, payload: object = {}): Promise<void> {
+    this.enqueue(kind, key, dueAt, payload);
+    await this.rearm();
+  }
+
+  /**
+   * Upsert a job without touching the alarm. Synchronous, so it can run inside `transactionSync`
+   * together with the state change that needs the job; call `rearm()` after the transaction.
+   */
+  enqueue(kind: JobKind, key: string, dueAt: number, payload: object = {}): void {
     this.sql.exec(
       `INSERT INTO schedule (due_at, kind, key, payload) VALUES (?, ?, ?, ?)
        ON CONFLICT(kind, key) DO UPDATE SET due_at = excluded.due_at, payload = excluded.payload, attempts = 0`,
@@ -40,7 +49,6 @@ export class Scheduler {
       key,
       JSON.stringify(payload)
     );
-    await this.rearm();
   }
 
   async cancel(kind: JobKind, key: string): Promise<void> {

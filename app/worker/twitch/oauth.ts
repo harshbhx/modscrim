@@ -156,7 +156,7 @@ function rateLimitHeader(response: Response, name: string): number | null {
   return Number.isSafeInteger(number) ? number : null;
 }
 
-function recordSubscriptionRateLimit(response: Response, phase: 'create' | 'list'): void {
+function recordSubscriptionRateLimit(response: Response, phase: 'create' | 'list' | 'delete'): void {
   log('eventsub.subscription', {
     room: 'eventsub',
     subType: `channel.chat.message.${phase}`,
@@ -168,7 +168,11 @@ function recordSubscriptionRateLimit(response: Response, phase: 'create' | 'list
   });
 }
 
-async function findExistingChatSubscription(env: Env, appToken: string, broadcasterId: string) {
+export type ListedSubscription = z.infer<typeof SUBSCRIPTION_LIST_RESPONSE>['data'][number];
+
+/** Every `channel.chat.message` subscription this app holds, across all pages; null when Twitch cannot be read. */
+export async function listChatSubscriptions(env: Env, appToken: string): Promise<ListedSubscription[] | null> {
+  const all: ListedSubscription[] = [];
   let cursor: string | undefined;
   do {
     const url = new URL('https://api.twitch.tv/helix/eventsub/subscriptions');
@@ -181,15 +185,32 @@ async function findExistingChatSubscription(env: Env, appToken: string, broadcas
     if (!response.ok) return null;
     const parsed = SUBSCRIPTION_LIST_RESPONSE.safeParse(await response.json());
     if (!parsed.success) return null;
-    const existing = parsed.data.data.find((item) =>
-      item.type === 'channel.chat.message' &&
-      item.condition.broadcaster_user_id === broadcasterId &&
-      item.condition.user_id === broadcasterId
-    );
-    if (existing) return existing;
-    cursor = parsed.data.pagination?.cursor;
+    all.push(...parsed.data.data.filter((item) => item.type === 'channel.chat.message'));
+    cursor = parsed.data.pagination?.cursor || undefined;
   } while (cursor);
-  return null;
+  return all;
+}
+
+/** True when the subscription is the broadcaster's own chat subscription (FR-08). */
+export function isChatSubscriptionFor(subscription: ListedSubscription, broadcasterId: string): boolean {
+  return subscription.condition.broadcaster_user_id === broadcasterId && subscription.condition.user_id === broadcasterId;
+}
+
+/** Delete one EventSub subscription with the app token. A 404 means it is already gone. */
+export async function deleteSubscription(env: Env, appToken: string, id: string): Promise<boolean> {
+  const url = new URL('https://api.twitch.tv/helix/eventsub/subscriptions');
+  url.searchParams.set('id', id);
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${appToken}` }
+  });
+  recordSubscriptionRateLimit(response, 'delete');
+  return response.ok || response.status === 404;
+}
+
+async function findExistingChatSubscription(env: Env, appToken: string, broadcasterId: string) {
+  const listed = await listChatSubscriptions(env, appToken);
+  return listed?.find((item) => isChatSubscriptionFor(item, broadcasterId)) ?? null;
 }
 
 /** Create the broadcaster's chat subscription after sign-in; subscription failure is non-fatal. */
