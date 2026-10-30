@@ -1,0 +1,5 @@
+/* Self-hosted ModScrim fonts (latin subset, SIL OFL 1.1). */
+@font-face{font-family:"Big Shoulders";src:url("../fonts/BigShoulders-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url("../fonts/AtkinsonHyperlegibleNext-Variable.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url("../fonts/AtkinsonHyperlegibleNext-Italic-Variable.woff2") format("woff2");font-weight:200 800;font-style:italic;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible Mono";src:url("../fonts/AtkinsonHyperlegibleMono-Variable.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
