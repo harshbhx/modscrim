@@ -32,7 +32,7 @@ import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from '
 import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
 import { joinAsMod, JoinInputZ } from './mods.js';
-import { readReport } from './report.js';
+import { broadcastReport, readReport, saveReport } from './report.js';
 import { isBootstrapped, migrate } from './schema.js';
 import { Scheduler, type JobHandler } from './scheduler.js';
 import * as tickets from './tickets.js';
@@ -62,7 +62,8 @@ export class ChannelRoom extends DurableObject<Env> {
     scheduler: this.scheduler,
     roomName: () => this.roomName(),
     touch: (now) => this.touch(now),
-    connectedMods: () => this.connectedMods()
+    connectedMods: () => this.connectedMods(),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
 
   constructor(ctx: DurableObjectState, env: Env) {
@@ -366,7 +367,7 @@ export class ChannelRoom extends DurableObject<Env> {
     if (fresh) log('demo.created', { room: roomName });
     // TODO(T-15): grading in demo rooms is always local (FR-29), labelled "local estimate".
     // TODO(T-16): push and undo in demo rooms are simulated (FR-34): they edit `blocked_terms` only.
-    // TODO(T-17): demo reports stay in the room; never schedule `report.export` (no D1, R2 or Queue).
+    // Demo reports stay in the room (`refreshReport` never schedules `report.export`): no D1, R2 or Queue.
     return this.createDrill(DEMO_DRILL_CONFIG);
   }
 
@@ -442,6 +443,24 @@ export class ChannelRoom extends DurableObject<Env> {
   async getReport(drillId: string): Promise<Report | null> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
     return readReport(this.sql, drillId);
+  }
+
+  /**
+   * The one report hook (SRS §3.4 Reports): rebuild and upsert the drill's report from the room's tables,
+   * then broadcast `report.ready` (the card to the console and the overlay, nothing to mods). The drill engine
+   * calls it at drill end. Call it after every step that changes the report: `grade.done` (T-15) and
+   * `findRules`, `proveFreshWave`, `push` and `undo` (T-16), after their own transaction has committed.
+   * Synchronous and idempotent: a repeat call over unchanged tables saves the same report (same `reportId`
+   * and `createdAt`). Returns null, and does nothing, for a drill that has not ended.
+   */
+  private refreshReport(drillId: string, now: number = Date.now()): Report | null {
+    if (!this.bootstrapped()) return null;
+    const report = this.ctx.storage.transactionSync(() => saveReport(this.sql, drillId, now));
+    if (!report) return null;
+    broadcastReport(this.ctx, report);
+    log('report.saved', { room: this.roomName(), drill: drillId, reportId: report.reportId });
+    // TODO(T-31): live rooms with the P1 bindings (re)schedule `report.export` 60 s after this update.
+    return report;
   }
 
   // ---- mods (SRS §8.4, T-13) ---------------------------------------------------------------
