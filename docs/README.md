@@ -2,7 +2,7 @@
 
 | Path | Read by | Contents |
 |---|---|---|
-| `for-agents/` | AI coding agents (Codex, Claude Code, Cursor, any other) | The specs in Markdown plus context docs. Start at [`for-agents/INDEX.md`](for-agents/INDEX.md) |
+| `for-agents/` | AI coding agents | The specs in Markdown plus context docs. Start at [`for-agents/INDEX.md`](for-agents/INDEX.md) |
 | `for-humans/` | Judges, teammates, reviewers | `PRD.pdf`, `SRS.pdf` |
 | `LOG.md` | Everyone | Decisions, day-0 results, Codex session IDs, session notes |
 
