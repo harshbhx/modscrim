@@ -76,11 +76,11 @@ jobs:
             return null;
           }
 
-          const manifestPath = await findManifest('app/dist');
-          if (!manifestPath) throw new Error('Vite build manifest was not found.');
+          const manifestPath = await findManifest('app/dist/client');
+          if (!manifestPath) throw new Error('Vite build manifest was not found in app/dist/client.');
           const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-          const entry = Object.values(manifest).find((item) => item.isEntry && item.file.endsWith('.html'));
-          if (!entry) throw new Error('Vite HTML entry was not found in the build manifest.');
+          const entry = Object.values(manifest).find((item) => item.isEntry);
+          if (!entry) throw new Error('Vite entry chunk was not found in the build manifest.');
           const outputRoot = dirname(dirname(manifestPath));
           const javascript = new Set();
           function collect(chunk) {
