@@ -49,7 +49,26 @@ export function Mod() {
   const elapsed = drill?.startedAt == null ? 0 : Math.max(0, now - drill.startedAt);
   const actionEvents = useMemo(() => room.messages.flatMap((message): DrillActionEvent[] => message.type === 'drill.action' ? [message.data] : []), [room.messages]);
 
-  useEffect(() => { setSession(readSession(storageKey)); }, [storageKey]);
+  useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const fromTwitch = SessionZ.safeParse({
+      participantId: fragment.get('participantId'),
+      participantToken: fragment.get('participantToken'),
+      displayName: fragment.get('displayName')
+    });
+    if (fromTwitch.success) {
+      try { sessionStorage.setItem(storageKey, JSON.stringify(fromTwitch.data)); } catch { /* keep the current tab session */ }
+      setSession(fromTwitch.data);
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      return;
+    }
+    setSession(readSession(storageKey));
+    const signInError = new URLSearchParams(window.location.search).get('error');
+    if (signInError === 'not_moderator') setJoinError(copy['mod.onlyChannelMods']);
+    else if (signInError === 'no_open_drill') setJoinError('There is no open drill yet. Ask the streamer to start one.');
+    else if (signInError === 'rate_limited') setJoinError('Too many join attempts. Try again in a minute.');
+    else if (signInError === 'sign_in_failed') setJoinError('Twitch sign-in could not be verified. Try again.');
+  }, [storageKey]);
   useEffect(() => {
     if (isDemo) { setChannel(null); setChannelError(''); return; }
     let cancelled = false;
@@ -110,6 +129,10 @@ export function Mod() {
         </div>
         <form className="mod-join-card" onSubmit={(event) => void join(event)}>
           <h2>Join the drill</h2>
+          {!isDemo && channel?.drillOpen && <>
+            <a className="mod-primary-button mod-primary-link" href={`/auth/mod/login?channel=${encodeURIComponent(channelLogin)}`}>Sign in with Twitch</a>
+            <p className="mod-auth-separator">or enter the drill code</p>
+          </>}
           <label htmlFor="join-code">6-digit code</label>
           <input id="join-code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required value={code}
             onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} />

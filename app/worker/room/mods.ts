@@ -20,6 +20,11 @@ export const JoinInputZ = JoinZ.extend({
   ip: z.string().min(1).max(128),
   twitchUserId: z.string().min(1).max(64).optional()
 });
+const VerifiedJoinInputZ = z.object({
+  displayName: JoinZ.shape.displayName,
+  ip: z.string().min(1).max(128),
+  twitchUserId: z.string().min(1).max(64)
+});
 export type JoinInput = z.infer<typeof JoinInputZ>;
 
 export type JoinResult =
@@ -94,6 +99,38 @@ export function joinAsMod(sql: Sql, input: JoinInput, now: number): JoinResult {
     'INSERT INTO participants (id, twitch_user_id, display_name, is_sim, joined_at) VALUES (?, ?, ?, 0, ?)',
     participantId,
     input.twitchUserId ?? null,
+    name,
+    now
+  );
+  sql.exec('INSERT OR IGNORE INTO drill_participants (drill_id, participant_id) VALUES (?, ?)', drill.id, participantId);
+  return { ok: true, participantId, name, drillId: drill.id };
+}
+
+/** A moderator verified by Twitch joins the active drill without a shared join code (FR-23). */
+export function joinAsVerifiedMod(
+  sql: Sql,
+  rawInput: unknown,
+  now: number
+): JoinResult {
+  const parsed = VerifiedJoinInputZ.safeParse(rawInput);
+  if (!parsed.success) return { ok: false, reason: 'forbidden' };
+  const input = parsed.data;
+  const minute = Math.floor(now / 60_000);
+  sql.exec('DELETE FROM join_attempts WHERE minute < ?', minute - 1);
+  if (failures(sql, input.ip, minute) >= JOIN_MAX_FAILURES) {
+    countFailure(sql, input.ip, minute);
+    return { ok: false, reason: 'rate_limited' };
+  }
+  const drill = sql.exec<{ id: string }>(
+    "SELECT id FROM drills WHERE status IN ('draft', 'voting', 'running') ORDER BY created_at DESC, id LIMIT 1"
+  ).toArray()[0];
+  if (!drill) return { ok: false, reason: 'forbidden' };
+  const participantId = randomId(12);
+  const name = uniqueName(sql, input.displayName);
+  sql.exec(
+    'INSERT INTO participants (id, twitch_user_id, display_name, is_sim, joined_at) VALUES (?, ?, ?, 0, ?)',
+    participantId,
+    input.twitchUserId,
     name,
     now
   );

@@ -8,15 +8,18 @@ import { requireStreamer } from '../auth/streamer.js';
 import { randomId } from '../lib/ids.js';
 import { AppError, errorResponse } from '../lib/errors.js';
 import { log } from '../lib/log.js';
-import { readToken, signToken, STREAMER_SESSION_SECONDS, type StreamerSession } from '../auth/session.js';
-import { ensureChatSubscription, exchangeCode, authorizeUrl } from '../twitch/oauth.js';
-import { getUsers } from '../twitch/helix.js';
+import { readToken, signToken, STREAMER_SESSION_SECONDS, type ParticipantToken, type StreamerSession } from '../auth/session.js';
+import { ensureChatSubscription, exchangeCode, exchangeModCode, authorizeUrl, modAuthorizeUrl, validateToken } from '../twitch/oauth.js';
+import { getUsers, isChannelModerator } from '../twitch/helix.js';
+import { PARTICIPANT_TOKEN_MS } from '../room/mods.js';
 
 export const authRoutes = new Hono<{ Bindings: Env }>();
 
 const OAUTH_STATE_SECONDS = 10 * 60;
 const TWITCH_CALLBACK = z.object({ code: z.string().min(1), state: z.string().min(1) });
 const STATE_COOKIE = z.object({ state: z.string().min(1), exp: z.number() });
+const MOD_STATE_COOKIE = STATE_COOKIE.extend({ channelId: z.string().min(1), channelLogin: z.string().regex(/^[a-z0-9_]{1,25}$/) });
+const MOD_LOGIN = z.string().regex(/^[a-z0-9_]{1,25}$/);
 
 function badCallback(): Response {
   const response = errorResponse('invalid', 'The Twitch sign-in request expired or could not be verified.');
@@ -35,6 +38,78 @@ authRoutes.get('/login', async (context) => {
   const response = context.redirect(authorizeUrl(context.env, state), 302);
   response.headers.append('Set-Cookie', setCookie('oauth', cookie));
   return response;
+});
+
+authRoutes.get('/mod/login', async (context) => {
+  const ip = context.req.header('CF-Connecting-IP') ?? 'unknown';
+  const limited = await context.env.AUTH_LIMITER.limit({ key: `mod:${ip}` });
+  if (!limited.success) return errorResponse('rate_limited', 'Too many sign-in attempts. Try again shortly.');
+  const parsedLogin = MOD_LOGIN.safeParse(context.req.query('channel')?.toLowerCase());
+  if (!parsedLogin.success) return errorResponse('invalid', 'Channel name is invalid.', 'channel');
+  const channel = await context.env.DB.prepare(`SELECT u.id, u.login FROM users u JOIN channels c ON c.broadcaster_id = u.id
+    WHERE lower(u.login) = ?`)
+    .bind(parsedLogin.data)
+    .first<{ id: string; login: string }>();
+  if (!channel) return errorResponse('not_found', 'Channel not found.');
+
+  const state = randomId(32);
+  const expiresAt = Date.now() + OAUTH_STATE_SECONDS * 1000;
+  const cookie = await signToken({ state, exp: expiresAt, channelId: channel.id, channelLogin: channel.login }, context.env.SESSION_HMAC_KEY);
+  const response = context.redirect(modAuthorizeUrl(context.env, state), 302);
+  response.headers.append('Set-Cookie', setCookie('oauth', cookie));
+  return response;
+});
+
+authRoutes.get('/mod/callback', async (context) => {
+  const params = TWITCH_CALLBACK.safeParse({ code: context.req.query('code'), state: context.req.query('state') });
+  if (!params.success) return badCallback();
+  const oauthCookie = readCookie(context.req.header('Cookie'), 'oauth');
+  const rawState = await readToken<z.infer<typeof MOD_STATE_COOKIE>>(oauthCookie, context.env.SESSION_HMAC_KEY, Date.now());
+  const stateCookie = MOD_STATE_COOKIE.safeParse(rawState);
+  if (!stateCookie.success || !(await sameSecret(stateCookie.data.state, params.data.state))) return badCallback();
+
+  const { channelId, channelLogin } = stateCookie.data;
+  const fail = (reason: 'not_moderator' | 'no_open_drill' | 'sign_in_failed' | 'rate_limited'): Response => {
+    const response = context.redirect(`/mod/${encodeURIComponent(channelLogin)}?error=${reason}`, 302);
+    response.headers.append('Set-Cookie', clearCookie('oauth'));
+    return response;
+  };
+  try {
+    const modTokens = await exchangeModCode(context.env, params.data.code);
+    const identity = await validateToken(context.env, modTokens.access_token);
+    if (identity.client_id !== context.env.TWITCH_CLIENT_ID || identity.scopes.length > 0) return fail('sign_in_failed');
+    const modUser = await getUsers(context.env, modTokens.access_token);
+    if (modUser.id !== identity.user_id) return fail('sign_in_failed');
+    const allowed = await isChannelModerator(context.env, channelId, modUser.id);
+    if (!allowed) return fail('not_moderator');
+
+    const roomName = `ch:${channelId}`;
+    const ip = context.req.header('CF-Connecting-IP') ?? 'unknown';
+    const displayName = Array.from(modUser.display_name.trim()).slice(0, 24).join('');
+    const joined = await context.env.ROOM.getByName(roomName).joinAsVerifiedMod({
+      displayName,
+      ip,
+      twitchUserId: modUser.id
+    });
+    const participant: ParticipantToken = {
+      room: roomName,
+      pid: joined.participantId,
+      exp: Date.now() + PARTICIPANT_TOKEN_MS
+    };
+    const participantToken = await signToken(participant, context.env.SESSION_HMAC_KEY);
+    const fragment = new URLSearchParams({
+      participantId: joined.participantId,
+      participantToken,
+      displayName: joined.displayName
+    });
+    const response = context.redirect(`/mod/${encodeURIComponent(channelLogin)}#${fragment}`, 302);
+    response.headers.append('Set-Cookie', clearCookie('oauth'));
+    return response;
+  } catch (error) {
+    if (error instanceof Error && error.message === 'join_forbidden') return fail('no_open_drill');
+    if (error instanceof Error && error.message === 'join_rate_limited') return fail('rate_limited');
+    return fail('sign_in_failed');
+  }
 });
 
 authRoutes.get('/callback', async (context) => {

@@ -4,6 +4,7 @@ export const copy = {
   'overlay.alarm': 'FIRE DRILL IN PROGRESS · practice chat only',
   'mod.waiting': "You're in. Remove attacks, leave regulars alone.",
   'mod.falseBan': 'False ban: that was a regular',
+  'mod.onlyChannelMods': "Only this channel's mods can join",
   'mod.slipped': 'Slipped through',
   'grade.headline': '{n} of {total} attack lines would get past your filters',
   'grade.engine.twitch': 'graded by Twitch',
