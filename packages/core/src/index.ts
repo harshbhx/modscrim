@@ -19,3 +19,4 @@ export * from './scoring.js';
 export * from './sim.js';
 export * from './pace.js';
 export * from './schema.js';
+export * from './coach.js';
