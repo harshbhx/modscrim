@@ -6,6 +6,7 @@ The running record the PRD (§12.4) and SRS (§13.3, §15.1) ask for: decisions,
 
 | Date | Decision | Why | Source |
 |---|---|---|---|
+| 2026-10-31 | Day-0 decision deferred; keep current grading defaults pending a live test-channel run | The script could not be launched in this checkout (`npm run day0` is undefined; direct Node type stripping cannot resolve `@mfd/core`'s `.js` source imports). No day-0 credentials or chat file are configured, so no Twitch measurements were made and changing quota or product-gate decisions would be unsupported. | T-41 (#45), SRS §13.3 |
 | 2026-10-30 | App on app.modscrim.dualmindlab.tech, website on modscrim.dualmindlab.tech | The static site (Pages, `site/`) and the app Worker (`app/`) deploy separately; one host each keeps cookies, CSP and routes apart. Only the HTTPS callback is registered with Twitch, which rejects `localhost`. | T-40 (#44) |
 | 2026-10-30 | React 19.3.1 | It is the current supported React release at T-01 and meets SRS §9.1. | T-01 |
 | | Day-0 outcome (PRD §12.1 decision table) | | Day-0 results below |
@@ -16,8 +17,8 @@ The running record the PRD (§12.4) and SRS (§13.3, §15.1) ask for: decisions,
 
 | Step | Measure | Result | Notes |
 |---|---|---|---|
-| 1-4 | Fresh-wave blocked before and after (local), points of improvement | | Gate: at least +20 points |
-| 4 | Real-chat matches of proposed terms | | Must be 0 |
+| 1-4 | Fixture-only dry run: fresh-wave blocked before and after, points of improvement | 12.0% / 68.0%; +56.0 points | 50 training and 50 held-out attack lines; 6 proposed terms. Not real channel data. |
+| 4 | Fixture-chat matches of proposed terms | 0 | 6 proposals checked. Not a real-chat safety result. |
 | 5 | Quota unit: request or line | | Sets `GRADING_QUOTA_UNIT` |
 | 5 | Max lines per Check AutoMod Status request | | Sets `GRADING_BATCH_SIZE` |
 | 5 | 429 headers and body; response shape; time per request | | |
@@ -27,7 +28,9 @@ The running record the PRD (§12.4) and SRS (§13.3, §15.1) ask for: decisions,
 | 8 | Rule finder CPU time, 20,000-line log | | NFR-04 |
 | 9 | Webhook: chat typed to console count | | Target: within 5 s |
 
-**Decision:** _(fill in from the PRD §12.1 table)_
+**Attempt (2026-10-31):** `npm run day0` stopped because the root package has no `day0` script. Direct `node --experimental-strip-types scripts/day0.ts --dry-run` could not resolve `@mfd/core`'s `.js` imports to TypeScript source files. The existing script then ran in fixture-only dry-run mode through a temporary launcher importing the already-built core package; it made no network requests and reported 50/50 lines, +56.0 points and zero matches against fixture chat. Quota, Twitch/local agreement, the temporary two-word term and deployed platform checks were not measured. No Twitch credentials or real chat file were configured, so the product kill-test decision remains deferred; the live test-channel run is required.
+
+**Decision:** Deferred until the live day-0 run; leave the configured values unchanged.
 
 ## Codex sessions
 
@@ -41,6 +44,10 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 ## Session notes
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
+
+2026-10-31 · T-55 (#61) · Added `app/test/report-coach-redaction.test.ts`: JSON and Markdown export projections omit `fpExample` and attack text; a workerd integration test writes both exports to R2 and checks that an unshared report returns 404; coach templates cover zero/non-zero slips and false bans, and the AI prompt contains only its four numeric fields; overlay payloads replace hidden human names in action, score, participant, end, state and report messages. `npm run typecheck` passed; `npm test` passed (19 core tests, 76 Worker tests). · Next: run T-41 with the live test channel when its credentials and data are available.
+
+2026-10-31 · T-54 (#60) · Added `app/test/deletion.test.ts` coverage for the seven-day chat-retention boundary, 30-day drill retention, expired nonces, old join counters, hourly token invalidation after Twitch returns 401, and sign-out deletion of room storage, D1 rows and R2 objects. `npm run typecheck` passed; `npm test` passed (19 core tests, 76 Worker tests). · Next: run T-41 with the live test channel when its credentials and data are available.
 
 2026-10-31 · #100 · Added the manual workflow `.github/workflows/lighthouse.yml` (Lighthouse CI `@lhci/cli@0.15.1`, SHA-pinned actions, 3 runs per URL, median reported in the job summary, reports uploaded as the `lighthouse-reports` artifact). · Scores from the live sites (mobile preset, run 41190839206), performance / accessibility / best practices / SEO: `https://modscrim.dualmindlab.tech/` 100 / 100 / 75 / 100; `https://app.modscrim.dualmindlab.tech/console` 96 / 100 / 75 / 92. Best practices is under 90 on both pages: the Google Analytics tag injected by Cloudflare logs console errors because the CSP `connect-src 'self'` blocks `stats.g.doubleclick.net` and `www.google.com/ads/ga-audiences`, plus deprecated-API and Issues-panel hits from the same tag (relates to #150). SEO 92 on the console is above 90. Performance on the home page varied between 99 and 100 across runs. · Next: decide with #150 whether to allow those hosts in `connect-src` or drop the tag, then rerun the workflow.
 
