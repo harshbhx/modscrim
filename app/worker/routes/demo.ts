@@ -65,7 +65,7 @@ const requireDemoRoom = createMiddleware<{ Bindings: Env; Variables: DemoVars }>
 
 demoRoutes.use('*', requireDemoEnabled);
 
-/** POST /api/demo: a new demo room with fixtures and its first draft; sets `__Host-mfd_demo` (FR-38). */
+/** POST /api/demo: a new demo room with fixtures and its first draft; sets `__Host-mfd_demo`; returns `{ room, joinCode, modUrl, overlayKey }` (FR-38). */
 demoRoutes.post('/', async (context) => {
   const ip = context.req.header('CF-Connecting-IP') ?? 'unknown';
   const { success } = await context.env.DEMO_LIMITER.limit({ key: `demo:${ip}` });
@@ -74,14 +74,16 @@ demoRoutes.post('/', async (context) => {
   const id = crypto.randomUUID();
   const name = demoRoomName(id);
   let joinCode: string;
+  let overlayKey: string;
   try {
-    ({ joinCode } = await roomOf(context.env, id).bootstrapDemo(name));
+    ({ joinCode, overlayKey } = await roomOf(context.env, id).bootstrapDemo(name));
   } catch {
     throw new AppError('room_unavailable', 'The room is unavailable.');
   }
   const session: DemoSession = { room: name, exp: Date.now() + COOKIES.demo.maxAge * 1000 };
   context.header('Set-Cookie', setCookie('demo', await signToken(session, context.env.SESSION_HMAC_KEY)));
-  return context.json({ room: id, joinCode, modUrl: demoModUrl(context.env, id) });
+  // `overlayKey` goes to the room's creator only (S-06: overlay sockets get redacted payloads); load tests and OBS use it.
+  return context.json({ room: id, joinCode, modUrl: demoModUrl(context.env, id), overlayKey });
 });
 
 // ---- mods (no cookie) -----------------------------------------------------------------------------

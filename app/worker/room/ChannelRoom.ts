@@ -399,7 +399,7 @@ export class ChannelRoom extends DurableObject<Env> {
    * Create a demo room for the fixture channel with its terms and chat log, schedule its `room.gc`,
    * and create the first draft with `DEFAULT_CONFIG` (Kai (sim) on). Calling it again returns the same draft.
    */
-  async bootstrapDemo(roomName: string): Promise<{ drillId: string; joinCode: string }> {
+  async bootstrapDemo(roomName: string): Promise<{ drillId: string; joinCode: string; overlayKey: string }> {
     if (!isDemoRoomName(roomName)) throw new Error('demo_invalid');
     const fresh = !this.bootstrapped();
     if (!fresh && this.meta('mode') !== 'demo') throw new Error('demo_invalid');
@@ -413,7 +413,9 @@ export class ChannelRoom extends DurableObject<Env> {
     if (fresh) log('demo.created', { room: roomName });
     // TODO(T-16): push and undo in demo rooms are simulated (FR-34): they edit `blocked_terms` only.
     // Demo reports stay in the room (`refreshReport` never schedules `report.export`): no D1, R2 or Queue.
-    return this.createDrill(DEMO_DRILL_CONFIG);
+    const { drillId, joinCode } = await this.createDrill(DEMO_DRILL_CONFIG);
+    // Set by `bootstrap` for every fresh room, so it is never null here.
+    return { drillId, joinCode, overlayKey: this.meta('overlay_key') ?? '' };
   }
 
   /** True once a demo room has been idle for 2 hours. Live rooms are never idle-collected. */
