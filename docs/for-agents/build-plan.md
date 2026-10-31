@@ -88,8 +88,8 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-51 | Tests: ChannelRoom scheduler, sockets and tickets | Tests for T-09 | P0 | Dhairya | M1 | T-09 | [#57](https://github.com/harshbhx/modscrim/issues/57) |
 | ☐ | T-52 | Tests: drill engine, mod join and Kai (sim) | Tests for T-12, T-13, T-14 | P0 | Dhairya | M2 | T-12, T-13, T-14 | [#58](https://github.com/harshbhx/modscrim/issues/58) |
 | ☐ | T-53 | Tests: after-action reports and demo rooms | Tests for T-17, T-18 | P0 | Dhairya | M2 | T-17, T-18 | [#59](https://github.com/harshbhx/modscrim/issues/59) |
-| ☐ | T-54 | Tests: hourly cron, retention and sign-out deletion | Tests for T-26, T-27 | P0 | Dhairya | M3 | T-26, T-27 | [#60](https://github.com/harshbhx/modscrim/issues/60) |
-| ☐ | T-55 | Tests: report export, coach note and hidden mod names | Tests for T-31, T-36, T-42 | P1 | Dhairya | M4 | T-31, T-36, T-42 | [#61](https://github.com/harshbhx/modscrim/issues/61) |
+| ☑ | T-54 | Tests: hourly cron, retention and sign-out deletion | Tests for T-26, T-27 | P0 | Dhairya | M3 | T-26, T-27 | [#60](https://github.com/harshbhx/modscrim/issues/60) |
+| ☑ | T-55 | Tests: report export, coach note and hidden mod names | Tests for T-31, T-36, T-42 | P1 | Dhairya | M4 | T-31, T-36, T-42 | [#61](https://github.com/harshbhx/modscrim/issues/61) |
 | ☐ | T-56 | Brand kit and marketing website on modscrim.dualmindlab.tech (parent of T-57 to T-60) | — | P0 | Harsh | M4 | — | [#76](https://github.com/harshbhx/modscrim/issues/76) |
 | ☐ | T-57 | Brand assets in `brand/`: logos, fonts with OFL licences, social and stream images, `DESIGN.md` | PRD §9.7 | P0 | Harsh | M4 | — | [#77](https://github.com/harshbhx/modscrim/issues/77) |
 | ☐ | T-58 | Website pages and shared styles in `site/` (parent of T-61 to T-73) | PRD §9.1, §9.6 | P0 | Harsh | M4 | T-57 | [#78](https://github.com/harshbhx/modscrim/issues/78) |
