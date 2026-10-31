@@ -118,6 +118,17 @@ describe('tickets and sockets', () => {
       await expect(room.issueTicket({ role: 'mod', participantId: 'nobody' })).rejects.toThrow('unknown_participant');
     });
   });
+
+  it('sends the requested role in hello and a role-appropriate initial state', async () => {
+    const { stub } = await bootstrapped();
+    const overlayKey = (await stub.getOverlayKey()) as string;
+    const response = await upgrade(stub, `overlayKey=${encodeURIComponent(overlayKey)}`);
+    expect(response.status).toBe(101);
+    const messages = collect(response.webSocket as WebSocket);
+    await until(() => messages.length >= 2);
+    expect(messages[0]).toMatchObject({ type: 'hello', data: { role: 'overlay', serverTime: expect.any(Number) } });
+    expect(messages[1]).toMatchObject({ type: 'drill.state', data: { participants: [], drill: null } });
+  });
 });
 
 describe('overlay key', () => {
@@ -196,6 +207,20 @@ describe('scheduler', () => {
       return { calls, left: state.storage.sql.exec('SELECT 1 FROM schedule').toArray().length };
     });
     expect(result).toEqual({ calls: 5, left: 0 });
+  });
+
+  it('does not run a consumed job again when the alarm fires twice', async () => {
+    const { stub } = await bootstrapped();
+    const result = await runInDurableObject(stub, async (room: ChannelRoom, state) => {
+      let calls = 0;
+      room.registerJob('chatlog.purge', () => { calls += 1; });
+      await room.schedule('chatlog.purge', 'daily', Date.now() + HOUR);
+      state.storage.sql.exec('UPDATE schedule SET due_at = 1');
+      await room.alarm();
+      await room.alarm();
+      return { calls, pending: state.storage.sql.exec('SELECT 1 FROM schedule').toArray().length };
+    });
+    expect(result).toEqual({ calls: 1, pending: 0 });
   });
 });
 
