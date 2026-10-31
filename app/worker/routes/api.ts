@@ -11,6 +11,7 @@ import { upsertSummary } from '../jobs/reportExport.js';
 import { modRoutes, publicRoutes } from './mod.js';
 import { publicReportRoutes, shareUrl } from './reports.js';
 import type { GradePhase } from '@mfd/core';
+import { TermListZ } from '@mfd/core';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -267,6 +268,48 @@ apiRoutes.get('/drills/:id/grades', requireStreamer, async (context) => {
   return context.json(await drillCall(() => room.getGrades(drillId), 'The grades are unavailable.'));
 });
 
+apiRoutes.post('/drills/:id/rules', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.findRules(drillId), 'Rules are unavailable until the drill is graded.'));
+});
+
+apiRoutes.post('/drills/:id/prove', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.proveFreshWave(drillId, terms), 'The proof could not be created.'));
+});
+
+apiRoutes.post('/drills/:id/push', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const actorId = context.get('session').uid;
+  return context.json(await drillCall(() => room.push(drillId, terms, actorId), 'One or more terms match your real chat.'));
+});
+
+apiRoutes.post('/drills/:id/undo', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const actorId = context.get('session').uid;
+  return context.json(await drillCall(() => room.undo(drillId, actorId), 'The terms could not be undone.'));
+});
+
+apiRoutes.get('/audit', requireStreamer, async (context) => {
+  const { id } = await streamerRoom(context.env, context.get('session').uid);
+  const rows = await context.env.DB.prepare(
+    'SELECT id, actor_id, action, detail, at FROM audit_log WHERE broadcaster_id = ? ORDER BY at DESC, id DESC LIMIT 100'
+  ).bind(id).all<{ id: number; actor_id: string; action: string; detail: string; at: number }>();
+  return context.json({ rows: rows.results.map((row) => ({
+    id: row.id,
+    actorId: row.actor_id,
+    action: row.action,
+    detail: parseAuditDetail(row.detail),
+    at: row.at
+  })) });
+});
+
 /** GET /api/drills/:id/report: the after-action report (FR-27); 404 until the drill has ended. */
 apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const drillId = drillIdOf(context.req.param('id'));
@@ -307,4 +350,24 @@ async function readGradePhase(request: Request): Promise<GradePhase> {
   const parsed = z.object({ phase: z.enum(['A', 'B-before', 'B-after']) }).safeParse(body);
   if (!parsed.success) throw new AppError('invalid', 'Invalid grading phase.', 'phase');
   return parsed.data.phase;
+}
+
+async function readTerms(request: Request): Promise<string[]> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid terms request.', 'terms');
+  }
+  const parsed = TermListZ.safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Choose between 1 and 12 terms.', 'terms');
+  return parsed.data.terms;
+}
+
+function parseAuditDetail(raw: string): unknown {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return {};
+  }
 }
