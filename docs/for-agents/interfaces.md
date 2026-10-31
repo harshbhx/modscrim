@@ -82,7 +82,7 @@ All JSON. Errors: `{ "error": { "code", "message", "field"? } }`.
 
 | Route | Auth | Purpose |
 |---|---|---|
-| POST `/api/demo` | `DEMO_LIMITER` per IP | Create a room; sets `__Host-mfd_demo`; `{ room, joinCode, modUrl }` |
+| POST `/api/demo` | `DEMO_LIMITER` per IP | Create a room; sets `__Host-mfd_demo`; `{ room, joinCode, modUrl, overlayKey }`; `overlayKey` opens `GET /ws/demo/:room?overlayKey=…` (redacted overlay feed) |
 | `/api/demo/:room/...` | Demo cookie for that room | Streamer drill routes scoped to the demo room; push and undo simulated |
 | POST `/api/demo/:room/mod/join` | Join code + failed-attempt limit | No cookie, so a phone can join from the QR code |
 | POST `/api/demo/:room/mod/ticket` | Participant token | Reconnect |
