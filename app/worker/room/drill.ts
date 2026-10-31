@@ -98,14 +98,14 @@ const LINE_SELECT = `SELECT l.id, l.wave, l.idx, l.kind, l.tactic, l.trick, l.li
 const EmitJobZ = z.object({ drillId: z.string().min(1), idx: z.number().int().min(0) });
 const SlipJobZ = z.object({ drillId: z.string().min(1), lineId: z.string().min(1) });
 const EndJobZ = z.object({ drillId: z.string().min(1) });
+const VoteCloseJobZ = z.object({ drillId: z.string().min(1) });
+const VoteTacticZ = z.enum(['linkscam', 'spam', 'botwave', 'hateraid']);
+const VOTE_WINDOW_MS = 20_000;
 const SimJobZ = z.object({
   drillId: z.string().min(1),
   lineId: z.string().min(1),
   action: z.enum(['delete', 'timeout', 'ban'])
 });
-const VoteCloseJobZ = z.object({ drillId: z.string().min(1) });
-const VoteTacticZ = z.enum(['linkscam', 'spam', 'botwave', 'hateraid']);
-const VOTE_WINDOW_MS = 20_000;
 
 /** Validate a config (FR-16). An omitted seed keeps `fallbackSeed`, or becomes a random uint32. */
 export function parseConfig(input: unknown, fallbackSeed?: number): StoredConfig {
@@ -405,7 +405,7 @@ export class DrillEngine {
     return lines.length;
   }
 
-  /** `draft → running`: record `startedAt` and schedule line 0 at `startedAt` (FR-17). Starting a running drill is a no-op. */
+  /** Start now, or open the FR-40 vote window before emitting the first line. */
   async start(drillId: string, now: number): Promise<{ startedAt: number }> {
     const result = this.tx(() => {
       const d = this.drillRow(drillId);
@@ -449,7 +449,7 @@ export class DrillEngine {
     return { startedAt: result.startedAt };
   }
 
-  /** Count an eligible chat command during the configured 20-second vote window. */
+  /** Count one last-vote-wins command per chatter during the configured voting window. */
   castChatVote(chatterId: string, text: string, now: number): boolean {
     const command = /^!attack\s+(linkscam|spam|botwave|hateraid)$/i.exec(text.trim());
     const tactic = VoteTacticZ.safeParse(command?.[1]?.toLowerCase());
@@ -475,7 +475,7 @@ export class DrillEngine {
     return true;
   }
 
-  /** `vote.close <drillId>`: select the winner, then begin the drill; repeated alarms do nothing. */
+  /** `vote.close`: choose the winning tactic, then start the drill once. */
   async closeVote(job: { payload: unknown; now: number }): Promise<void> {
     const parsed = VoteCloseJobZ.safeParse(job.payload);
     if (!parsed.success) return;
@@ -525,6 +525,12 @@ export class DrillEngine {
 
   private voteEndsAt(drillId: string): number {
     return this.sql.exec<{ due_at: number }>("SELECT due_at FROM schedule WHERE kind = 'vote.close' AND key = ?", drillId).toArray()[0]?.due_at ?? Date.now();
+  }
+
+  voteSnapshot(): { counts: Record<Tactic, number>; endsAt: number } | null {
+    const d = this.activeDrill();
+    if (!d || d.status !== 'voting' || !(JSON.parse(d.config) as StoredConfig).chatVote) return null;
+    return { counts: this.voteCounts(d.id), endsAt: this.voteEndsAt(d.id) };
   }
 
   private publishVotes(drillId: string, endsAt: number): void {

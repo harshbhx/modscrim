@@ -1,7 +1,7 @@
 export type LogEvent =
   | 'auth.signin' | 'auth.signout' | 'auth.refresh' | 'auth.validate'
   | 'eventsub.received' | 'eventsub.rejected' | 'eventsub.subscription'
-  | 'chat.ingest' | 'drill.created' | 'drill.started' | 'drill.ended'
+  | 'chat.ingest' | 'chat.announcement' | 'drill.created' | 'drill.started' | 'drill.ended'
   | 'line.emit' | 'mod.action' | 'grade.send' | 'grade.done' | 'rules.run'
   | 'push.term' | 'undo.term' | 'report.saved' | 'report.exported' | 'coach.note'
   | 'demo.created' | 'demo.gc' | 'job.failed' | 'twitch.ratelimit' | 'twitch.filters';

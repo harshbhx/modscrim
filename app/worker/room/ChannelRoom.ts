@@ -294,7 +294,11 @@ export class ChannelRoom extends DurableObject<Env> {
       if (ingestResult === 'stored') this.touch(sentAt);
       return ingestResult;
     });
-    if (result !== 'ignored') this.drills.castChatVote(event.chatter_user_id, event.message.text, sentAt);
+    const broadcasterId = this.meta('broadcaster_id');
+    if (event.broadcaster_user_id === broadcasterId &&
+      (!event.source_broadcaster_user_id || event.source_broadcaster_user_id === broadcasterId)) {
+      this.drills.castChatVote(event.chatter_user_id, event.message.text, sentAt);
+    }
     return result;
   }
 
@@ -626,6 +630,7 @@ export class ChannelRoom extends DurableObject<Env> {
     return [...history.values()];
   }
 
+
   /**
    * The one report hook (SRS §3.4 Reports): rebuild and upsert the drill's report from the room's tables,
    * then broadcast `report.ready` (the card to the console and the overlay, nothing to mods). The drill engine
@@ -797,6 +802,8 @@ export class ChannelRoom extends DurableObject<Env> {
     if (auth.role === 'mod' && auth.pid) {
       send(server, { type: 'mod.history', data: await this.getModHistory(auth.pid) });
     }
+    const vote = auth.role === 'mod' ? null : this.drills.voteSnapshot();
+    if (vote) send(server, { type: 'vote.update', data: vote });
     this.touch();
     // A mod coming online updates everyone's mod list (the console's "joined mods").
     if (auth.role === 'mod') this.broadcastParticipants();
