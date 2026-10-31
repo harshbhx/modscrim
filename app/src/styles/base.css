@@ -464,3 +464,111 @@ a:hover {
     transform: none;
   }
 }
+
+/* Moderator practice console (T-21). */
+.mod-page { min-height: calc(100vh - 144px); padding: var(--space-8) 0 var(--space-16); background: var(--bg); }
+.mod-wrap { width: calc(100% - var(--gutter) - var(--gutter)); max-width: 1280px; margin: 0 auto; }
+.mod-brand-row, .mod-topbar, .mod-panel-heading, .mod-line-head, .mod-team-heading, .mod-topbar-status { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.mod-brand-row { margin-bottom: var(--space-10); }
+.mod-eyebrow { margin: 0 0 var(--space-2); color: var(--text-muted); font: var(--t-caption); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.practice-badge, .mod-line-kind { display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--space-3); border-radius: 999px; background: var(--practice-bg); color: var(--practice-text); font: var(--t-caption); font-weight: 800; }
+.mod-join-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 440px); align-items: center; gap: clamp(var(--space-8), 8vw, 112px); min-height: min(680px, calc(100vh - 280px)); }
+.mod-join-copy h1, .mod-channel-heading h1 { margin-bottom: var(--space-4); font-size: clamp(42px, 6vw, 72px); overflow-wrap: anywhere; }
+.mod-lead { max-width: 28ch; font: var(--t-lead); }
+.mod-safety-note { display: inline-flex; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--practice-bg); color: var(--practice-text); font: var(--t-caption); font-weight: 700; }
+.mod-channel-avatar { display: block; width: 72px; height: 72px; margin-bottom: var(--space-6); border-radius: 50%; object-fit: cover; }
+.mod-avatar-placeholder { display: grid; place-items: center; background: var(--green-700); color: var(--white); font: var(--t-display-m); }
+.mod-join-card, .mod-chat-panel, .mod-score-panel, .mod-participants, .mod-own-result, .mod-reveal { padding: var(--space-6); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); }
+.mod-join-card h2 { margin-bottom: var(--space-6); font-size: 30px; }
+.mod-join-card label { display: block; margin: var(--space-4) 0 var(--space-2); font: var(--t-body-s); font-weight: 700; }
+.mod-join-card input { display: block; width: 100%; min-height: 52px; padding: 0 var(--space-4); border: 2px solid var(--line-strong); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font: var(--t-body); }
+#join-code { font: 700 28px/1 var(--font-mono); letter-spacing: .2em; }
+.mod-primary-button, .mod-action-button { min-height: 48px; border: 2px solid transparent; border-radius: var(--radius-md); background: var(--action); color: var(--on-action); font: var(--t-button); cursor: pointer; }
+.mod-primary-button { width: 100%; margin: var(--space-6) 0 var(--space-3); }
+.mod-primary-button:hover, .mod-action-button:hover:not(:disabled) { background: var(--action-hover); }
+.mod-primary-button:disabled, .mod-action-button:disabled { cursor: not-allowed; opacity: .48; }
+.mod-muted { color: var(--text-muted); font: var(--t-caption); }
+.mod-error { margin: var(--space-4) 0 0; color: var(--accent-text); font-weight: 700; }
+.mod-topbar { margin-bottom: var(--space-6); }
+.mod-channel-heading { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.mod-channel-heading .mod-channel-avatar { width: 56px; height: 56px; margin: 0; flex: 0 0 auto; }
+.mod-channel-heading h1 { margin: 0; font-size: clamp(28px, 4vw, 44px); }
+.mod-topbar-status { flex-wrap: wrap; justify-content: flex-end; }
+.mod-connection { display: inline-flex; align-items: center; gap: var(--space-2); font: var(--t-caption); font-weight: 700; }
+.mod-connection::before, .mod-online-dot, .mod-live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); content: ''; }
+.mod-connection-open::before, .mod-online-dot.is-online, .mod-live-dot { background: #30a46c; }
+.mod-connection-connecting::before { background: var(--yellow-400); }
+.mod-quiet-button, .mod-sync-button, .mod-help-button { min-height: 44px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: transparent; color: var(--text); font: var(--t-body-s); font-weight: 700; cursor: pointer; }
+.mod-practice-banner { margin-bottom: var(--space-4); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--practice-bg); color: var(--practice-text); font: var(--t-body-s); font-weight: 800; text-align: center; }
+.mod-live-strip { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--green-700); color: var(--white); font-weight: 800; }
+.mod-live-time { margin-left: auto; font: var(--t-term); font-variant-numeric: tabular-nums; }
+.mod-waiting { max-width: 760px; margin: clamp(48px, 14vh, 160px) auto; padding: clamp(var(--space-6), 8vw, var(--space-10)); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); text-align: center; }
+.mod-waiting-icon { display: inline-grid; place-items: center; width: 64px; height: 64px; margin-bottom: var(--space-4); border-radius: 50%; background: var(--practice-bg); color: var(--practice-text); font-size: 36px; }
+.mod-waiting h2 { font-size: clamp(28px, 5vw, 42px); }
+.mod-participants { margin-top: var(--space-6); text-align: left; }
+.mod-participants h2, .mod-own-result h2 { margin-bottom: var(--space-4); font-size: 24px; }
+.mod-participants ul, .mod-score-list { margin: 0; padding: 0; list-style: none; }
+.mod-participants li { display: flex; align-items: center; gap: var(--space-2); min-height: 40px; border-bottom: 1px solid var(--line); }
+.mod-participants li .mod-muted { margin-left: auto; }
+.mod-practice-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(270px, 360px); align-items: start; gap: var(--space-6); }
+.mod-main-column, .mod-side-column { min-width: 0; }
+.mod-chat-panel { padding: var(--space-4); }
+.mod-panel-heading { padding: var(--space-2) var(--space-2) var(--space-4); }
+.mod-panel-heading h2 { margin: 0; font-size: clamp(24px, 3vw, 32px); }
+.mod-chat-list { display: flex; flex-direction: column; gap: var(--space-3); max-height: min(68vh, 780px); min-height: 220px; overflow: auto; margin: 0; padding: var(--space-2); list-style: none; scroll-behavior: smooth; }
+.mod-line { padding: var(--space-4); border: 1px solid var(--line); border-left: 5px solid var(--line-strong); border-radius: var(--radius-md); background: var(--bg); }
+.mod-line-acted { border-left-color: var(--caught-bg); }
+.mod-line-slipped { border-left-color: var(--slipped-bg); }
+.mod-line-head { justify-content: flex-start; margin-bottom: var(--space-2); }
+.mod-line-user { font: var(--t-body-s); font-weight: 800; }
+.mod-line-text { margin: 0; overflow-wrap: anywhere; font: var(--t-chat); }
+.mod-link-segment { text-decoration-line: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.mod-slur-segment { letter-spacing: .08em; }
+.mod-line-tags { margin: var(--space-2) 0 0; color: var(--text-muted); font: var(--t-caption); }
+.mod-feedback { margin: var(--space-3) 0 0; font: var(--t-caption); font-weight: 800; }
+.mod-feedback-caught { color: var(--caught-bg); text-decoration: line-through; }
+.mod-feedback-false { color: var(--accent-text); }
+.mod-feedback-slipped { color: var(--slipped-bg); }
+.mod-feedback-taken { color: var(--text-muted); }
+.mod-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+.mod-action-button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-2); font-size: 15px; }
+.mod-action-button kbd, .mod-help-button kbd { padding: 1px 5px; border-radius: 3px; background: rgb(0 0 0 / 10%); font-size: 12px; }
+.mod-empty-chat { display: grid; place-items: center; min-height: 240px; color: var(--text-muted); text-align: center; }
+.mod-help-area { margin-top: var(--space-3); padding: var(--space-2); }
+.mod-help-area p { margin: var(--space-3) 0; color: var(--text-muted); font: var(--t-caption); }
+.mod-sync-button { min-width: 72px; }
+.mod-score-panel h2 { margin-bottom: var(--space-2); font-size: 38px; }
+.mod-own-stats { color: var(--text-muted); font: var(--t-caption); }
+.mod-team-heading { margin: var(--space-6) 0 var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.mod-team-heading h3 { margin: 0; font-size: 21px; }
+.mod-team-heading span { font: var(--t-caption); font-weight: 700; }
+.mod-score-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 0 var(--space-2); padding: var(--space-3) 0; border-top: 1px solid var(--line); }
+.mod-score-list li.is-you .mod-score-name { font-weight: 800; }
+.mod-score-rank { grid-row: span 2; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--sunken); font: var(--t-caption); font-weight: 800; }
+.mod-score-name { overflow-wrap: anywhere; font: var(--t-body-s); }
+.mod-score-numbers { grid-column: 2; color: var(--text-muted); font: var(--t-caption); }
+.mod-own-result, .mod-reveal { margin-top: var(--space-4); }
+.mod-own-result p { margin: var(--space-2) 0; font: var(--t-body-s); }
+.mod-reveal h2 { font-size: 30px; }
+@media (max-width: 850px) {
+  .mod-practice-grid { grid-template-columns: minmax(0, 1fr); }
+  .mod-side-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--space-4); }
+  .mod-side-column .mod-participants, .mod-side-column .mod-own-result { margin-top: 0; }
+}
+@media (max-width: 640px) {
+  .mod-page { padding-top: var(--space-4); }
+  .mod-wrap { width: calc(100% - var(--gutter) - var(--gutter)); }
+  .mod-join-layout { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+  .mod-join-copy h1 { font-size: clamp(40px, 12vw, 60px); }
+  .mod-channel-avatar { width: 56px; height: 56px; margin-bottom: var(--space-4); }
+  .mod-topbar { align-items: flex-start; flex-direction: column; }
+  .mod-topbar-status { width: 100%; justify-content: space-between; }
+  .mod-side-column { grid-template-columns: minmax(0, 1fr); }
+  .mod-chat-list { max-height: 62vh; padding: var(--space-1); }
+  .mod-line { padding: var(--space-3); }
+  .mod-action-button { flex-direction: column; gap: 0; min-height: 52px; font-size: 14px; }
+  .mod-panel-heading { align-items: flex-start; }
+  .mod-score-panel, .mod-participants, .mod-own-result, .mod-reveal { padding: var(--space-4); }
+}
+
+
