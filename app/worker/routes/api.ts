@@ -365,7 +365,9 @@ apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const drillId = drillIdOf(context.req.param('id'));
   const { room } = await streamerRoom(context.env, context.get('session').uid);
   const report = await drillCall(() => room.getReport(drillId), 'The report is unavailable.');
-  return context.json(reportOrNotFound(report));
+  const saved = reportOrNotFound(report);
+  const modHistory = await drillCall(() => room.getModHistory(), 'The moderator history is unavailable.');
+  return context.json({ ...saved, modHistory });
 });
 
 /**

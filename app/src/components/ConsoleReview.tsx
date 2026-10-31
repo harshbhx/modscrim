@@ -24,6 +24,10 @@ export const ReportViewZ = z.object({
   grading: z.array(z.object({ phase: z.string(), engine: z.enum(['twitch', 'local', 'mixed']), passed: z.number(), total: z.number() })),
   rules: z.object({ accepted: z.array(z.object({ term: z.string(), gain: z.number() })), rejected: z.array(z.object({ term: z.string(), hits: z.number(), fp: z.number() })), needsBotRule: z.array(z.object({ tag: z.string(), count: z.number(), needsBotRule: z.boolean() })) }).optional(),
   proof: z.object({ total: z.number(), blockedBefore: z.number(), blockedAfter: z.number(), realChatMatches: z.number() }).optional(),
+  modHistory: z.array(z.object({
+    name: z.string(),
+    drills: z.array(z.object({ drillId: z.string(), createdAt: z.number(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() }))
+  })).optional(),
   pushes: z.array(z.object({ term: z.string(), status: z.enum(['added', 'preexisting', 'failed', 'removed']), error: z.string().optional() }))
 });
 
@@ -108,6 +112,7 @@ export function ReportCard({ report }: { report: ReportView }) {
   return <section className="console-section console-report-card" aria-labelledby="report-card-title"><p className="console-context">After-action report</p><h3 id="report-card-title">Drill summary</h3>
     <div className="console-report-stats"><span>{report.score.attacksShown} attacks shown</span><span>{report.score.slipped} slipped through</span>{grade && <span>{grade.passed} of {grade.total} passed · {engineName(grade.engine)}</span>}{report.proof && <span>Fresh wave: {report.proof.blockedBefore} of {report.proof.total} blocked before, {report.proof.blockedAfter} after · local estimate; {report.proof.realChatMatches} real-chat matches · local estimate</span>}</div>
     <h4>Moderator scores</h4>{report.score.mods.length === 0 ? <p className="console-muted">No mods took part.</p> : <ul className="console-score-list">{report.score.mods.map((mod) => <li key={mod.participantId}><strong>{mod.name}{mod.isSim ? ' (sim)' : ''}</strong><span>{mod.caught} caught · {mod.falseBans} false bans · {mod.avgReactionMs === null ? '—' : `${(mod.avgReactionMs / 1000).toFixed(1)} s average`}</span></li>)}</ul>}
+    {report.modHistory && report.modHistory.length > 0 && <><h4>Moderator history across drills</h4><ul className="console-score-list">{report.modHistory.map((mod) => <li key={mod.name}><strong>{mod.name}</strong><span>{mod.drills.map((item, index) => `Drill ${index + 1}: ${item.caught} caught · ${item.falseBans} false bans · ${item.avgReactionMs === null ? '—' : `${(item.avgReactionMs / 1000).toFixed(1)} s average`}`).join(' | ')}</span></li>)}</ul></>}
     {report.rules && <><h4>Proposed terms · local estimate</h4><p>{report.rules.accepted.length ? report.rules.accepted.map((item) => item.term).join(', ') : 'No safe terms proposed.'}</p><h4>Rejected terms · local estimate</h4><p>{report.rules.rejected.length ? report.rules.rejected.map((item) => item.term).join(', ') : 'None.'}</p><h4>Needs a bot rule · local estimate</h4><p>{report.rules.needsBotRule.length ? report.rules.needsBotRule.map((item) => `${item.tag} (${item.count})`).join(', ') : 'None.'}</p></>}
     <h4>Pushed terms</h4>{report.pushes.length === 0 ? <p className="console-muted">No terms were pushed.</p> : <ul className="console-push-results">{report.pushes.map((item, index) => <li key={`${item.term}-${index}`}><strong>{item.term}</strong><span>{item.status}{item.error ? ` · ${item.error}` : ''}</span></li>)}</ul>}
   </section>;
