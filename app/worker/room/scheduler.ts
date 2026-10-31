@@ -7,7 +7,7 @@ export type JobHandler = (job: { kind: JobKind; key: string; payload: unknown; n
 export const MAX_ATTEMPTS = 5;
 
 /** Drill jobs run before everything else in one pass so Twitch work never delays the drill clock. */
-const DRILL_JOBS = "('line.emit', 'line.slip', 'sim.act', 'drill.end')";
+const DRILL_JOBS = "('line.emit', 'line.slip', 'sim.act', 'drill.end', 'vote.close')";
 
 type Row = { id: number; due_at: number; kind: JobKind; key: string; payload: string; attempts: number };
 
