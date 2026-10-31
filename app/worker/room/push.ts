@@ -14,6 +14,7 @@ type PushDeps = {
   broadcasterId: () => string | null;
   getAccessToken: (rejectedToken?: string) => Promise<string>;
   proveFreshWave: (drillId: string, terms: string[]) => Promise<{ pushAllowed: boolean }>;
+  requestGrading: (drillId: string, phase: 'B-after') => Promise<{ queued: number }>;
   refreshReport: (drillId: string, now: number) => unknown;
 };
 
@@ -129,6 +130,9 @@ export class PushEngine {
     }
 
     if (!demo && broadcasterId) await this.writeAudit(broadcasterId, actorId, 'push', drillId, results, startedAt);
+    if (!demo && results.some((result) => result.status === 'added')) {
+      await this.deps.requestGrading(drillId, 'B-after');
+    }
     const now = Date.now();
     this.deps.refreshReport(drillId, now);
     log('push.term', { room: this.deps.roomName(), drill: drillId, count: results.length, added: results.filter((item) => item.status === 'added').length });
