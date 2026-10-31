@@ -1,0 +1,61 @@
+name: Lighthouse
+
+# Issue #100: manual Lighthouse CI run against the live site and the console.
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Runs per URL (the median is reported)
+        default: '3'
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Collect Lighthouse reports
+        env:
+          RUNS: ${{ inputs.runs }}
+        run: |
+          npx --yes @lhci/cli@0.15.1 collect \
+            --url=https://modscrim.dualmindlab.tech/ \
+            --url=https://app.modscrim.dualmindlab.tech/console \
+            --numberOfRuns="${RUNS:-3}" \
+            --settings.onlyCategories=performance,accessibility,best-practices,seo \
+            --settings.chromeFlags="--no-sandbox --headless=new"
+      - name: Print scores in the job summary
+        run: |
+          node --input-type=module -e '
+            import { readdirSync, readFileSync, appendFileSync } from "node:fs";
+            const dir = ".lighthouseci";
+            const cats = ["performance", "accessibility", "best-practices", "seo"];
+            const byUrl = new Map();
+            for (const f of readdirSync(dir).filter((n) => /^lhr-.*\.json$/.test(n))) {
+              const lhr = JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
+              const list = byUrl.get(lhr.requestedUrl) ?? [];
+              list.push(lhr);
+              byUrl.set(lhr.requestedUrl, list);
+            }
+            const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+            let out = "## Lighthouse scores (median of runs, 0 to 100)\n\n| URL | Runs | Performance | Accessibility | Best practices | SEO |\n|---|---|---|---|---|---|\n";
+            for (const [url, lhrs] of byUrl) {
+              const cells = cats.map((c) => Math.round(100 * median(lhrs.map((l) => l.categories[c].score ?? 0))));
+              out += `| ${url} | ${lhrs.length} | ${cells.join(" | ")} |\n`;
+            }
+            console.log(out);
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, out);
+          '
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          if-no-files-found: error
