@@ -6,6 +6,7 @@ import { Mod } from './routes/Mod';
 import { NotFound, Placeholder } from './routes/Placeholder';
 import { Privacy } from './routes/Privacy';
 import { SharedReport } from './routes/SharedReport';
+import { Console } from './routes/Console';
 
 /** Every route in PRD §9.1. */
 export function App() {
@@ -14,7 +15,7 @@ export function App() {
     <Route path="overlay/:channel" element={<Placeholder title={screens.overlay} />} />
     <Route element={<Layout />}>
       <Route index element={<Landing />} />
-      <Route path="console" element={<Placeholder title={screens.console} />} />
+      <Route path="console" element={<Console />} />
       <Route path="mod/:channel" element={<Mod />} />
       <Route path="demo" element={<Placeholder title={screens.demo} />} />
       <Route path="demo/:room" element={<Placeholder title={screens.demoConsole} />} />
