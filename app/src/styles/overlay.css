@@ -42,20 +42,35 @@ body:has(.overlay-viewport) {
 }
 
 .overlay-alarm {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 28px;
   min-height: 76px;
-  padding: 12px 28px;
+  padding: 12px 32px;
   border: 4px solid #111;
-  background: repeating-linear-gradient(135deg, #ffd23f 0 24px, #171717 24px 48px);
+  background: #ffd23f;
   color: #111;
   font: 900 30px/1.1 var(--font-body);
   letter-spacing: .035em;
   text-shadow: none;
   text-transform: uppercase;
 }
+
+.overlay-alarm::before,
+.overlay-alarm::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  background: repeating-linear-gradient(135deg, #171717 0 8px, #ffd23f 8px 16px);
+  content: '';
+}
+
+.overlay-alarm::before { left: 0; }
+.overlay-alarm::after { right: 0; }
 
 .overlay-channel {
   max-width: 34%;
