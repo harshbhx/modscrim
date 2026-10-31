@@ -16,6 +16,7 @@
   "dependencies": {
     "@mfd/core": "*",
     "hono": "^4.13.14",
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.13.1",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.66.0",
     "@cloudflare/vitest-plugin": "^1.4.11",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.1.2",
