@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
-import type { DrillSnapshot, ReportCard, ServerMsg } from '@mfd/core';
+import { TacticZ, type DrillSnapshot, type ReportCard, type ServerMsg, type Tactic } from '@mfd/core';
 import { t } from '../copy.js';
 import { apiFetch } from '../lib/api.js';
 import { useRoom } from '../lib/useRoom.js';
@@ -23,6 +23,9 @@ function readChannelInfo(value: unknown): ChannelInfo | null {
 function isReportReady(message: ServerMsg | null): message is Extract<ServerMsg, { type: 'report.ready' }> {
   return message?.type === 'report.ready';
 }
+
+type VoteUpdate = Extract<ServerMsg, { type: 'vote.update' }>['data'];
+const VoteUpdateZ = z.object({ counts: z.record(TacticZ, z.number().int().nonnegative()), endsAt: z.number() });
 
 function safeReport(value: unknown): ReportCard | null {
   const parsed = z.object({
@@ -59,6 +62,20 @@ function Scoreboard({ snapshot }: { snapshot: DrillSnapshot | null }) {
   </section>;
 }
 
+function VoteBars({ counts }: { counts: Record<Tactic, number> }) {
+  const labels: Record<Tactic, string> = { linkscam: 'Link scams', spam: 'Spam bursts', botwave: 'Bot waves', hateraid: 'Hate raid' };
+  const max = Math.max(1, ...Object.values(counts));
+  return <section className="overlay-votes" aria-label="Chat vote results">
+    <p className="overlay-label">Chat picks the next tactic</p>
+    {Object.entries(counts).map(([tactic, count]) => <div className="overlay-vote-row" key={tactic}>
+      <span>{labels[tactic as Tactic]}</span>
+      <span className="overlay-vote-track"><span style={{ width: `${(count / max) * 100}%` }} /></span>
+      <strong>{count}</strong>
+    </div>)}
+    <p className="overlay-vote-hint">Type !attack linkscam, spam, botwave or hateraid</p>
+  </section>;
+}
+
 function ChatBars({ snapshot }: { snapshot: DrillSnapshot | null }) {
   const lines = snapshot?.drill?.lines ?? [];
   return <section className="overlay-chat" aria-label="Practice chat activity">
@@ -85,16 +102,18 @@ function AfterAction({ card, onDismiss }: { card: ReportCard; onDismiss: () => v
   </aside>;
 }
 
-function OverlayStage({ displayName, snapshot, report, onDismiss }: {
+function OverlayStage({ displayName, snapshot, report, vote, onDismiss }: {
   displayName: string;
   snapshot: DrillSnapshot | null;
   report: ReportCard | null;
+  vote: VoteUpdate | null;
   onDismiss: () => void;
 }) {
   return <main className="overlay-viewport" aria-label="OBS practice overlay">
     <div className="overlay-stage">
       <div className="overlay-inner">
         <header className="overlay-alarm"><span>{t('overlay.alarm')}</span><span className="overlay-channel">{displayName}</span></header>
+        {vote && snapshot?.drill?.status === 'voting' && <VoteBars counts={vote.counts} />}
         <div className="overlay-activity">
           {snapshot?.drill?.status === 'running' && <p className="overlay-live"><span /> LIVE PRACTICE</p>}
           {!snapshot?.drill && <p className="overlay-connection">Waiting for the practice room</p>}
@@ -114,6 +133,7 @@ export function Overlay() {
   const [channelInfo, setChannelInfo] = useState<ChannelInfo | null>(null);
   const [report, setReport] = useState<ReportCard | null>(null);
   const [reportVersion, setReportVersion] = useState(0);
+  const [vote, setVote] = useState<VoteUpdate | null>(null);
   const { connection, role, snapshot, lastMessage } = useRoom({
     role: 'overlay', channelId: channelInfo?.broadcasterId, overlayKey: key,
     enabled: Boolean(key && channelInfo?.broadcasterId)
@@ -139,6 +159,15 @@ export function Overlay() {
   }, [lastMessage]);
 
   useEffect(() => {
+    if (lastMessage?.type === 'vote.update') {
+      const parsed = VoteUpdateZ.safeParse(lastMessage.data);
+      setVote(parsed.success ? parsed.data : null);
+    } else if (lastMessage?.type === 'drill.started' || lastMessage?.type === 'drill.ended') {
+      setVote(null);
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
     if (!report) return;
     const timeout = window.setTimeout(() => setReport(null), 20_000);
     return () => window.clearTimeout(timeout);
@@ -157,5 +186,5 @@ export function Overlay() {
   const online = connection === 'open';
   const displayName = channelInfo?.displayName ?? '';
   if (!key || !channelInfo?.broadcasterId || !online || role !== 'overlay') return null;
-  return <OverlayStage displayName={displayName} snapshot={snapshot} report={report} onDismiss={() => setReport(null)} />;
+  return <OverlayStage displayName={displayName} snapshot={snapshot} report={report} vote={vote} onDismiss={() => setReport(null)} />;
 }

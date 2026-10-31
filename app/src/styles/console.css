@@ -96,6 +96,30 @@
 .console-status-strip i.is-warn,
 .console-connection-connecting { background: var(--orange-700); }
 
+.console-status-panel {
+  margin: calc(var(--space-6) * -1) 0 var(--space-8);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.console-status-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.console-status-panel-heading h2 { margin: 0; font-size: 18px; }
+.console-status-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3) var(--space-5);
+  margin: var(--space-4) 0 0;
+}
+.console-status-details > div { min-width: 0; }
+.console-status-details dt { color: var(--text-muted); font: var(--t-caption); }
+.console-status-details dd { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-1) 0 0; font-weight: 700; overflow-wrap: anywhere; }
+.console-status-dot { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: var(--text-muted); }
+.console-status-dot.is-good { background: var(--mint-800); }
+.console-status-dot.is-warn { background: var(--orange-700); }
+.console-status-error { margin: var(--space-3) 0 0; color: var(--danger-text); }
+
 .console-stepper { margin-bottom: var(--space-6); overflow-x: auto; }
 .console-stepper ol {
   display: grid;
@@ -327,6 +351,9 @@
 }
 
 @media (max-width: 520px) {
+  .console-status-panel { margin-top: calc(var(--space-4) * -1); padding: var(--space-4); }
+  .console-status-panel-heading { align-items: flex-start; flex-direction: column; }
+  .console-status-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .console-page { padding-top: var(--space-6); }
   .console-shell { width: calc(100% - var(--gutter) - var(--gutter)); }
   .console-heading { margin-bottom: var(--space-6); }

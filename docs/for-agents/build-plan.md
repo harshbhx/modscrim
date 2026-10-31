@@ -64,10 +64,10 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☑ | T-27 | Sign-out deletion flow and test | FR-04 | P0 | Harsh | M3 | T-10 | [#29](https://github.com/harshbhx/modscrim/issues/29) |
 | ☐ | T-28 | Load script and NFR measurements | NFR-01 to NFR-03 | P0 | Dhairya | M3 | T-12 | [#30](https://github.com/harshbhx/modscrim/issues/30) |
 | ☐ | T-29 | P1: Twitch re-grade after push; agreement rate | FR-30, FR-36 | P1 | Dhairya | M4 | T-16 | [#31](https://github.com/harshbhx/modscrim/issues/31) |
-| ☐ | T-30 | P1: status panel | FR-44 | P1 | Dhairya | M4 | T-26 | [#32](https://github.com/harshbhx/modscrim/issues/32) |
+| ☑ | T-30 | P1: status panel | FR-44 | P1 | Dhairya | M4 | T-26 | [#32](https://github.com/harshbhx/modscrim/issues/32) |
 | ☑ | T-31 | P1: Queue and R2 export, share link | FR-27 | P1 | Harsh | M4 | T-17 | [#33](https://github.com/harshbhx/modscrim/issues/33) |
-| ☐ | T-32 | P1: revoke subscription and handler | FR-12 | P1 | Dhairya | M4 | T-27 | [#34](https://github.com/harshbhx/modscrim/issues/34) |
-| ☐ | T-33 | P1: mod Twitch sign-in and moderator check | FR-23 | P1 | Dhairya | M4 | T-13 | [#35](https://github.com/harshbhx/modscrim/issues/35) |
+| ☑ | T-32 | P1: revoke subscription and handler | FR-12 | P1 | Dhairya | M4 | T-27 | [#34](https://github.com/harshbhx/modscrim/issues/34) |
+| ☑ | T-33 | P1: mod Twitch sign-in and moderator check | FR-23 | P1 | Dhairya | M4 | T-13 | [#35](https://github.com/harshbhx/modscrim/issues/35) |
 | ☐ | T-34 | P2: chat votes | FR-40 | P2 | Dhairya | M4 | T-10, T-12 | [#36](https://github.com/harshbhx/modscrim/issues/36) |
 | ☐ | T-35 | P2: announcement | FR-41 | P2 | Dhairya | M4 | T-12 | [#37](https://github.com/harshbhx/modscrim/issues/37) |
 | ☑ | T-36 | P2: coach's note | FR-42 | P2 | Harsh | M4 | T-17 | [#38](https://github.com/harshbhx/modscrim/issues/38) |
