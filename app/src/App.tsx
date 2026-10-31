@@ -7,12 +7,13 @@ import { NotFound, Placeholder } from './routes/Placeholder';
 import { Privacy } from './routes/Privacy';
 import { SharedReport } from './routes/SharedReport';
 import { Console } from './routes/Console';
+import { Overlay } from './routes/Overlay';
 
 /** Every route in PRD §9.1. */
 export function App() {
   const { screens } = pages;
   return <Routes>
-    <Route path="overlay/:channel" element={<Placeholder title={screens.overlay} />} />
+    <Route path="overlay/:channel" element={<Overlay />} />
     <Route element={<Layout />}>
       <Route index element={<Landing />} />
       <Route path="console" element={<Console />} />
