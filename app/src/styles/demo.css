@@ -1,0 +1,67 @@
+.demo-page {
+  min-height: calc(100vh - 144px);
+  background:
+    radial-gradient(ellipse at 78% 32%, rgb(255 210 63 / 18%), transparent 32%),
+    var(--bg);
+}
+
+.demo-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  align-items: center;
+  gap: clamp(40px, 8vw, 128px);
+  max-width: 1240px;
+}
+
+.demo-intro { max-width: 680px; }
+.demo-eyebrow, .demo-card-kicker {
+  margin: 0 0 var(--space-4);
+  color: var(--accent-text);
+  font: var(--t-caption);
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.demo-intro h1 {
+  max-width: 10ch;
+  margin-bottom: var(--space-6);
+  font-size: clamp(52px, 7vw, 88px);
+}
+
+.demo-lead { max-width: 37em; font: var(--t-lead); }
+.demo-points { display: grid; gap: var(--space-3); margin: var(--space-8) 0; padding: 0; list-style: none; }
+.demo-points li { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
+.demo-points li::before { width: 12px; height: 12px; border-radius: 50%; background: var(--action); content: ''; }
+.demo-start { min-width: 240px; }
+.demo-error { margin: var(--space-4) 0; color: var(--accent-text); font-weight: 800; }
+
+.demo-card {
+  padding: clamp(28px, 5vw, 52px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.demo-card-mark {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-8);
+  place-items: center;
+  border-radius: 50%;
+  background: var(--practice-bg);
+  color: var(--practice-text);
+  font: var(--t-display-m);
+}
+
+.demo-card h2 { margin-bottom: var(--space-4); font-size: 38px; }
+.demo-card p:not(.demo-card-kicker) { font: var(--t-body-s); }
+.demo-card-time { margin-top: var(--space-8); padding-top: var(--space-4); border-top: 1px solid var(--line); color: var(--text-muted); }
+
+@media (max-width: 760px) {
+  .demo-wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
+  .demo-intro h1 { font-size: clamp(48px, 14vw, 72px); }
+  .demo-card { max-width: 560px; }
+}
