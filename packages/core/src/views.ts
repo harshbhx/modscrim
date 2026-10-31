@@ -89,4 +89,17 @@ export interface Report {
   coachNote?: { text: string; source: 'ai' | 'template' };
 }
 
+export interface ModHistoryDrill {
+  drillId: string;
+  createdAt: number;
+  caught: number;
+  falseBans: number;
+  avgReactionMs: number | null;
+}
+
+export interface ModHistoryEntry {
+  name: string;
+  drills: ModHistoryDrill[];
+}
+
 export interface ReportJob { kind: 'report.export'; roomName: string; drillId: string; reportId: string }

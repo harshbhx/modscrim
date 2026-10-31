@@ -9,7 +9,7 @@ const ServerEnvelopeZ = z.object({ type: z.string().min(1), data: z.unknown() })
 const SERVER_TYPES = new Set([
   'hello', 'drill.state', 'drill.started', 'drill.line', 'drill.action', 'drill.slipped', 'drill.score',
   'drill.ended', 'action.rejected', 'participants', 'grade.progress', 'grade.done', 'push.result',
-  'report.ready', 'chat.stats', 'vote.update', 'error'
+  'report.ready', 'chat.stats', 'vote.update', 'mod.history', 'error'
 ]);
 
 export type RoomSocketOptions = {
