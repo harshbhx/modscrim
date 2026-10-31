@@ -1,0 +1,43 @@
+name: Firefox console check
+
+# T-110: pressing Enter in a console preview form must not reload the page in Firefox under the CSP.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Page to check
+        default: https://modscrim.dualmindlab.tech/console
+  pull_request:
+    paths:
+      - .github/workflows/firefox-console-check.yml
+      - scripts/firefox-console-check.mjs
+      - site/console.html
+      - site/site.js
+
+permissions:
+  contents: read
+
+jobs:
+  firefox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright and Firefox
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw"
+          cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null
+          npm install playwright@1.49.1
+          npx playwright install --with-deps firefox
+      - name: Check the console form
+        env:
+          NODE_PATH: ${{ runner.temp }}/pw/node_modules
+          CHECK_URL: ${{ inputs.url || 'https://modscrim.dualmindlab.tech/console' }}
+        run: |
+          cp scripts/firefox-console-check.mjs "$RUNNER_TEMP/pw/check.mjs"
+          cd "$RUNNER_TEMP/pw"
+          node check.mjs "$CHECK_URL"
