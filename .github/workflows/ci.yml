@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, tests, security, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scan tracked files for secrets
+        shell: bash
+        run: |
+          if git ls-files | grep -Eq '(^|/)\.dev\.vars$'; then
+            echo 'A .dev.vars file is tracked by git.'
+            exit 1
+          fi
+          token_pattern='(gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|oauth:[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|Bearer[[:space:]]+[A-Za-z0-9._~-]{30,}|(access_token|refresh_token|client_secret|TWITCH_CLIENT_SECRET)[^A-Za-z0-9]{0,20}[A-Za-z0-9._~-]{30,})'
+          if git grep -lIE "$token_pattern" -- .; then
+            echo 'Token-like credential strings were found in tracked files.'
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Install Vitest coverage provider
+        run: npm install --no-save --no-package-lock @vitest/coverage-v8@4.1.12
+
+      - name: Run core tests in Node and report line coverage
+        run: npm run test -w packages/core -- --coverage --coverage.provider=v8 --coverage.reporter=text
+
+      - name: Run Worker tests in workerd
+        run: npm run test -w app
+
+      - name: Build application
+        run: npm run build -w app -- --manifest
+
+      - name: Report and enforce initial JavaScript gzip size
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readdir, readFile } from 'node:fs/promises';
+          import { dirname, join, resolve } from 'node:path';
+          import { gzipSync } from 'node:zlib';
+
+          async function findManifest(directory) {
+            for (const entry of await readdir(directory, { withFileTypes: true })) {
+              const path = join(directory, entry.name);
+              if (entry.isDirectory()) {
+                const found = await findManifest(path);
+                if (found) return found;
+              } else if (entry.name === 'manifest.json' && path.includes('.vite')) {
+                return path;
+              }
+            }
+            return null;
+          }
+
+          const manifestPath = await findManifest('app/dist');
+          if (!manifestPath) throw new Error('Vite build manifest was not found.');
+          const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+          const entry = Object.values(manifest).find((item) => item.isEntry && item.file.endsWith('.html'));
+          if (!entry) throw new Error('Vite HTML entry was not found in the build manifest.');
+          const outputRoot = dirname(dirname(manifestPath));
+          const javascript = new Set();
+          function collect(chunk) {
+            if (!chunk) return;
+            if (chunk.file.endsWith('.js')) javascript.add(chunk.file);
+            for (const key of chunk.imports ?? []) collect(manifest[key]);
+          }
+          collect(entry);
+          let gzipBytes = 0;
+          for (const file of javascript) gzipBytes += gzipSync(await readFile(resolve(outputRoot, file)), { level: 9 }).byteLength;
+          const kib = gzipBytes / 1024;
+          console.log('Initial JavaScript gzip size: ' + kib.toFixed(1) + ' KiB (' + gzipBytes + ' bytes)');
+          if (gzipBytes > 250 * 1024) {
+            console.error('Initial JavaScript exceeds the 250 KiB limit.');
+            process.exitCode = 1;
+          }
+          NODE
