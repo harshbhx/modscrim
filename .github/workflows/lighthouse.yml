@@ -2,6 +2,9 @@ name: Lighthouse
 
 # Issue #100: manual Lighthouse CI run against the live site and the console.
 on:
+  push:
+    branches: [ci/lighthouse-100]
+    paths: [.github/workflows/lighthouse.yml]
   workflow_dispatch:
     inputs:
       runs:
