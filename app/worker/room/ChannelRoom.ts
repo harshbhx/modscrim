@@ -9,11 +9,17 @@ import {
   type DrillConfigInput,
   type DrillSnapshot,
   type DrillView,
+  type GradePhase,
+  type GradesView,
+  type ProofResult,
+  type PushResult,
   type FiltersView,
   type JobKind,
   type ModAction,
   type Report,
+  type ReportJob,
   type Role,
+  type RuleFinderResult,
   type ServerMsg
 } from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
@@ -42,6 +48,12 @@ import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
 import { chatRetentionMs, DAY_MS, purgeExpired, type PurgeResult } from './chatlog.js';
+import { GradingEngine } from './grading.js';
+import { RuleEngine } from './rules.js';
+import { PushEngine } from './push.js';
+
+/** The export waits this long after a report's latest update, so a burst of updates sends one message (SRS §3.4). */
+export const REPORT_EXPORT_DELAY_MS = 60_000;
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -68,6 +80,37 @@ export class ChannelRoom extends DurableObject<Env> {
     connectedMods: () => this.connectedMods(),
     refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
+  private readonly grading = new GradingEngine({
+    ctx: this.ctx,
+    env: this.env,
+    scheduler: this.scheduler,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    broadcasterId: () => this.meta('broadcaster_id'),
+    broadcasterType: () => this.meta('broadcaster_type'),
+    getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
+    blockedTerms: () => this.sql.exec<{ text: string }>('SELECT text FROM blocked_terms ORDER BY rowid').toArray().map((row) => row.text),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
+  private readonly rules = new RuleEngine({
+    ctx: this.ctx,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    getDrill: (drillId) => this.drills.view(drillId),
+    blockedTerms: () => this.sql.exec<{ text: string }>('SELECT text FROM blocked_terms ORDER BY rowid').toArray().map((row) => row.text),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
+  private readonly pushes = new PushEngine({
+    ctx: this.ctx,
+    env: this.env,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    broadcasterId: () => this.meta('broadcaster_id'),
+    getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
+    proveFreshWave: (drillId, terms) => this.rules.proveFreshWave(drillId, terms),
+    requestGrading: (drillId, phase) => this.grading.requestGrading(drillId, phase),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
   /** Drills whose Workers AI coach's note this instance already asked for: one call per drill (FR-42). */
   private readonly coachAsked = new Set<string>();
 
@@ -85,8 +128,11 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('line.slip', (job) => this.drills.slip(job));
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
+    this.grading.register((kind, handler) => this.scheduler.register(kind, handler));
     // Demo rooms delete themselves 2 hours after their last activity (FR-38).
     this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
+    // Report export (FR-27, P1): live rooms with the bindings send the latest report to the Queue.
+    this.scheduler.register('report.export', (job) => this.sendReportExport(job.key));
   }
 
   // ---- meta -------------------------------------------------------------------------------
@@ -358,7 +404,7 @@ export class ChannelRoom extends DurableObject<Env> {
    * Create a demo room for the fixture channel with its terms and chat log, schedule its `room.gc`,
    * and create the first draft with `DEFAULT_CONFIG` (Kai (sim) on). Calling it again returns the same draft.
    */
-  async bootstrapDemo(roomName: string): Promise<{ drillId: string; joinCode: string }> {
+  async bootstrapDemo(roomName: string): Promise<{ drillId: string; joinCode: string; overlayKey: string }> {
     if (!isDemoRoomName(roomName)) throw new Error('demo_invalid');
     const fresh = !this.bootstrapped();
     if (!fresh && this.meta('mode') !== 'demo') throw new Error('demo_invalid');
@@ -370,10 +416,11 @@ export class ChannelRoom extends DurableObject<Env> {
     });
     await this.scheduler.rearm();
     if (fresh) log('demo.created', { room: roomName });
-    // TODO(T-15): grading in demo rooms is always local (FR-29), labelled "local estimate".
     // TODO(T-16): push and undo in demo rooms are simulated (FR-34): they edit `blocked_terms` only.
     // Demo reports stay in the room (`refreshReport` never schedules `report.export`): no D1, R2 or Queue.
-    return this.createDrill(DEMO_DRILL_CONFIG);
+    const { drillId, joinCode } = await this.createDrill(DEMO_DRILL_CONFIG);
+    // Set by `bootstrap` for every fresh room, so it is never null here.
+    return { drillId, joinCode, overlayKey: this.meta('overlay_key') ?? '' };
   }
 
   /** True once a demo room has been idle for 2 hours. Live rooms are never idle-collected. */
@@ -442,6 +489,41 @@ export class ChannelRoom extends DurableObject<Env> {
     return this.drills.view(drillId);
   }
 
+  async requestGrading(drillId: string, phase: GradePhase): Promise<{ queued: number }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.requestGrading(drillId, phase);
+  }
+
+  async gradeLocally(drillId: string, phase: GradePhase): Promise<{ passed: number; total: number }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.gradeLocally(drillId, phase);
+  }
+
+  async getGrades(drillId: string): Promise<GradesView> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.getGrades(drillId);
+  }
+
+  async findRules(drillId: string): Promise<RuleFinderResult> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.rules.findRules(drillId);
+  }
+
+  async proveFreshWave(drillId: string, terms: string[]): Promise<ProofResult> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.rules.proveFreshWave(drillId, terms);
+  }
+
+  async push(drillId: string, terms: string[], actorId: string): Promise<PushResult[]> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.pushes.push(drillId, terms, actorId);
+  }
+
+  async undo(drillId: string, actorId: string): Promise<PushResult[]> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.pushes.undo(drillId, actorId);
+  }
+
   // ---- reports (SRS §8.4, T-17) ------------------------------------------------------------
 
   /** The drill's saved after-action report (FR-27), or null before the drill has ended. Console only (S-06). */
@@ -460,13 +542,49 @@ export class ChannelRoom extends DurableObject<Env> {
    */
   private refreshReport(drillId: string, now: number = Date.now()): Report | null {
     if (!this.bootstrapped()) return null;
-    const report = this.ctx.storage.transactionSync(() => saveReport(this.sql, drillId, now));
+    const exporting = this.exportsReports();
+    const report = this.ctx.storage.transactionSync(() => {
+      const saved = saveReport(this.sql, drillId, now);
+      // Each update moves the one export job to 60 s after it (debounced; `UNIQUE (kind, key)`).
+      if (saved && exporting) this.scheduler.enqueue('report.export', drillId, now + REPORT_EXPORT_DELAY_MS);
+      return saved;
+    });
     if (!report) return null;
+    if (exporting) this.ctx.waitUntil(this.rearmQuietly());
     broadcastReport(this.ctx, report);
     log('report.saved', { room: this.roomName(), drill: drillId, reportId: report.reportId });
-    // TODO(T-31): live rooms with the P1 bindings (re)schedule `report.export` 60 s after this update.
     this.requestAiCoachNote(report);
     return report;
+  }
+
+  /** Live rooms export when both P1 bindings exist. Demo rooms never use D1, R2 or the Queue (FR-38). */
+  private exportsReports(): boolean {
+    return this.meta('mode') === 'live' && this.env.REPORT_QUEUE !== undefined && this.env.REPORTS !== undefined;
+  }
+
+  /** Point the alarm at a job enqueued outside a job pass; a failure is logged and the next pass re-arms. */
+  private async rearmQuietly(): Promise<void> {
+    try {
+      await this.scheduler.rearm();
+    } catch {
+      log('job.failed', { room: this.roomName(), kind: 'rearm' });
+    }
+  }
+
+  /**
+   * `report.export <drillId>`: send a `ReportJob` (SRS §7.5) for the drill's saved report. The consumer reads
+   * the report back through `getReport`, so the message carries IDs only. A send failure throws, and the
+   * scheduler retries with backoff.
+   */
+  private async sendReportExport(drillId: string): Promise<void> {
+    const queue = this.env.REPORT_QUEUE;
+    if (!this.exportsReports() || !queue) return;
+    const report = readReport(this.sql, drillId);
+    if (!report) return;
+    const room = this.roomName();
+    const job: ReportJob = { kind: 'report.export', roomName: room, drillId, reportId: report.reportId };
+    await queue.send(job);
+    log('report.exported', { room, drill: drillId, reportId: report.reportId, stage: 'queued' });
   }
 
   /**

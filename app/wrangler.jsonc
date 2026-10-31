@@ -35,14 +35,25 @@
   },
   "secrets": { "required": ["PUBLIC_BASE_URL", "TWITCH_CLIENT_SECRET", "EVENTSUB_SECRET", "SESSION_HMAC_KEY", "TOKEN_ENC_KEY"] },
 
+  // P1: report export pipeline (FR-27), production only. Bucket and queue are both `mfd-reports`.
+  // Environments do not inherit these keys; the preview below sets them empty on purpose.
+  "r2_buckets": [{ "binding": "REPORTS", "bucket_name": "mfd-reports" }],
+  "queues": {
+    "producers": [{ "binding": "REPORT_QUEUE", "queue": "mfd-reports" }],
+    "consumers": [{ "queue": "mfd-reports", "max_batch_size": 10, "max_batch_timeout": 5, "max_retries": 3 }]
+  },
+
   // Preview environment for pull requests: its own Worker (mod-fire-drill-preview) and its own
   // D1 database, on workers.dev only. Built with CLOUDFLARE_ENV=preview. It never touches
   // production data, has no cron, and grades locally because Twitch sign-in is production-only.
+  // It has no R2 bucket and no Queue: the code guards every use of REPORTS and REPORT_QUEUE.
   "env": {
     "preview": {
       "routes": [],
       "workers_dev": true,
       "triggers": { "crons": [] },
+      "r2_buckets": [],
+      "queues": {},
       "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "ChannelRoom" }] },
       "d1_databases": [
         { "binding": "DB", "database_name": "mfd-preview", "database_id": "b4ed3423-cdd5-4695-8b9e-e293271a54f7", "migrations_dir": "migrations" }

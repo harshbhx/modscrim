@@ -91,7 +91,8 @@ export async function getBlockedTerms(
     const query = new URLSearchParams({ broadcaster_id: broadcasterId, moderator_id: broadcasterId, first: '100' });
     if (cursor) query.set('after', cursor);
     const response = await fetch(`https://api.twitch.tv/helix/moderation/blocked_terms?${query}`, {
-      headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}` }
+      headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(4_000)
     });
     const limits = readRateLimitHeaders(response, `ch:${broadcasterId}`, 'moderation/blocked_terms');
     if (!response.ok) throw new HelixError(response.status, limits.remaining, limits.reset);
@@ -101,6 +102,45 @@ export async function getBlockedTerms(
     cursor = parsed.data.pagination?.cursor;
   } while (cursor);
   return terms;
+}
+
+/** Add one blocked term. Callers serialize mutations and require streamer approval (FR-34). */
+export async function addBlockedTerm(
+  env: Env,
+  broadcasterId: string,
+  accessToken: string,
+  text: string
+): Promise<TwitchBlockedTerm> {
+  const query = new URLSearchParams({ broadcaster_id: broadcasterId, moderator_id: broadcasterId });
+  const response = await fetch(`https://api.twitch.tv/helix/moderation/blocked_terms?${query}`, {
+    method: 'POST',
+    headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+    signal: AbortSignal.timeout(4_000)
+  });
+  const limits = readRateLimitHeaders(response, `ch:${broadcasterId}`, 'moderation/blocked_terms');
+  if (!response.ok) throw new HelixError(response.status, limits.remaining, limits.reset);
+  const parsed = BLOCKED_TERMS_RESPONSE.safeParse(await response.json());
+  const term = parsed.success ? parsed.data.data[0] : undefined;
+  if (!term) throw new HelixError(response.status, limits.remaining, limits.reset);
+  return { id: term.id, text: term.text, createdAt: term.created_at ?? null };
+}
+
+/** Remove one blocked term previously added by this drill (FR-35). */
+export async function removeBlockedTerm(
+  env: Env,
+  broadcasterId: string,
+  accessToken: string,
+  termId: string
+): Promise<void> {
+  const query = new URLSearchParams({ broadcaster_id: broadcasterId, moderator_id: broadcasterId, id: termId });
+  const response = await fetch(`https://api.twitch.tv/helix/moderation/blocked_terms?${query}`, {
+    method: 'DELETE',
+    headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(4_000)
+  });
+  const limits = readRateLimitHeaders(response, `ch:${broadcasterId}`, 'moderation/blocked_terms');
+  if (!response.ok) throw new HelixError(response.status, limits.remaining, limits.reset);
 }
 
 export async function getAutoModSettings(

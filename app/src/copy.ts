@@ -82,6 +82,33 @@ export const pages = {
     contact: 'Questions about your data:',
     email: 'team@dualmindlab.tech'
   },
+  /** `/r/:reportId`, the shared report card (FR-27 P1): numbers only. */
+  report: {
+    eyebrow: 'Fire drill report',
+    loading: 'Loading the report…',
+    notShared: 'This report is not shared, or the link is wrong.',
+    notSharedTitle: 'Report not found',
+    error: 'The report could not be loaded. Try again in a minute.',
+    retry: 'Try again',
+    attacksShown: 'Attacks shown',
+    slipped: 'Slipped through',
+    caught: 'Caught by mods',
+    termsPushed: 'Terms pushed to Twitch',
+    filters: 'Filters',
+    notGraded: 'Not graded yet.',
+    engineMixed: 'graded by Twitch and a local estimate',
+    fresh: 'Fresh wave',
+    freshLine: 'Blocked {before} of {total} before the new terms, {after} of {total} after.',
+    notProven: 'No fresh wave yet.',
+    mods: 'Mods',
+    mod: 'Mod',
+    falseBans: 'False bans',
+    reaction: 'Average reaction',
+    seconds: '{s} s',
+    noMods: 'No mods took part.',
+    note: 'Numbers only. Attack lines, terms and chat are never shared.',
+    cta: 'Run a drill for your channel'
+  },
   screens: {
     console: 'Console',
     mod: 'Mod console',

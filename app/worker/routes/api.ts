@@ -7,7 +7,11 @@ import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
 import { OverlaySettingsZ } from '../room/hub.js';
 import { demoRoutes } from './demo.js';
+import { upsertSummary } from '../jobs/reportExport.js';
 import { modRoutes, publicRoutes } from './mod.js';
+import { publicReportRoutes, shareUrl } from './reports.js';
+import type { GradePhase } from '@mfd/core';
+import { TermListZ } from '@mfd/core';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -19,6 +23,7 @@ apiRoutes.get('/health', (context) => context.json({ ok: true }));
 // Mods and public (no session; rate-limited): T-13.
 apiRoutes.route('/mod', modRoutes);
 apiRoutes.route('/public', publicRoutes);
+apiRoutes.route('/public/reports', publicReportRoutes);
 
 // Public demo rooms (no Twitch account; demo cookie bound to one room): T-18.
 apiRoutes.route('/demo', demoRoutes);
@@ -241,6 +246,70 @@ apiRoutes.get('/drills/:id', requireStreamer, async (context) => {
   return context.json(view);
 });
 
+apiRoutes.post('/drills/:id/grade', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const result = await drillCall(() => room.requestGrading(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json(result, 202);
+});
+
+apiRoutes.post('/drills/:id/grade/local', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const result = await drillCall(() => room.gradeLocally(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json({ ...result, engine: 'local' as const });
+});
+
+apiRoutes.get('/drills/:id/grades', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.getGrades(drillId), 'The grades are unavailable.'));
+});
+
+apiRoutes.post('/drills/:id/rules', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.findRules(drillId), 'Rules are unavailable until the drill is graded.'));
+});
+
+apiRoutes.post('/drills/:id/prove', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.proveFreshWave(drillId, terms), 'The proof could not be created.'));
+});
+
+apiRoutes.post('/drills/:id/push', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const actorId = context.get('session').uid;
+  return context.json(await drillCall(() => room.push(drillId, terms, actorId), 'One or more terms match your real chat.'));
+});
+
+apiRoutes.post('/drills/:id/undo', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const actorId = context.get('session').uid;
+  return context.json(await drillCall(() => room.undo(drillId, actorId), 'The terms could not be undone.'));
+});
+
+apiRoutes.get('/audit', requireStreamer, async (context) => {
+  const { id } = await streamerRoom(context.env, context.get('session').uid);
+  const rows = await context.env.DB.prepare(
+    'SELECT id, actor_id, action, detail, at FROM audit_log WHERE broadcaster_id = ? ORDER BY at DESC, id DESC LIMIT 100'
+  ).bind(id).all<{ id: number; actor_id: string; action: string; detail: string; at: number }>();
+  return context.json({ rows: rows.results.map((row) => ({
+    id: row.id,
+    actorId: row.actor_id,
+    action: row.action,
+    detail: parseAuditDetail(row.detail),
+    at: row.at
+  })) });
+});
+
 /** GET /api/drills/:id/report: the after-action report (FR-27); 404 until the drill has ended. */
 apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const drillId = drillIdOf(context.req.param('id'));
@@ -248,3 +317,57 @@ apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const report = await drillCall(() => room.getReport(drillId), 'The report is unavailable.');
   return context.json(reportOrNotFound(report));
 });
+
+/**
+ * POST /api/drills/:id/report/share `{ shared }` (FR-27 P1): mark the drill's report shared, or not, in
+ * `report_summaries` and return the `/r/:reportId` link while shared. The summary row is written here when
+ * the export has not run yet, so sharing never waits on the Queue; the public card is read from the room.
+ */
+apiRoutes.post('/drills/:id/report/share', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  let body: unknown;
+  try {
+    body = await context.req.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid request body.');
+  }
+  const parsed = z.object({ shared: z.boolean() }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid request body.', 'shared');
+  const { id, room } = await streamerRoom(context.env, context.get('session').uid);
+  const report = reportOrNotFound(await drillCall(() => room.getReport(drillId), 'The report is unavailable.'));
+  if (report.channel.id !== id) throw new AppError('not_found', 'Report not found.');
+  await upsertSummary(context.env.DB, report, { shared: parsed.data.shared }).run();
+  return context.json(parsed.data.shared ? { url: shareUrl(context.env.PUBLIC_BASE_URL, report.reportId) } : {});
+});
+
+async function readGradePhase(request: Request): Promise<GradePhase> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid grading request.', 'phase');
+  }
+  const parsed = z.object({ phase: z.enum(['A', 'B-before', 'B-after']) }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid grading phase.', 'phase');
+  return parsed.data.phase;
+}
+
+async function readTerms(request: Request): Promise<string[]> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid terms request.', 'terms');
+  }
+  const parsed = TermListZ.safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Choose between 1 and 12 terms.', 'terms');
+  return parsed.data.terms;
+}
+
+function parseAuditDetail(raw: string): unknown {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return {};
+  }
+}
