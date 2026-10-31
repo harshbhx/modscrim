@@ -7,7 +7,9 @@ import { AppError } from '../lib/errors.js';
 import { socketUrl } from '../lib/urls.js';
 import { OverlaySettingsZ } from '../room/hub.js';
 import { demoRoutes } from './demo.js';
+import { upsertSummary } from '../jobs/reportExport.js';
 import { modRoutes, publicRoutes } from './mod.js';
+import { publicReportRoutes, shareUrl } from './reports.js';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -19,6 +21,7 @@ apiRoutes.get('/health', (context) => context.json({ ok: true }));
 // Mods and public (no session; rate-limited): T-13.
 apiRoutes.route('/mod', modRoutes);
 apiRoutes.route('/public', publicRoutes);
+apiRoutes.route('/public/reports', publicReportRoutes);
 
 // Public demo rooms (no Twitch account; demo cookie bound to one room): T-18.
 apiRoutes.route('/demo', demoRoutes);
@@ -247,4 +250,26 @@ apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const { room } = await streamerRoom(context.env, context.get('session').uid);
   const report = await drillCall(() => room.getReport(drillId), 'The report is unavailable.');
   return context.json(reportOrNotFound(report));
+});
+
+/**
+ * POST /api/drills/:id/report/share `{ shared }` (FR-27 P1): mark the drill's report shared, or not, in
+ * `report_summaries` and return the `/r/:reportId` link while shared. The summary row is written here when
+ * the export has not run yet, so sharing never waits on the Queue; the public card is read from the room.
+ */
+apiRoutes.post('/drills/:id/report/share', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  let body: unknown;
+  try {
+    body = await context.req.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid request body.');
+  }
+  const parsed = z.object({ shared: z.boolean() }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid request body.', 'shared');
+  const { id, room } = await streamerRoom(context.env, context.get('session').uid);
+  const report = reportOrNotFound(await drillCall(() => room.getReport(drillId), 'The report is unavailable.'));
+  if (report.channel.id !== id) throw new AppError('not_found', 'Report not found.');
+  await upsertSummary(context.env.DB, report, { shared: parsed.data.shared }).run();
+  return context.json(parsed.data.shared ? { url: shareUrl(context.env.PUBLIC_BASE_URL, report.reportId) } : {});
 });

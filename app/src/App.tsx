@@ -4,6 +4,7 @@ import { pages } from './copy';
 import { Landing } from './routes/Landing';
 import { NotFound, Placeholder } from './routes/Placeholder';
 import { Privacy } from './routes/Privacy';
+import { SharedReport } from './routes/SharedReport';
 
 /** Every route in PRD §9.1. Later tickets replace the placeholders. */
 export function App() {
@@ -19,7 +20,7 @@ export function App() {
         <Route path="demo" element={<Placeholder title={screens.demo} />} />
         <Route path="demo/:room" element={<Placeholder title={screens.demoConsole} />} />
         <Route path="demo/:room/mod" element={<Placeholder title={screens.demoMod} />} />
-        <Route path="r/:reportId" element={<Placeholder title={screens.report} />} />
+        <Route path="r/:reportId" element={<SharedReport />} />
         <Route path="privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Route>

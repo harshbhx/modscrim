@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { ReportJob } from '@mfd/core';
 import { hourly } from './jobs/hourly.js';
+import { exportReport } from './jobs/reportExport.js';
 import { errorMiddleware, errorResponse } from './lib/errors.js';
 import { log } from './lib/log.js';
 import { authRoutes } from './routes/auth.js';
@@ -28,11 +29,21 @@ export default {
       () => log('job.failed', { room: 'cron', kind: 'hourly' })
     ));
   },
-  queue(batch: MessageBatch<ReportJob>, env: Env): void {
+  // FR-27 (P1): the `mfd-reports` consumer. Ack on success or a message that can never succeed; retry the
+  // rest (`max_retries` 3). A failure is logged and the room keeps its report.
+  async queue(batch: MessageBatch<ReportJob>, env: Env): Promise<void> {
     if (!env.REPORTS) {
-      batch.retryAll();
+      batch.retryAll(); // optional P1 binding
       return;
     }
-    batch.retryAll();
+    for (const message of batch.messages) {
+      try {
+        await exportReport(env, message.body);
+        message.ack();
+      } catch {
+        log('report.exported', { room: 'queue', ok: false, reason: 'retry', attempts: message.attempts });
+        message.retry();
+      }
+    }
   }
 } satisfies ExportedHandler<Env, ReportJob>;
