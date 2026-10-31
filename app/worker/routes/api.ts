@@ -10,6 +10,7 @@ import { demoRoutes } from './demo.js';
 import { upsertSummary } from '../jobs/reportExport.js';
 import { modRoutes, publicRoutes } from './mod.js';
 import { publicReportRoutes, shareUrl } from './reports.js';
+import type { GradePhase } from '@mfd/core';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -244,6 +245,28 @@ apiRoutes.get('/drills/:id', requireStreamer, async (context) => {
   return context.json(view);
 });
 
+apiRoutes.post('/drills/:id/grade', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const result = await drillCall(() => room.requestGrading(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json(result, 202);
+});
+
+apiRoutes.post('/drills/:id/grade/local', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  const result = await drillCall(() => room.gradeLocally(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json({ ...result, engine: 'local' as const });
+});
+
+apiRoutes.get('/drills/:id/grades', requireStreamer, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const { room } = await streamerRoom(context.env, context.get('session').uid);
+  return context.json(await drillCall(() => room.getGrades(drillId), 'The grades are unavailable.'));
+});
+
 /** GET /api/drills/:id/report: the after-action report (FR-27); 404 until the drill has ended. */
 apiRoutes.get('/drills/:id/report', requireStreamer, async (context) => {
   const drillId = drillIdOf(context.req.param('id'));
@@ -273,3 +296,15 @@ apiRoutes.post('/drills/:id/report/share', requireStreamer, async (context) => {
   await upsertSummary(context.env.DB, report, { shared: parsed.data.shared }).run();
   return context.json(parsed.data.shared ? { url: shareUrl(context.env.PUBLIC_BASE_URL, report.reportId) } : {});
 });
+
+async function readGradePhase(request: Request): Promise<GradePhase> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid grading request.', 'phase');
+  }
+  const parsed = z.object({ phase: z.enum(['A', 'B-before', 'B-after']) }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid grading phase.', 'phase');
+  return parsed.data.phase;
+}
