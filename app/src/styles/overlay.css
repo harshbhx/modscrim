@@ -119,6 +119,31 @@ body:has(.overlay-viewport) {
 
 .overlay-connection { text-align: center; }
 
+.overlay-votes {
+  position: absolute;
+  top: 170px;
+  left: 64px;
+  width: 570px;
+  padding: 22px 26px;
+  border: 2px solid rgb(255 255 255 / 28%);
+  border-radius: 8px;
+  background: rgb(5 26 18 / 92%);
+}
+
+.overlay-vote-row {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.overlay-vote-track { height: 14px; overflow: hidden; border-radius: 999px; background: rgb(255 255 255 / 16%); }
+.overlay-vote-track span { display: block; height: 100%; border-radius: inherit; background: #ffd23f; transition: width 180ms ease; }
+.overlay-vote-row strong { text-align: right; }
+.overlay-vote-hint { margin: 14px 0 0; color: rgb(255 255 255 / 80%); font-size: 14px; }
+
 .overlay-chat {
   display: flex;
   max-height: 690px;

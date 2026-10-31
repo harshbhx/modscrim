@@ -10,8 +10,8 @@ import { demoRoutes } from './demo.js';
 import { upsertSummary } from '../jobs/reportExport.js';
 import { modRoutes, publicRoutes } from './mod.js';
 import { publicReportRoutes, shareUrl } from './reports.js';
-import type { GradePhase } from '@mfd/core';
-import { TermListZ } from '@mfd/core';
+import { TermListZ, type GradePhase } from '@mfd/core';
+import { ensureChatSubscription } from '../twitch/oauth.js';
 
 export const apiRoutes = new Hono<{ Bindings: Env; Variables: { session: { uid: string; ep: number; exp: number } } }>();
 
@@ -137,6 +137,56 @@ apiRoutes.get('/me', requireStreamer, async (context) => {
     overlayUrl: `${baseUrl}/overlay/${encodeURIComponent(row.login)}?key=${encodeURIComponent(overlayKey)}`,
     modUrl: `${baseUrl}/mod/${encodeURIComponent(row.login)}`
   });
+});
+
+apiRoutes.get('/status', requireStreamer, async (context) => {
+  const uid = context.get('session').uid;
+  const row = await context.env.DB.prepare(`SELECT c.room_name, u.broadcaster_type, o.status AS token_status,
+      o.validated_at, e.status AS subscription_status
+    FROM users u JOIN channels c ON c.broadcaster_id = u.id
+    LEFT JOIN oauth_tokens o ON o.user_id = u.id
+    LEFT JOIN eventsub_subscriptions e ON e.broadcaster_id = u.id AND e.type = 'channel.chat.message'
+    WHERE u.id = ? ORDER BY e.updated_at DESC LIMIT 1`)
+    .bind(uid)
+    .first<{
+      room_name: string;
+      broadcaster_type: '' | 'affiliate' | 'partner';
+      token_status: string | null;
+      validated_at: number | null;
+      subscription_status: string | null;
+    }>();
+  if (!row) throw new AppError('not_found', 'Channel not found.');
+
+  const room = context.env.ROOM.getByName(row.room_name);
+  try {
+    const [chatLog, quota] = await Promise.all([
+      room.chatStats(),
+      room.gradingQuotaStatus(Date.now())
+    ]);
+    if (!chatLog || !quota) throw new Error('status_unavailable');
+    return context.json({
+      token: { status: row.token_status ?? 'invalid', validatedAt: row.validated_at },
+      subscription: { status: row.subscription_status ?? 'pending' },
+      chatLog: { count: chatLog.count, lastMessageAt: chatLog.newest },
+      quota: {
+        minute: { used: quota.minuteUsed, limit: quota.minuteLimit },
+        hour: { used: quota.hourUsed, limit: quota.hourLimit },
+        nextAllowedAt: quota.nextAllowedAt
+      }
+    });
+  } catch {
+    throw new AppError('room_unavailable', 'The channel status is unavailable.');
+  }
+});
+
+apiRoutes.post('/subscription/repair', requireStreamer, async (context) => {
+  const uid = context.get('session').uid;
+  const token = await context.env.DB.prepare("SELECT status FROM oauth_tokens WHERE user_id = ?")
+    .bind(uid)
+    .first<{ status: string }>();
+  if (token?.status !== 'ok') throw new AppError('conflict', 'Reconnect Twitch before repairing chat.');
+  const status = await ensureChatSubscription(context.env, uid);
+  return context.json({ status });
 });
 
 /** The streamer's room: `ch:<broadcasterId>`, which is the user ID. A missing channel row means not signed in fully. */

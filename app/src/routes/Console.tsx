@@ -8,6 +8,7 @@ import { GradeTable, GradesViewZ, ProofBars, ProofResultZ, PushResultsZ, ReportC
 import type { GradeLine, GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../components/ConsoleReview';
 import { CopyField } from '../components/CopyField';
 import { DemoJoinQr } from '../components/DemoJoinQr';
+import { StatusStrip, StatusViewZ, type StatusView } from '../components/StatusStrip';
 import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
 import { t } from '../copy';
@@ -51,7 +52,9 @@ const DrillViewZ = z.object({
     intervalMs: z.number().int(),
     slipWindowMs: z.number().int(),
     seed: z.number().int(),
-    simMod: z.boolean()
+    simMod: z.boolean(),
+    chatVote: z.boolean(),
+    announce: z.boolean()
   }),
   joinCode: z.string().regex(/^\d{6}$/),
   participants: z.array(z.object({ id: z.string(), name: z.string(), isSim: z.boolean() })),
@@ -94,8 +97,12 @@ const DEFAULT_DRILL_INPUT = {
   banterCount: DEFAULT_CONFIG.banterCount,
   intervalMs: DEFAULT_CONFIG.intervalMs,
   slipWindowMs: DEFAULT_CONFIG.slipWindowMs,
-  simMod: DEFAULT_CONFIG.simMod
+  simMod: DEFAULT_CONFIG.simMod,
+  chatVote: false,
+  announce: false
 };
+type ConsoleConfig = DrillConfig & { chatVote: boolean; announce: boolean };
+const DEFAULT_CONSOLE_CONFIG: ConsoleConfig = { ...DEFAULT_CONFIG, chatVote: false, announce: false };
 
 type Me = z.infer<typeof MeZ>;
 type Filters = z.infer<typeof FiltersZ>;
@@ -154,6 +161,10 @@ export function Console() {
   const [filtersLoaded, setFiltersLoaded] = useState(false);
   const [chatLog, setChatLog] = useState<ChatLog | null>(null);
   const [chatLogLoaded, setChatLogLoaded] = useState(false);
+  const [status, setStatus] = useState<StatusView | null>(null);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [subscriptionRepairing, setSubscriptionRepairing] = useState(false);
   const [activeStep, setActiveStep] = useState<ConsoleStep>(1);
   const [unlockedThrough, setUnlockedThrough] = useState<ConsoleStep>(1);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -174,8 +185,8 @@ export function Console() {
   const gradeRequestedRef = useRef<string | null>(null);
   const rulesRequestedRef = useRef<string | null>(null);
   const proofRequestRef = useRef(0);
-  const [config, setConfig] = useState<DrillConfig>(DEFAULT_CONFIG);
-  const [savedConfig, setSavedConfig] = useState<DrillConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<ConsoleConfig>(DEFAULT_CONSOLE_CONFIG);
+  const [savedConfig, setSavedConfig] = useState<ConsoleConfig>(DEFAULT_CONSOLE_CONFIG);
   const [overlayUrl, setOverlayUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,6 +206,22 @@ export function Console() {
     if (!parsed) throw new Error('Chat log data is unavailable.');
     setChatLog(parsed);
     setChatLogLoaded(true);
+  }, [apiBase, isDemo]);
+
+  const refreshStatus = useCallback(async (): Promise<void> => {
+    if (isDemo) return;
+    setStatusLoading(true);
+    try {
+      const raw: unknown = await consoleFetch('status', {}, apiBase);
+      const parsed = parse(StatusViewZ, raw);
+      if (!parsed) throw new Error('Status data is unavailable.');
+      setStatus(parsed);
+      setStatusError(null);
+    } catch {
+      setStatusError('Connection status could not be loaded. Try again in a moment.');
+    } finally {
+      setStatusLoading(false);
+    }
   }, [apiBase, isDemo]);
 
   useEffect(() => {
@@ -271,6 +298,13 @@ export function Console() {
     }, 5000);
     return () => window.clearInterval(timer);
   }, [me, refreshChatLog, isDemo]);
+
+  useEffect(() => {
+    if (!me || isDemo) return;
+    void refreshStatus();
+    const timer = window.setInterval(() => void refreshStatus(), 15_000);
+    return () => window.clearInterval(timer);
+  }, [me, refreshStatus, isDemo]);
 
   useEffect(() => {
     const message = room.lastMessage;
@@ -394,8 +428,8 @@ export function Console() {
       setReport(null);
       setReportError(null);
       setDraft(null);
-      setConfig(DEFAULT_CONFIG);
-      setSavedConfig(DEFAULT_CONFIG);
+      setConfig(DEFAULT_CONSOLE_CONFIG);
+      setSavedConfig(DEFAULT_CONSOLE_CONFIG);
     }
     try {
       await ensureDraft();
@@ -450,6 +484,21 @@ export function Console() {
     }
   }
 
+  async function repairSubscription(): Promise<void> {
+    setSubscriptionRepairing(true);
+    setStatusError(null);
+    try {
+      const raw: unknown = await consoleFetch('subscription/repair', { method: 'POST' }, apiBase);
+      const parsed = z.object({ status: z.string() }).safeParse(raw);
+      if (!parsed.success || parsed.data.status === 'failed') throw new Error('Repair failed.');
+      await refreshStatus();
+    } catch {
+      setStatusError('Chat connection could not be repaired. Try again in a moment.');
+    } finally {
+      setSubscriptionRepairing(false);
+    }
+  }
+
   async function deleteChatLog(): Promise<void> {
     setBusy(true);
     setError(null);
@@ -481,7 +530,7 @@ export function Console() {
     }
   }
 
-  function changeConfig(update: Partial<DrillConfig>): void {
+  function changeConfig(update: Partial<ConsoleConfig>): void {
     setConfig((previous) => ({ ...previous, ...update }));
   }
 
@@ -764,11 +813,11 @@ export function Console() {
         <div className="console-status-strip" aria-label="Channel status">
           {isDemo
             ? <><span><i className="is-good" />Private demo room</span><span><i className="is-good" />Local estimate</span><span><i className="is-good" />{chatLog?.count ?? 0} fixture messages</span></>
-            : <><span><i className={me.tokenStatus === 'active' || me.tokenStatus === 'valid' ? 'is-good' : 'is-warn'} />Twitch {humanStatus(me.tokenStatus)}</span>
-              <span><i className={me.subscriptionStatus === 'enabled' ? 'is-good' : 'is-warn'} />Chat {humanStatus(me.subscriptionStatus)}</span>
-              <span><i className={chatLog?.logging ? 'is-good' : 'is-warn'} />{chatLog?.count ?? 0} logged</span></>}
+            : <span><i className="is-good" />Signed in as {me.channel.login}</span>}
         </div>
       </header>
+
+      {!isDemo && <StatusStrip status={status} loading={statusLoading} error={statusError} repairing={subscriptionRepairing} onRepair={() => void repairSubscription()} />}
 
       {isDemo && demoModUrl && <DemoJoinQr url={demoModUrl} />}
 
@@ -892,6 +941,14 @@ export function Console() {
               <input type="checkbox" checked={config.simMod} onChange={(event) => changeConfig({ simMod: event.currentTarget.checked })} />
               <span>Kai (sim)</span>
             </label>
+            <label className="console-check-row">
+              <input type="checkbox" checked={config.chatVote} onChange={(event) => changeConfig({ chatVote: event.currentTarget.checked })} />
+              <span>Let chat vote for the next tactic during a 20-second window</span>
+            </label>
+            {!isDemo && <label className="console-check-row">
+              <input type="checkbox" checked={config.announce} onChange={(event) => changeConfig({ announce: event.currentTarget.checked })} />
+              <span>Post the fixed drill-start announcement in Twitch chat</span>
+            </label>}
           </section>
         </div>
         {!configValid && <p className="console-alert" role="alert">Choose a primary tactic, keep each count in range, and keep the total at 40 lines or fewer.</p>}
