@@ -18,11 +18,11 @@
     "db:migrate:remote": "npm run db:migrate:remote -w app",
     "build": "npm run build -w app",
     "deploy": "npm run deploy -w app",
-    "load": "node --experimental-strip-types scripts/load.ts"
+    "load": "node --experimental-strip-types scripts/load.ts",
+    "subscribe-revoke": "node --experimental-strip-types scripts/subscribe-revoke.ts"
   },
   "devDependencies": {
+    "playwright": "^1.49.1",
     "typescript": "^5.9.3"
   }
 }
-
-

@@ -44,6 +44,15 @@ export async function exchangeCode(env: Env, code: string): Promise<UserOAuthTok
   return { ...result, refresh_token: result.refresh_token };
 }
 
+/** Mod identity-only authorization uses a distinct callback and requests no Twitch scopes (FR-23). */
+export async function exchangeModCode(env: Env, code: string): Promise<OAuthTokens> {
+  return tokenRequest(env, new URLSearchParams({
+    code,
+    grant_type: 'authorization_code',
+    redirect_uri: `${env.PUBLIC_BASE_URL.replace(/\/$/, '')}/auth/mod/callback`
+  }));
+}
+
 export async function refreshToken(env: Env, refresh: string): Promise<OAuthTokens> {
   return tokenRequest(env, new URLSearchParams({
     refresh_token: refresh,
@@ -99,6 +108,16 @@ export function authorizeUrl(env: Env, state: string): string {
   ];
   if (String(env.ANNOUNCE_ENABLED).toLowerCase() === 'true') scopes.push('user:write:chat');
   url.searchParams.set('scope', scopes.join(' '));
+  url.searchParams.set('state', state);
+  return url.toString();
+}
+
+/** OAuth URL for moderators: identity only, deliberately without a `scope` query parameter. */
+export function modAuthorizeUrl(env: Env, state: string): string {
+  const url = new URL('https://id.twitch.tv/oauth2/authorize');
+  url.searchParams.set('client_id', env.TWITCH_CLIENT_ID);
+  url.searchParams.set('redirect_uri', `${env.PUBLIC_BASE_URL.replace(/\/$/, '')}/auth/mod/callback`);
+  url.searchParams.set('response_type', 'code');
   url.searchParams.set('state', state);
   return url.toString();
 }
