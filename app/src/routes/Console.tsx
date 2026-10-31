@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { DEFAULT_CONFIG, DrillConfigInputZ, TacticZ } from '@mfd/core';
 import type { DrillConfig, DrillSnapshot, Reveal, Segment, Tactic } from '@mfd/core';
 import { ConsoleStepper, type ConsoleStep } from '../components/ConsoleStepper';
+import { GradeTable, GradesViewZ, ProofBars, ProofResultZ, PushResultsZ, ReportCard, ReportViewZ, RuleList, RuleResultZ } from '../components/ConsoleReview';
+import type { GradeLine, GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../components/ConsoleReview';
 import { CopyField } from '../components/CopyField';
 import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
@@ -57,7 +59,7 @@ const DrillViewZ = z.object({
     slipped: z.number(),
     attacksShown: z.number()
   }),
-  lines: z.array(z.unknown())
+  lines: z.array(z.object({ id: z.string(), text: z.string(), tactic: TacticZ.optional(), trick: z.string().optional(), tags: z.array(z.string()) }))
 });
 const DraftResponseZ = z.object({ drillId: z.string().min(1), joinCode: z.string().regex(/^\d{6}$/), modUrl: z.string().url() });
 const RotateResponseZ = z.object({ overlayUrl: z.string().url() });
@@ -65,6 +67,8 @@ const LoggingResponseZ = z.object({ logging: z.boolean() });
 const DeleteResponseZ = z.object({ deleted: z.number().int().nonnegative() });
 const StartResponseZ = z.object({ startedAt: z.number() });
 const StopResponseZ = z.object({ endedAt: z.number() });
+const GradeQueuedZ = z.object({ queued: z.number().int().nonnegative() });
+const GradeLocalZ = z.object({ passed: z.number().int().nonnegative(), total: z.number().int().nonnegative(), engine: z.literal('local') });
 const AutoModLabels: Record<string, string> = {
   overall_level: 'Overall',
   disability: 'Disability',
@@ -144,9 +148,23 @@ export function Console() {
   const [activeStep, setActiveStep] = useState<ConsoleStep>(1);
   const [unlockedThrough, setUnlockedThrough] = useState<ConsoleStep>(1);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [drillView, setDrillView] = useState<z.infer<typeof DrillViewZ> | null>(null);
+  const [grades, setGrades] = useState<GradesView | null>(null);
+  const [rules, setRules] = useState<RuleResult | null>(null);
+  const [selectedTerms, setSelectedTerms] = useState<string[]>([]);
+  const [proof, setProof] = useState<ProofResult | null>(null);
+  const [pushResults, setPushResults] = useState<PushResult[]>([]);
+  const [report, setReport] = useState<ReportView | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [grading, setGrading] = useState(false);
   const draftRef = useRef<Draft | null>(null);
   const draftRequestRef = useRef<Promise<Draft> | null>(null);
   const loadedDrillRef = useRef<string | null>(null);
+  const gradeRequestedRef = useRef<string | null>(null);
+  const rulesRequestedRef = useRef<string | null>(null);
+  const proofRequestRef = useRef(0);
   const [config, setConfig] = useState<DrillConfig>(DEFAULT_CONFIG);
   const [savedConfig, setSavedConfig] = useState<DrillConfig>(DEFAULT_CONFIG);
   const [overlayUrl, setOverlayUrl] = useState<string | null>(null);
@@ -237,7 +255,8 @@ export function Console() {
       setDraft(nextDraft);
       setConfig(view.config);
       setSavedConfig(view.config);
-      setUnlockedThrough(view.status === 'running' || view.status === 'ended' ? 3 : 2);
+      setDrillView(view);
+      setUnlockedThrough(view.status === 'ended' ? 4 : view.status === 'running' ? 3 : 2);
       if (view.status === 'running' || view.status === 'ended') setActiveStep(3);
     }).catch(() => {
       loadedDrillRef.current = null;
@@ -246,8 +265,9 @@ export function Console() {
   }, [me, room.snapshot?.drill?.drillId]);
 
   useEffect(() => {
-    if (room.snapshot?.drill?.status !== 'running') return;
-    setUnlockedThrough((previous) => previous < 3 ? 3 : previous);
+    const status = room.snapshot?.drill?.status;
+    if (status === 'running') setUnlockedThrough((previous) => previous < 3 ? 3 : previous);
+    if (status === 'ended') setUnlockedThrough((previous) => previous < 4 ? 4 : previous);
   }, [room.snapshot?.drill?.status]);
 
   useEffect(() => {
@@ -255,6 +275,40 @@ export function Console() {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [room.snapshot?.drill?.status]);
+
+  useEffect(() => {
+    const message = room.lastMessage;
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!message || !drillId) return;
+    if (message.type === 'grade.progress') {
+      setGrading(message.data.done < message.data.total);
+      void loadGrades(drillId).catch(() => undefined);
+    } else if (message.type === 'grade.done') {
+      setGrading(false);
+      void loadGrades(drillId).catch(() => undefined);
+    } else if (message.type === 'push.result') {
+      setPushResults((previous) => [...previous.filter((item) => item.term !== message.data.term), message.data]);
+    }
+  }, [room.lastMessage, room.snapshot?.drill?.drillId]);
+
+  useEffect(() => {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!grading || !drillId) return;
+    const timer = window.setInterval(() => { void loadGrades(drillId).catch(() => undefined); }, 2500);
+    return () => window.clearInterval(timer);
+  }, [grading, room.snapshot?.drill?.drillId]);
+
+  useEffect(() => {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId || activeStep !== 6) return;
+    void loadReport(drillId).catch(() => undefined);
+  }, [activeStep, room.snapshot?.drill?.drillId]);
+
+  useEffect(() => {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId || !rules || activeStep < 5) return;
+    void makeProof(drillId, selectedTerms);
+  }, [selectedTerms, rules, room.snapshot?.drill?.drillId, activeStep]);
 
   async function ensureDraft(): Promise<Draft> {
     if (draftRef.current) return draftRef.current;
@@ -275,6 +329,7 @@ export function Console() {
       setDraft(nextDraft);
       setConfig(detail.config);
       setSavedConfig(detail.config);
+      setDrillView(detail);
       return nextDraft;
     })();
     draftRequestRef.current = request;
@@ -292,6 +347,16 @@ export function Console() {
     if (room.snapshot?.drill?.status === 'ended' || room.snapshot?.drill?.status === 'cancelled') {
       draftRef.current = null;
       loadedDrillRef.current = null;
+      gradeRequestedRef.current = null;
+      rulesRequestedRef.current = null;
+      setDrillView(null);
+      setGrades(null);
+      setRules(null);
+      setSelectedTerms([]);
+      setProof(null);
+      setPushResults([]);
+      setReport(null);
+      setReportError(null);
       setDraft(null);
       setConfig(DEFAULT_CONFIG);
       setSavedConfig(DEFAULT_CONFIG);
@@ -308,6 +373,9 @@ export function Console() {
       await openConfigure();
       return;
     }
+    if (step === 4) { await showGrades(); return; }
+    if (step === 5) { await showRules(); return; }
+    if (step === 6 && proof) { setActiveStep(6); return; }
     if (step <= unlockedThrough) setActiveStep(step);
   }
 
@@ -414,6 +482,7 @@ export function Console() {
       if (!view) throw new Error('Drill settings could not be saved.');
       setConfig(view.config);
       setSavedConfig(view.config);
+      setDrillView(view);
       return true;
     } catch {
       setError('Drill settings could not be saved. Try again.');
@@ -458,11 +527,176 @@ export function Console() {
     }
   }
 
+  async function loadGrades(drillId: string): Promise<GradesView> {
+    const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/grades`);
+    const parsed = parse(GradesViewZ, raw);
+    if (!parsed) throw new Error('Grade results are unavailable.');
+    setGrades(parsed);
+    if (parsed.phases.A && parsed.phases.A.done >= parsed.phases.A.total) setGrading(false);
+    return parsed;
+  }
+
+  async function showGrades(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId) return;
+    setActiveStep(4);
+    setReviewBusy(true);
+    setError(null);
+    try {
+      const current = await loadGrades(drillId);
+      const phase = current.phases.A;
+      if (!phase && gradeRequestedRef.current !== `${drillId}:A`) {
+        gradeRequestedRef.current = `${drillId}:A`;
+        setGrading(true);
+        const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/grade`, { method: 'POST', body: JSON.stringify({ phase: 'A' }) });
+        if (!parse(GradeQueuedZ, raw)) throw new Error('Twitch grading could not be queued.');
+      } else if (phase && phase.done < phase.total) setGrading(true);
+      setUnlockedThrough((previous) => previous < 4 ? 4 : previous);
+    } catch {
+      setGrading(false);
+      setError('Grade results could not be loaded. Use a local estimate now or try again.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function gradeWithTwitch(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId) return;
+    setReviewBusy(true);
+    setGrading(true);
+    setError(null);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/grade`, { method: 'POST', body: JSON.stringify({ phase: 'A' }) });
+      if (!parse(GradeQueuedZ, raw)) throw new Error('Twitch grading could not be queued.');
+      gradeRequestedRef.current = `${drillId}:A`;
+    } catch {
+      setGrading(false);
+      setError('Twitch grading could not start. You can use a local estimate now.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function gradeLocally(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId) return;
+    setReviewBusy(true);
+    setError(null);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/grade/local`, { method: 'POST', body: JSON.stringify({ phase: 'A' }) });
+      if (!parse(GradeLocalZ, raw)) throw new Error('Local grading did not return a result.');
+      await loadGrades(drillId);
+      setGrading(false);
+    } catch {
+      setError('The local estimate could not be created. Try again.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function showRules(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    const phase = grades?.phases.A;
+    if (!drillId || !phase || phase.done < phase.total) return;
+    setActiveStep(5);
+    setReviewBusy(true);
+    setError(null);
+    try {
+      if (!rules || rulesRequestedRef.current !== drillId) {
+        const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/rules`, { method: 'POST' });
+        const parsed = parse(RuleResultZ, raw);
+        if (!parsed) throw new Error('Rule suggestions are unavailable.');
+        setRules(parsed);
+        setSelectedTerms(parsed.accepted.map((item) => item.term));
+        rulesRequestedRef.current = drillId;
+      }
+      setUnlockedThrough((previous) => previous < 5 ? 5 : previous);
+    } catch {
+      setError('Rule suggestions could not be loaded. Try again.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function makeProof(drillId: string, terms: string[]): Promise<void> {
+    const requestId = ++proofRequestRef.current;
+    if (terms.length === 0) { setProof(null); setReviewBusy(false); return; }
+    setProof(null);
+    setReviewBusy(true);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/prove`, { method: 'POST', body: JSON.stringify({ terms }) });
+      const parsed = parse(ProofResultZ, raw);
+      if (!parsed) throw new Error('Fresh-wave proof is unavailable.');
+      if (requestId !== proofRequestRef.current) return;
+      setProof(parsed);
+      setUnlockedThrough((previous) => previous < 6 ? 6 : previous);
+    } catch {
+      if (requestId === proofRequestRef.current) setError('Fresh-wave proof could not be created. Try again.');
+    } finally {
+      if (requestId === proofRequestRef.current) setReviewBusy(false);
+    }
+  }
+
+  async function pushTerms(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    const allTermsCleared = Boolean(proof && proof.realChat.length === selectedTerms.length && selectedTerms.every((term) => proof.realChat.some((item) => item.term.toLowerCase() === term.toLowerCase() && item.count === 0)));
+    if (!drillId || !proof?.pushAllowed || !allTermsCleared || selectedTerms.length === 0) return;
+    setReviewBusy(true);
+    setError(null);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/push`, { method: 'POST', body: JSON.stringify({ terms: selectedTerms }) });
+      const parsed = parse(PushResultsZ, raw);
+      if (!parsed) throw new Error('Push results are unavailable.');
+      setPushResults(parsed);
+      await loadReport(drillId).catch(() => undefined);
+    } catch {
+      setError('The terms could not be pushed. Refresh the proof and try again.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function undoPush(): Promise<void> {
+    const drillId = room.snapshot?.drill?.drillId;
+    if (!drillId) return;
+    setReviewBusy(true);
+    setError(null);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/undo`, { method: 'POST' });
+      const parsed = parse(PushResultsZ, raw);
+      if (!parsed) throw new Error('Undo results are unavailable.');
+      setPushResults(parsed);
+      await loadReport(drillId).catch(() => undefined);
+    } catch {
+      setError('The push could not be undone. Try again.');
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  async function loadReport(drillId: string): Promise<void> {
+    setReportLoading(true);
+    setReportError(null);
+    try {
+      const raw: unknown = await apiFetch(`drills/${encodeURIComponent(drillId)}/report`);
+      const parsed = parse(ReportViewZ, raw);
+      if (!parsed) throw new Error('The after-action report is unavailable.');
+      setReport(parsed);
+    } catch {
+      setReportError('The after-action report is not available yet.');
+      throw new Error('report_unavailable');
+    } finally {
+      setReportLoading(false);
+    }
+  }
+
   const currentDrill = room.snapshot?.drill ?? null;
   const lineRows = (currentDrill?.lines ?? []) as ConsoleLine[];
   const reveals = new Map((currentDrill?.reveal ?? []).map((reveal) => [reveal.lineId, reveal] as const));
   const participants = room.snapshot?.participants ?? [];
   const score = currentDrill?.score;
+  const gradePhaseA = grades?.phases.A;
   const draftIsDirty = JSON.stringify(config) !== JSON.stringify(savedConfig);
   const configValid = DrillConfigInputZ.safeParse(config).success;
   const elapsedMs = currentDrill?.startedAt === null || currentDrill?.startedAt === undefined ? 0 : Math.max(0, now - currentDrill.startedAt);
@@ -677,6 +911,25 @@ export function Console() {
           <button type="button" className="console-button console-button-danger" disabled={busy} onClick={() => void stopDrill()}>{busy ? 'Stopping…' : 'Stop'}</button>
         </div>}
         {currentDrill?.status === 'ended' && <p className="console-complete-summary">{score?.attacksShown ?? 0} attacks shown · {score?.slipped ?? 0} slipped through</p>}
+        {currentDrill?.status === 'ended' && <div className="console-step-footer"><button type="button" className="console-button console-button-primary" onClick={() => void showGrades()}>Continue to Twitch grades</button></div>}
+      </section>}
+
+      {activeStep === 4 && <section className="console-step-panel" aria-labelledby="grade-step-title">
+        <div className="console-step-title"><div><p className="console-context">Step 4</p><h2 id="grade-step-title">Twitch grades</h2><p className="console-muted">See which attack lines would get past your current filters.</p></div>{gradePhaseA && <span className="console-draft-status">{gradePhaseA.done} of {gradePhaseA.total} checked</span>}</div>
+        <GradeTable lines={(drillView?.lines ?? []) as GradeLine[]} grades={grades} phase={gradePhaseA} onGradeTwitch={() => void gradeWithTwitch()} onGradeLocal={() => void gradeLocally()} grading={grading} busy={reviewBusy} />
+        {gradePhaseA && gradePhaseA.done >= gradePhaseA.total && <div className="console-step-footer"><button type="button" className="console-button console-button-primary" disabled={reviewBusy} onClick={() => void showRules()}>Find better rules</button></div>}
+      </section>}
+
+      {activeStep === 5 && <section className="console-step-panel" aria-labelledby="rules-step-title">
+        <div className="console-step-title"><div><p className="console-context">Step 5</p><h2 id="rules-step-title">Fix the rules</h2><p className="console-muted">Select safe terms or add one of your own. Each choice is checked against your retained chat.</p></div></div>
+        {!rules ? <p className="console-muted" role="status">Finding safe rules…</p> : <RuleList rules={rules} lines={(drillView?.lines ?? []) as GradeLine[]} selected={selectedTerms} onSelectionChange={setSelectedTerms} disabled={reviewBusy} />}
+        <div className="console-step-footer"><button type="button" className="console-button console-button-primary" disabled={reviewBusy || !proof || selectedTerms.length === 0} onClick={() => setActiveStep(6)}>Test on a fresh wave</button></div>
+      </section>}
+
+      {activeStep === 6 && <section className="console-step-panel" aria-labelledby="proof-step-title">
+        <div className="console-step-title"><div><p className="console-context">Step 6</p><h2 id="proof-step-title">Fresh wave and push</h2><p className="console-muted">Check these rules on a held-out wave before approving changes to Twitch.</p></div></div>
+        <ProofBars proof={proof} results={pushResults} selectedTerms={selectedTerms} onPush={() => void pushTerms()} onUndo={() => void undoPush()} busy={reviewBusy} canUndo={pushResults.some((item) => item.status === 'added')} />
+        {report ? <ReportCard report={report} /> : <p className="console-muted" role="status">{reportLoading ? 'Loading the after-action report…' : reportError ?? 'The after-action report is not available yet.'}</p>}
       </section>}
     </div>
   </section>;
