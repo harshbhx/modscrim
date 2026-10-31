@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import { z } from 'zod';
 import type { GradePhase } from '@mfd/core';
+import { TermListZ } from '@mfd/core';
 import { COOKIES, readCookie, setCookie } from '../auth/cookies.js';
 import { readToken, signToken, type DemoSession } from '../auth/session.js';
 import { drillCall, drillIdOf, readDrillConfig, reportOrNotFound } from '../lib/drillHttp.js';
@@ -204,8 +205,32 @@ demoRoutes.get('/:room/drills/:id/grades', requireDemoRoom, async (context) => {
   const room = roomOf(context.env, context.get('demoId'));
   return context.json(await drillCall(() => room.getGrades(drillId), 'The grades are unavailable.'));
 });
-// TODO(T-16): POST /:room/drills/:id/rules, /prove, /push and /undo. Push and undo are simulated (FR-34): they
-//             add to and remove from the room's own `blocked_terms`, never Twitch, and write no D1 audit row.
+
+demoRoutes.post('/:room/drills/:id/rules', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const room = roomOf(context.env, context.get('demoId'));
+  return context.json(await drillCall(() => room.findRules(drillId), 'Rules are unavailable until the drill is graded.'));
+});
+
+demoRoutes.post('/:room/drills/:id/prove', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const room = roomOf(context.env, context.get('demoId'));
+  return context.json(await drillCall(() => room.proveFreshWave(drillId, terms), 'The proof could not be created.'));
+});
+
+demoRoutes.post('/:room/drills/:id/push', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const terms = await readTerms(context.req.raw);
+  const room = roomOf(context.env, context.get('demoId'));
+  return context.json(await drillCall(() => room.push(drillId, terms, 'demo'), 'One or more terms match your real chat.'));
+});
+
+demoRoutes.post('/:room/drills/:id/undo', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const room = roomOf(context.env, context.get('demoId'));
+  return context.json(await drillCall(() => room.undo(drillId, 'demo'), 'The terms could not be undone.'));
+});
 
 async function readGradePhase(request: Request): Promise<GradePhase> {
   let body: unknown;
@@ -217,4 +242,16 @@ async function readGradePhase(request: Request): Promise<GradePhase> {
   const parsed = z.object({ phase: z.enum(['A', 'B-before', 'B-after']) }).safeParse(body);
   if (!parsed.success) throw new AppError('invalid', 'Invalid grading phase.', 'phase');
   return parsed.data.phase;
+}
+
+async function readTerms(request: Request): Promise<string[]> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid terms request.', 'terms');
+  }
+  const parsed = TermListZ.safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Choose between 1 and 12 terms.', 'terms');
+  return parsed.data.terms;
 }

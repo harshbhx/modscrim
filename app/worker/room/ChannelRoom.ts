@@ -9,12 +9,15 @@ import {
   type DrillView,
   type GradePhase,
   type GradesView,
+  type ProofResult,
+  type PushResult,
   type FiltersView,
   type JobKind,
   type ModAction,
   type Report,
   type ReportJob,
   type Role,
+  type RuleFinderResult,
   type ServerMsg
 } from '@mfd/core';
 import { overlayKey as newOverlayKey } from '../lib/ids.js';
@@ -43,6 +46,8 @@ import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
 import { chatRetentionMs, DAY_MS, purgeExpired, type PurgeResult } from './chatlog.js';
 import { GradingEngine } from './grading.js';
+import { RuleEngine } from './rules.js';
+import { PushEngine } from './push.js';
 
 /** The export waits this long after a report's latest update, so a burst of updates sends one message (SRS §3.4). */
 export const REPORT_EXPORT_DELAY_MS = 60_000;
@@ -82,6 +87,24 @@ export class ChannelRoom extends DurableObject<Env> {
     broadcasterType: () => this.meta('broadcaster_type'),
     getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
     blockedTerms: () => this.sql.exec<{ text: string }>('SELECT text FROM blocked_terms ORDER BY rowid').toArray().map((row) => row.text),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
+  private readonly rules = new RuleEngine({
+    ctx: this.ctx,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    getDrill: (drillId) => this.drills.view(drillId),
+    blockedTerms: () => this.sql.exec<{ text: string }>('SELECT text FROM blocked_terms ORDER BY rowid').toArray().map((row) => row.text),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
+  private readonly pushes = new PushEngine({
+    ctx: this.ctx,
+    env: this.env,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    broadcasterId: () => this.meta('broadcaster_id'),
+    getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
+    proveFreshWave: (drillId, terms) => this.rules.proveFreshWave(drillId, terms),
     refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
 
@@ -471,6 +494,26 @@ export class ChannelRoom extends DurableObject<Env> {
   async getGrades(drillId: string): Promise<GradesView> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
     return this.grading.getGrades(drillId);
+  }
+
+  async findRules(drillId: string): Promise<RuleFinderResult> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.rules.findRules(drillId);
+  }
+
+  async proveFreshWave(drillId: string, terms: string[]): Promise<ProofResult> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.rules.proveFreshWave(drillId, terms);
+  }
+
+  async push(drillId: string, terms: string[], actorId: string): Promise<PushResult[]> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.pushes.push(drillId, terms, actorId);
+  }
+
+  async undo(drillId: string, actorId: string): Promise<PushResult[]> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.pushes.undo(drillId, actorId);
   }
 
   // ---- reports (SRS §8.4, T-17) ------------------------------------------------------------
