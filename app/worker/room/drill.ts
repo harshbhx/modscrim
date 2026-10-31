@@ -88,7 +88,6 @@ type Deps = {
   /** Save the drill's report and broadcast `report.ready` (FR-27): the room's `refreshReport` hook. */
   refreshReport: (drillId: string, now: number) => void;
   broadcastState: () => void;
-  announce: (drillId: string) => void;
 };
 
 const DRILL_COLUMNS = 'id, seed, config, status, join_code, created_at, started_at, ended_at';
@@ -436,7 +435,6 @@ export class DrillEngine {
       if ('voting' in result && result.voting) {
         this.publishVotes(drillId, result.startedAt);
       } else {
-        this.deps.announce(drillId);
         const msg: ServerMsg = { type: 'drill.started', data: { drillId, startedAt: result.startedAt, total: result.total } };
         this.send(() => msg);
         log('drill.started', {
@@ -502,7 +500,6 @@ export class DrillEngine {
     });
     if (!result) return;
     this.deps.broadcastState();
-    this.deps.announce(drillId);
     this.publishVotes(drillId, result.endsAt);
     const msg: ServerMsg = { type: 'drill.started', data: { drillId, startedAt: result.startedAt, total: result.total } };
     this.send(() => msg);
