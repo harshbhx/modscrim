@@ -17,9 +17,12 @@
     "db:migrate:local": "npm run db:migrate:local -w app",
     "db:migrate:remote": "npm run db:migrate:remote -w app",
     "build": "npm run build -w app",
-    "deploy": "npm run deploy -w app"
+    "deploy": "npm run deploy -w app",
+    "load": "node --experimental-strip-types scripts/load.ts"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
 }
+
+
