@@ -34,19 +34,19 @@ export type PushResult = z.infer<typeof PushResultsZ>[number];
 export type ReportView = z.infer<typeof ReportViewZ>;
 export type GradeLine = { id: string; text: string; tactic?: string; trick?: string; tags: string[] };
 
-export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, grading, busy }: {
+export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, grading, busy, localOnly = false }: {
   lines: GradeLine[]; grades: GradesView | null; phase: GradesView['phases']['A'];
-  onGradeTwitch: () => void; onGradeLocal: () => void; grading: boolean; busy: boolean;
+  onGradeTwitch: () => void; onGradeLocal: () => void; grading: boolean; busy: boolean; localOnly?: boolean;
 }) {
   const rows = new Map((grades?.lines ?? []).filter((grade) => grade.phase === 'A').map((grade) => [grade.lineId, grade]));
   return <section className="console-section" aria-labelledby="grade-table-title">
     <div className="console-section-heading"><h3 id="grade-table-title">Attack line grades</h3>{phase && <span>{phase.done} of {phase.total} · {engineName(phase.engine)}</span>}</div>
     {!phase && <p className="console-muted">Grade the ended drill to see which attack lines pass your filters.</p>}
     {phase && <p className="console-grade-headline">{t('grade.headline', { n: phase.passed, total: phase.total })}<span>{engineName(phase.engine)}</span></p>}
-    {grading && <p className="console-muted" role="status">Twitch grading in progress: {phase?.done ?? 0} of {phase?.total ?? lines.filter((line) => line.tactic).length} checked.</p>}
+    {grading && <p className="console-muted" role="status">{localOnly ? 'Local estimate in progress' : 'Twitch grading in progress'}: {phase?.done ?? 0} of {phase?.total ?? lines.filter((line) => line.tactic).length} checked.</p>}
     {phase?.nextAt && phase.nextAt > Date.now() && <p className="console-warning" role="status">Twitch's grading limit for this hour is used up. {phase.engine === 'local' || phase.engine === 'mixed' ? 'Showing a local estimate; ' : ''}Twitch grading resumes at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(phase.nextAt)}.</p>}
-    <div className="console-grade-actions"><button type="button" className="console-button console-button-primary" disabled={busy || grading} onClick={onGradeTwitch}>Grade with Twitch</button><button type="button" className="console-button console-button-quiet" disabled={busy} onClick={onGradeLocal}>Use local estimate now</button></div>
-    <div className="console-table-wrap" role="region" aria-label="Attack line grades; scroll horizontally to view all columns" tabIndex={0}><table className="console-grade-table"><thead><tr><th scope="col">Attack line</th><th scope="col">Tactic</th><th scope="col">Trick</th><th scope="col">Result</th><th scope="col">Engine</th></tr></thead>
+    <div className="console-grade-actions">{!localOnly && <button type="button" className="console-button console-button-primary" disabled={busy || grading} onClick={onGradeTwitch}>Grade with Twitch</button>}<button type="button" className={`console-button ${localOnly ? 'console-button-primary' : 'console-button-quiet'}`} disabled={busy} onClick={onGradeLocal}>{localOnly ? 'Run local estimate' : 'Use local estimate now'}</button></div>
+    <div className="console-table-wrap"><table className="console-grade-table"><thead><tr><th scope="col">Attack line</th><th scope="col">Tactic</th><th scope="col">Trick</th><th scope="col">Result</th><th scope="col">Engine</th></tr></thead>
       <tbody>{lines.filter((line) => line.tactic).map((line) => { const grade = rows.get(line.id); return <tr key={line.id}><td>{line.text}</td><td>{line.tactic}</td><td>{line.trick ?? line.tags.join(', ')}</td><td>{grade ? grade.permitted ? 'Would get through' : `Blocked by ${grade.blockedBy ?? 'a filter'}` : 'Not graded yet'}</td><td>{grade ? engineName(grade.engine) : '—'}</td></tr>; })}</tbody>
     </table></div>
   </section>;
@@ -87,8 +87,8 @@ export function RuleList({ rules, lines, selected, onSelectionChange, disabled }
   </section>;
 }
 
-export function ProofBars({ proof, results, selectedTerms, onPush, onUndo, busy, canUndo }: {
-  proof: ProofResult | null; results: PushResult[]; selectedTerms: string[]; onPush: () => void; onUndo: () => void; busy: boolean; canUndo: boolean;
+export function ProofBars({ proof, results, selectedTerms, onPush, onUndo, busy, canUndo, demo = false }: {
+  proof: ProofResult | null; results: PushResult[]; selectedTerms: string[]; onPush: () => void; onUndo: () => void; busy: boolean; canUndo: boolean; demo?: boolean;
 }) {
   const noMatches = Boolean(proof && proof.realChat.length === selectedTerms.length && selectedTerms.every((term) => proof.realChat.some((item) => item.term.toLowerCase() === term.toLowerCase() && item.count === 0)));
   return <section className="console-section" aria-labelledby="proof-title"><div className="console-section-heading"><h3 id="proof-title">Fresh-wave proof</h3><span>Local estimate</span></div>
@@ -98,8 +98,8 @@ export function ProofBars({ proof, results, selectedTerms, onPush, onUndo, busy,
       <h4>Real-chat match checks · local estimate</h4>{proof.realChat.map((item) => <p className={item.count === 0 ? 'console-proof-safe' : 'console-proof-unsafe'} key={item.term}>{item.term}: {item.count === 0 ? t('rules.zeroMatches') : `${item.count} real-chat matches · local estimate${item.example ? ` · “${item.example}”` : ''}`}</p>)}
       {proof.stillByTag.length > 0 && <><h4>Still gets through · local estimate</h4><ul className="console-tag-list">{proof.stillByTag.map((item) => <li key={item.tag}>{item.tag} · {item.count}{item.needsBotRule && <strong>{t('rules.botRule')}</strong>}</li>)}</ul></>}
     </>}
-    <div className="console-push-actions"><button type="button" className="console-button console-button-primary" disabled={busy || !proof || !proof.pushAllowed || !noMatches} onClick={onPush}>{t('push.button', { n: selectedTerms.length })}</button><button type="button" className="console-button console-button-danger" disabled={busy || !canUndo} onClick={onUndo}>{t('push.undo')}</button></div>
-    {results.length > 0 && <ul className="console-push-results" aria-live="polite">{results.map((item, index) => <li className={`is-${item.status}`} key={`${item.term}-${index}`}><strong>{item.term}</strong><span>{item.status === 'failed' ? `Twitch rejected '${item.term}': ${item.error ?? 'Try again.'}` : item.status === 'added' ? 'Added to Twitch' : item.status === 'preexisting' ? 'Already in your Twitch filters' : 'Removed from Twitch'}</span></li>)}</ul>}
+    <div className="console-push-actions"><button type="button" className="console-button console-button-primary" disabled={busy || !proof || !proof.pushAllowed || !noMatches} onClick={onPush}>{demo ? `Simulate push of ${selectedTerms.length} terms` : t('push.button', { n: selectedTerms.length })}</button><button type="button" className="console-button console-button-danger" disabled={busy || !canUndo} onClick={onUndo}>{demo ? 'Undo simulated push' : t('push.undo')}</button></div>
+    {results.length > 0 && <ul className="console-push-results" aria-live="polite">{results.map((item, index) => <li className={`is-${item.status}`} key={`${item.term}-${index}`}><strong>{item.term}</strong><span>{item.status === 'failed' ? `${demo ? 'Simulated push failed' : `Twitch rejected '${item.term}'`}: ${item.error ?? 'Try again.'}` : item.status === 'added' ? demo ? 'Added to this demo only' : 'Added to Twitch' : item.status === 'preexisting' ? demo ? 'Already in this demo' : 'Already in your Twitch filters' : demo ? 'Removed from this demo' : 'Removed from Twitch'}</span></li>)}</ul>}
   </section>;
 }
 
