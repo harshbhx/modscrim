@@ -85,6 +85,7 @@ export function purgeExpired(sql: Sql, now: number, chatRetention: number): Purg
   const drillCutoff = now - DRILL_RETENTION_MS;
   const drillsDeleted = sql.exec<{ n: number }>('SELECT COUNT(*) AS n FROM drills WHERE created_at < ?', drillCutoff).one().n;
   if (drillsDeleted > 0) {
+    sql.exec("DELETE FROM meta WHERE key IN (SELECT 'announce:' || id FROM drills WHERE created_at < ?)", drillCutoff);
     sql.exec(`DELETE FROM line_state WHERE line_id IN (${OLD_LINES})`, drillCutoff);
     sql.exec(`DELETE FROM grades WHERE line_id IN (${OLD_LINES})`, drillCutoff);
     for (const table of ['grade_queue', 'drill_participants', 'rule_runs', 'proofs', 'pushes', 'reports', 'votes', 'wave_lines']) {
