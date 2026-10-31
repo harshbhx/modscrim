@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { ChatMessageEvent, EventSubEnvelope } from '@mfd/core';
+import { deleteUserData } from '../auth/deletion.js';
 import { log } from '../lib/log.js';
 import { verifyEventSub } from '../twitch/verify.js';
 
@@ -26,6 +27,7 @@ const ChatMessageSchema = z.object({
   message_type: z.string().min(1),
   source_broadcaster_user_id: z.string().nullable().optional()
 });
+const AuthorizationRevokeSchema = z.object({ client_id: z.string().min(1), user_id: z.string().min(1) });
 
 async function saveSubscription(
   db: D1Database,
@@ -96,6 +98,20 @@ eventsubRoutes.post('/', async (context) => {
     }
 
     if (verified.type !== 'notification') return context.body(null, 204);
+    if (message.subscription.type === 'user.authorization.revoke') {
+      const event = AuthorizationRevokeSchema.safeParse(message.event);
+      if (!event.success || event.data.client_id !== context.env.TWITCH_CLIENT_ID) return context.body(null, 400);
+      const userId = event.data.user_id;
+      const deletion = deleteUserData(context.env, userId, { callTwitch: false })
+        .then(() => {
+          log('eventsub.subscription', { room: `ch:${userId}`, subType: 'user.authorization.revoke', status: 'deleted' });
+        })
+        .catch(() => {
+          log('eventsub.rejected', { room: 'eventsub', reason: 'revoke_delete' });
+        });
+      context.executionCtx.waitUntil(deletion);
+      return context.body(null, 204);
+    }
     if (message.subscription.type !== 'channel.chat.message') return context.body(null, 204);
 
     const event = ChatMessageSchema.safeParse(message.event);
