@@ -87,6 +87,7 @@ type Deps = {
   connectedMods: () => string[];
   /** Save the drill's report and broadcast `report.ready` (FR-27): the room's `refreshReport` hook. */
   refreshReport: (drillId: string, now: number) => void;
+  broadcastState: () => void;
 };
 
 const DRILL_COLUMNS = 'id, seed, config, status, join_code, created_at, started_at, ended_at';
@@ -102,6 +103,9 @@ const SimJobZ = z.object({
   lineId: z.string().min(1),
   action: z.enum(['delete', 'timeout', 'ban'])
 });
+const VoteCloseJobZ = z.object({ drillId: z.string().min(1) });
+const VoteTacticZ = z.enum(['linkscam', 'spam', 'botwave', 'hateraid']);
+const VOTE_WINDOW_MS = 20_000;
 
 /** Validate a config (FR-16). An omitted seed keeps `fallbackSeed`, or becomes a random uint32. */
 export function parseConfig(input: unknown, fallbackSeed?: number): StoredConfig {
@@ -407,28 +411,125 @@ export class DrillEngine {
       const d = this.drillRow(drillId);
       if (!d) throw new Error(DRILL_ERRORS.notFound);
       if (d.status === 'running' && d.started_at !== null) return { startedAt: d.started_at, fresh: false, total: 0, seed: d.seed };
+      if (d.status === 'voting') return { startedAt: this.voteEndsAt(drillId), fresh: false, total: 0, seed: d.seed };
       if (d.status !== 'draft') throw new Error(DRILL_ERRORS.conflict);
+      const config = JSON.parse(d.config) as StoredConfig;
+      if (config.chatVote && this.deps.roomName().startsWith('ch:')) {
+        const endsAt = now + VOTE_WINDOW_MS;
+        this.sql.exec("UPDATE drills SET status = 'voting' WHERE id = ?", drillId);
+        this.deps.scheduler.enqueue('vote.close', drillId, endsAt, { drillId });
+        this.deps.touch(now);
+        return { startedAt: endsAt, fresh: true, total: 0, seed: d.seed, voting: true };
+      }
       const total = this.sql
         .exec<{ n: number }>("SELECT COUNT(*) AS n FROM wave_lines WHERE drill_id = ? AND wave = 'A'", drillId)
         .one().n;
       this.sql.exec("UPDATE drills SET status = 'running', started_at = ? WHERE id = ?", now, drillId);
       this.deps.scheduler.enqueue('line.emit', `${drillId}:0`, now, { drillId, idx: 0 });
       this.deps.touch(now);
-      return { startedAt: now, fresh: true, total, seed: d.seed };
+      return { startedAt: now, fresh: true, total, seed: d.seed, voting: false };
     });
     await this.deps.scheduler.rearm();
     if (result.fresh) {
-      const msg: ServerMsg = { type: 'drill.started', data: { drillId, startedAt: result.startedAt, total: result.total } };
-      this.send(() => msg);
-      log('drill.started', {
-        room: this.deps.roomName(),
-        drill: drillId,
-        lines: result.total,
-        mods: this.members(drillId).length,
-        seed: result.seed
-      });
+      this.deps.broadcastState();
+      if ('voting' in result && result.voting) {
+        this.publishVotes(drillId, result.startedAt);
+      } else {
+        const msg: ServerMsg = { type: 'drill.started', data: { drillId, startedAt: result.startedAt, total: result.total } };
+        this.send(() => msg);
+        log('drill.started', {
+          room: this.deps.roomName(),
+          drill: drillId,
+          lines: result.total,
+          mods: this.members(drillId).length,
+          seed: result.seed
+        });
+      }
     }
     return { startedAt: result.startedAt };
+  }
+
+  /** Count an eligible chat command during the configured 20-second vote window. */
+  castChatVote(chatterId: string, text: string, now: number): boolean {
+    const command = /^!attack\s+(linkscam|spam|botwave|hateraid)$/i.exec(text.trim());
+    const tactic = VoteTacticZ.safeParse(command?.[1]?.toLowerCase());
+    if (!tactic.success) return false;
+    const result = this.tx(() => {
+      const d = this.activeDrill();
+      if (!d || d.status !== 'voting') return null;
+      const config = JSON.parse(d.config) as StoredConfig;
+      if (!config.chatVote || !config.tactics.includes(tactic.data)) return null;
+      this.sql.exec(
+        `INSERT INTO votes (drill_id, chatter_id, tactic, at) VALUES (?, ?, ?, ?)
+         ON CONFLICT(drill_id, chatter_id) DO UPDATE SET tactic = excluded.tactic, at = excluded.at`,
+        d.id,
+        chatterId,
+        tactic.data,
+        now
+      );
+      this.deps.touch(now);
+      return { drillId: d.id, endsAt: this.voteEndsAt(d.id) };
+    });
+    if (!result) return false;
+    this.publishVotes(result.drillId, result.endsAt);
+    return true;
+  }
+
+  /** `vote.close <drillId>`: select the winner, then begin the drill; repeated alarms do nothing. */
+  async closeVote(job: { payload: unknown; now: number }): Promise<void> {
+    const parsed = VoteCloseJobZ.safeParse(job.payload);
+    if (!parsed.success) return;
+    const drillId = parsed.data.drillId;
+    const result = this.tx(() => {
+      const d = this.drillRow(drillId);
+      if (!d || d.status !== 'voting') return null;
+      const config = JSON.parse(d.config) as StoredConfig;
+      if (!config.chatVote) return null;
+      const counts = this.voteCounts(drillId);
+      const max = Math.max(0, ...config.tactics.map((tactic) => counts[tactic]));
+      const tied = config.tactics.filter((tactic) => counts[tactic] === max);
+      const primaryTactic = tied.length > 1 ? config.primaryTactic : tied[0] ?? config.primaryTactic;
+      const nextConfig = { ...config, primaryTactic };
+      const total = this.sql
+        .exec<{ n: number }>("SELECT COUNT(*) AS n FROM wave_lines WHERE drill_id = ? AND wave = 'A'", drillId)
+        .one().n;
+      this.sql.exec("UPDATE drills SET config = ?, status = 'running', started_at = ? WHERE id = ?", JSON.stringify(nextConfig), job.now, drillId);
+      this.deps.scheduler.enqueue('line.emit', `${drillId}:0`, job.now, { drillId, idx: 0 });
+      this.deps.touch(job.now);
+      return { startedAt: job.now, total, seed: d.seed, endsAt: this.voteEndsAt(drillId) };
+    });
+    if (!result) return;
+    this.deps.broadcastState();
+    this.publishVotes(drillId, result.endsAt);
+    const msg: ServerMsg = { type: 'drill.started', data: { drillId, startedAt: result.startedAt, total: result.total } };
+    this.send(() => msg);
+    log('drill.started', {
+      room: this.deps.roomName(),
+      drill: drillId,
+      lines: result.total,
+      mods: this.members(drillId).length,
+      seed: result.seed
+    });
+  }
+
+  private voteCounts(drillId: string): Record<Tactic, number> {
+    const counts: Record<Tactic, number> = { linkscam: 0, spam: 0, botwave: 0, hateraid: 0 };
+    for (const row of this.sql.exec<{ tactic: string; count: number }>(
+      'SELECT tactic, COUNT(*) AS count FROM votes WHERE drill_id = ? GROUP BY tactic', drillId
+    ).toArray()) {
+      const tactic = VoteTacticZ.safeParse(row.tactic);
+      if (tactic.success) counts[tactic.data] = row.count;
+    }
+    return counts;
+  }
+
+  private voteEndsAt(drillId: string): number {
+    return this.sql.exec<{ due_at: number }>("SELECT due_at FROM schedule WHERE kind = 'vote.close' AND key = ?", drillId).toArray()[0]?.due_at ?? Date.now();
+  }
+
+  private publishVotes(drillId: string, endsAt: number): void {
+    const msg: ServerMsg = { type: 'vote.update', data: { counts: this.voteCounts(drillId), endsAt } };
+    this.send((role) => role === 'mod' ? null : msg);
   }
 
   /** End a running drill now (FR-20): shown, open attacks slip; unshown lines are never emitted or scored. */

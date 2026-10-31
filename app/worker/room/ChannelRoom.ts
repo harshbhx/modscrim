@@ -2,7 +2,9 @@ import { DurableObject } from 'cloudflare:workers';
 import { z } from 'zod';
 import {
   ClientMsgZ,
+  LIMITS,
   coachStats,
+  nextAllowedAt,
   type CoachStats,
   type ActionResult,
   type ChatMessageEvent,
@@ -78,7 +80,8 @@ export class ChannelRoom extends DurableObject<Env> {
     roomName: () => this.roomName(),
     touch: (now) => this.touch(now),
     connectedMods: () => this.connectedMods(),
-    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now),
+    broadcastState: () => this.broadcastState()
   });
   private readonly grading = new GradingEngine({
     ctx: this.ctx,
@@ -128,6 +131,7 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('line.slip', (job) => this.drills.slip(job));
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
+    this.scheduler.register('vote.close', (job) => this.drills.closeVote(job));
     this.grading.register((kind, handler) => this.scheduler.register(kind, handler));
     // Demo rooms delete themselves 2 hours after their last activity (FR-38).
     this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
@@ -273,13 +277,15 @@ export class ChannelRoom extends DurableObject<Env> {
   async ingestChat(event: ChatMessageEvent): Promise<ChatIngestResult> {
     if (!this.bootstrapped()) return 'ignored';
     const sentAt = Date.now();
-    return this.ctx.storage.transactionSync(() => {
+    const result = this.ctx.storage.transactionSync(() => {
       const broadcasterId = this.meta('broadcaster_id');
       if (!broadcasterId || event.broadcaster_user_id !== broadcasterId) return 'ignored';
-      const result = ingestChat(this.sql, broadcasterId, this.meta('logging') === '1', event, sentAt);
-      if (result === 'stored') this.touch(sentAt);
-      return result;
+      const ingestResult = ingestChat(this.sql, broadcasterId, this.meta('logging') === '1', event, sentAt);
+      if (ingestResult === 'stored') this.touch(sentAt);
+      return ingestResult;
     });
+    if (result !== 'ignored') this.drills.castChatVote(event.chatter_user_id, event.message.text, sentAt);
+    return result;
   }
 
   async chatStats(): Promise<ReturnType<typeof chatLogStats> | null> {
@@ -313,6 +319,35 @@ export class ChannelRoom extends DurableObject<Env> {
     const userId = this.meta('broadcaster_id');
     if (!userId || this.meta('mode') !== 'live') return 'invalid';
     return this.tokens.validate(userId, Date.now());
+  }
+
+  /** Read-only grading quota snapshot for the streamer's connection panel (FR-44). */
+  async gradingQuotaStatus(now: number): Promise<{
+    minuteUsed: number;
+    hourUsed: number;
+    minuteLimit: number;
+    hourLimit: number;
+    nextAllowedAt: number;
+  } | null> {
+    if (!this.bootstrapped() || this.meta('mode') !== 'live') return null;
+    const broadcasterType = this.meta('broadcaster_type');
+    const limits = LIMITS[broadcasterType === 'partner' || broadcasterType === 'affiliate' ? broadcasterType : ''];
+    const sends = this.sql.exec<{ ts: number; units: number }>(
+      'SELECT ts, units FROM grade_sends WHERE ts > ? ORDER BY ts', now - 3_600_000
+    ).toArray();
+    const minuteUsed = sends.filter((send) => send.ts > now - 60_000 && send.ts <= now).reduce((sum, send) => sum + send.units, 0);
+    const hourUsed = sends.filter((send) => send.ts <= now).reduce((sum, send) => sum + send.units, 0);
+    const unit = String(this.env.GRADING_QUOTA_UNIT) === 'line' ? 'line' : 'request';
+    const rawBatch = Number(this.env.GRADING_BATCH_SIZE);
+    const batchSize = Number.isInteger(rawBatch) && rawBatch >= 1 && rawBatch <= 100 ? rawBatch : 100;
+    const units = unit === 'line' ? Math.min(batchSize, limits.perMinute) : 1;
+    return {
+      minuteUsed,
+      hourUsed,
+      minuteLimit: limits.perMinute,
+      hourLimit: limits.perHour,
+      nextAllowedAt: nextAllowedAt(sends, now, limits, units)
+    };
   }
 
   /** Hourly cron (FR-43): apply retention now and report the newest chat time for D1 `channels`. */
@@ -476,7 +511,9 @@ export class ChannelRoom extends DurableObject<Env> {
 
   async startDrill(drillId: string): Promise<{ startedAt: number }> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
-    return this.drills.start(drillId, Date.now());
+    const result = await this.drills.start(drillId, Date.now());
+    this.broadcastState();
+    return result;
   }
 
   async stopDrill(drillId: string): Promise<{ endedAt: number }> {
