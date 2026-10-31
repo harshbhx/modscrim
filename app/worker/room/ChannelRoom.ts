@@ -39,7 +39,7 @@ import {
 import { chatLogStats, deleteChatLog, ingestChat, type ChatIngestResult } from './chatlog.js';
 import { DEMO_DRILL_CONFIG, DEMO_GC_KEY, demoBootstrap, demoGcDueAt, isDemoRoomName, seedDemo } from './demo.js';
 import { DrillEngine } from './drill.js';
-import { joinAsMod, JoinInputZ } from './mods.js';
+import { joinAsMod, joinAsVerifiedMod, JoinInputZ } from './mods.js';
 import { aiCoachNote, coachAiEnabled } from './coach.js';
 import { broadcastReport, readReport, saveAiCoachNote, saveReport } from './report.js';
 import { isBootstrapped, migrate } from './schema.js';
@@ -625,6 +625,20 @@ export class ChannelRoom extends DurableObject<Env> {
     if (!res.ok) throw new Error(res.reason === 'rate_limited' ? 'join_rate_limited' : 'join_forbidden');
     this.broadcastParticipants();
     return { participantId: res.participantId };
+  }
+
+  /** Join from the OAuth path after the Worker verified the Twitch identity as a channel moderator. */
+  async joinAsVerifiedMod(i: { displayName: string; ip: string; twitchUserId: string }): Promise<{ participantId: string; displayName: string }> {
+    if (!this.bootstrapped() || this.meta('mode') !== 'live') throw new Error('room_not_bootstrapped');
+    const now = Date.now();
+    const res = this.ctx.storage.transactionSync(() => {
+      const result = joinAsVerifiedMod(this.sql, i, now);
+      if (result.ok) this.touch(now);
+      return result;
+    });
+    if (!res.ok) throw new Error(res.reason === 'rate_limited' ? 'join_rate_limited' : 'join_forbidden');
+    this.broadcastParticipants();
+    return { participantId: res.participantId, displayName: res.name };
   }
 
   /** Whether a draft or running drill is open for joining; null for a never-bootstrapped room. */
