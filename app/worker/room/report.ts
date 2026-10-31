@@ -1,4 +1,6 @@
 import {
+  coachNote,
+  coachStats,
   scoreDrill,
   type Engine,
   type GradePhase,
@@ -43,6 +45,10 @@ type LineRow = {
 };
 
 type GradeRow = { line_id: string; phase: string; engine: string; permitted: number };
+
+/** A saved coach's note (FR-42): the template, or the Workers AI wording that replaced it. */
+const CoachNoteZ = z.object({ text: z.string().min(1), source: z.enum(['ai', 'template']) });
+type CoachNote = NonNullable<Report['coachNote']>;
 
 const PHASES: readonly GradePhase[] = ['A', 'B-before', 'B-after'];
 const PUSH_STATUSES = new Set(['added', 'preexisting', 'failed', 'removed']);
@@ -214,7 +220,11 @@ function pushes(sql: Sql, drillId: string): Report['pushes'] {
  * Build the report of an ended drill, or null when the drill is missing or not ended. `prior` keeps the
  * first build's `reportId` and `createdAt`, so a rebuild over unchanged tables gives the same report.
  */
-export function buildReport(sql: Sql, drillId: string, prior: { reportId: string; createdAt: number }): Report | null {
+export function buildReport(
+  sql: Sql,
+  drillId: string,
+  prior: { reportId: string; createdAt: number; coachNote?: CoachNote }
+): Report | null {
   const d = drillRow(sql, drillId);
   if (!d || d.status !== 'ended') return null;
   const config = JSON.parse(d.config) as StoredConfig;
@@ -241,6 +251,7 @@ export function buildReport(sql: Sql, drillId: string, prior: { reportId: string
   }
 
   const graded = grading(sql, drillId);
+  const score = scoreDrill(lines, states, members(sql, drillId));
   const report: Report = {
     reportId: prior.reportId,
     drillId,
@@ -254,7 +265,7 @@ export function buildReport(sql: Sql, drillId: string, prior: { reportId: string
       intervalMs: config.intervalMs,
       slipWindowMs: config.slipWindowMs
     },
-    score: scoreDrill(lines, states, members(sql, drillId)),
+    score,
     grading: graded.phases,
     tacticCounts,
     trickCounts,
@@ -264,6 +275,9 @@ export function buildReport(sql: Sql, drillId: string, prior: { reportId: string
   if (ruleSection) report.rules = ruleSection;
   const proofSection = proof(sql, drillId, graded.twitchAfter);
   if (proofSection) report.proof = proofSection;
+  // FR-42: every report carries a note. A Workers AI note saved earlier stays (the score it was written
+  // from is final once the drill ends); otherwise the template note from the numbers.
+  report.coachNote = prior.coachNote?.source === 'ai' ? prior.coachNote : { text: coachNote(coachStats(score)), source: 'template' };
   return report;
 }
 
@@ -274,11 +288,16 @@ export function buildReport(sql: Sql, drillId: string, prior: { reportId: string
  */
 export function saveReport(sql: Sql, drillId: string, now: number): Report | null {
   const existing = sql
-    .exec<{ report_id: string; created_at: number }>('SELECT report_id, created_at FROM reports WHERE drill_id = ?', drillId)
+    .exec<{ report_id: string; created_at: number; report: string }>(
+      'SELECT report_id, created_at, report FROM reports WHERE drill_id = ?',
+      drillId
+    )
     .toArray()[0];
-  const prior = existing
+  const prior: { reportId: string; createdAt: number; coachNote?: CoachNote } = existing
     ? { reportId: existing.report_id, createdAt: existing.created_at }
     : { reportId: newReportId(), createdAt: now };
+  const savedNote = existing ? savedCoachNote(existing.report) : null;
+  if (savedNote) prior.coachNote = savedNote;
   const report = buildReport(sql, drillId, prior);
   if (!report) return null;
   sql.exec(
@@ -290,6 +309,28 @@ export function saveReport(sql: Sql, drillId: string, now: number): Report | nul
     report.createdAt
   );
   return report;
+}
+
+/** The coach's note inside a saved report's JSON, or null. */
+function savedCoachNote(raw: string): CoachNote | null {
+  const value = parseJson(raw);
+  if (value === null || typeof value !== 'object') return null;
+  const parsed = CoachNoteZ.safeParse((value as { coachNote?: unknown }).coachNote);
+  return parsed.success ? parsed.data : null;
+}
+
+/**
+ * Store a Workers AI coach's note on a saved report (FR-42), replacing the template note. Later rebuilds keep
+ * it (`saveReport`). Returns false when the drill has no saved report. Run inside `transactionSync`.
+ */
+export function saveAiCoachNote(sql: Sql, drillId: string, text: string): boolean {
+  const row = sql.exec<{ report: string }>('SELECT report FROM reports WHERE drill_id = ?', drillId).toArray()[0];
+  if (!row) return false;
+  const value = parseJson(row.report);
+  if (value === null || typeof value !== 'object') return false;
+  const note: CoachNote = { text, source: 'ai' };
+  sql.exec('UPDATE reports SET report = ? WHERE drill_id = ?', JSON.stringify({ ...value, coachNote: note }), drillId);
+  return true;
 }
 
 /** The saved report of a drill, or null when it has none yet. */

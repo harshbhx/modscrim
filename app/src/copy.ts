@@ -67,6 +67,11 @@ export const pages = {
     start: 'Start a demo drill',
     phone: 'Open the mod view on my phone'
   },
+  /** The report's coach's note (FR-42): the label shows only when `coachNote.source` is `ai`. */
+  coach: {
+    title: "Coach's note",
+    aiWritten: 'AI-written'
+  },
   privacy: {
     title: 'Privacy',
     lead: 'What ModScrim stores, why, for how long, and how to delete it.',
