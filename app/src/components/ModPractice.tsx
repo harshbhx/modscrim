@@ -81,14 +81,14 @@ function seconds(ms: number | null): string { return ms === null ? '—' : (ms /
 export function Scoreboard({ score, participantId }: { score: DrillScore; participantId: string }) {
   const own = score.mods.find((mod) => mod.participantId === participantId);
   return <section className="mod-score-panel" aria-labelledby="mod-score-title">
-    <p className="mod-eyebrow">Your score</p><h2 id="mod-score-title">{own?.caught ?? 0} caught</h2>
-    <p className="mod-own-stats">{own?.falseBans ?? 0} false bans <span aria-hidden="true">·</span> {seconds(own?.avgReactionMs ?? null)} average reaction</p>
-    <div className="mod-team-heading"><h3>Team scoreboard</h3><span>{score.slipped} slipped</span></div>
+    <p className="mod-eyebrow">Your score</p><h2 id="mod-score-title" aria-live="polite" aria-atomic="true">{own?.caught ?? 0} caught</h2>
+    <p className="mod-own-stats" aria-live="polite" aria-atomic="true">{own?.falseBans ?? 0} false bans <span aria-hidden="true">·</span> {seconds(own?.avgReactionMs ?? null)} average reaction</p>
+    <div className="mod-team-heading"><h3>Team scoreboard</h3><span aria-live="polite" aria-atomic="true">{score.slipped} slipped</span></div>
     {score.mods.length === 0 ? <p className="mod-muted">No mods have joined yet.</p> : <ol className="mod-score-list">
       {score.mods.map((mod, index) => <li key={mod.participantId} className={mod.participantId === participantId ? 'is-you' : undefined}>
         <span className="mod-score-rank">{index + 1}</span>
         <span className="mod-score-name">{mod.name}{mod.isSim ? ' (sim)' : ''}{mod.participantId === participantId ? ' · you' : ''}</span>
-        <span className="mod-score-numbers">{mod.caught} caught · {mod.falseBans} false bans · {seconds(mod.avgReactionMs)}</span>
+        <span className="mod-score-numbers" aria-live={mod.participantId === participantId ? undefined : 'polite'} aria-atomic="true">{mod.caught} caught · {mod.falseBans} false bans · {seconds(mod.avgReactionMs)}</span>
       </li>)}
     </ol>}
   </section>;

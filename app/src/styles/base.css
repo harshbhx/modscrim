@@ -528,8 +528,12 @@ a:hover {
 .mod-feedback { margin: var(--space-3) 0 0; font: var(--t-caption); font-weight: 800; }
 .mod-feedback-caught { color: var(--caught-bg); text-decoration: line-through; }
 .mod-feedback-false { color: var(--accent-text); }
-.mod-feedback-slipped { color: var(--slipped-bg); }
+.mod-feedback-slipped { color: var(--accent-text); }
 .mod-feedback-taken { color: var(--text-muted); }
+
+@media (prefers-color-scheme: dark) {
+  .mod-feedback-caught { color: var(--caught-text); }
+}
 .mod-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
 .mod-action-button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: var(--space-2); min-height: 48px; padding: 0 var(--space-2); font-size: 15px; }
 .mod-action-button kbd, .mod-help-button kbd { padding: 1px 5px; border-radius: 3px; background: rgb(0 0 0 / 10%); font-size: 12px; }
