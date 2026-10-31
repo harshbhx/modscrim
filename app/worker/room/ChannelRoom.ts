@@ -11,6 +11,7 @@ import {
   type JobKind,
   type ModAction,
   type Report,
+  type ReportJob,
   type Role,
   type ServerMsg
 } from '@mfd/core';
@@ -39,6 +40,9 @@ import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
 import { chatRetentionMs, DAY_MS, purgeExpired, type PurgeResult } from './chatlog.js';
+
+/** The export waits this long after a report's latest update, so a burst of updates sends one message (SRS §3.4). */
+export const REPORT_EXPORT_DELAY_MS = 60_000;
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -82,6 +86,8 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
     // Demo rooms delete themselves 2 hours after their last activity (FR-38).
     this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
+    // Report export (FR-27, P1): live rooms with the bindings send the latest report to the Queue.
+    this.scheduler.register('report.export', (job) => this.sendReportExport(job.key));
   }
 
   // ---- meta -------------------------------------------------------------------------------
@@ -455,12 +461,48 @@ export class ChannelRoom extends DurableObject<Env> {
    */
   private refreshReport(drillId: string, now: number = Date.now()): Report | null {
     if (!this.bootstrapped()) return null;
-    const report = this.ctx.storage.transactionSync(() => saveReport(this.sql, drillId, now));
+    const exporting = this.exportsReports();
+    const report = this.ctx.storage.transactionSync(() => {
+      const saved = saveReport(this.sql, drillId, now);
+      // Each update moves the one export job to 60 s after it (debounced; `UNIQUE (kind, key)`).
+      if (saved && exporting) this.scheduler.enqueue('report.export', drillId, now + REPORT_EXPORT_DELAY_MS);
+      return saved;
+    });
     if (!report) return null;
+    if (exporting) this.ctx.waitUntil(this.rearmQuietly());
     broadcastReport(this.ctx, report);
     log('report.saved', { room: this.roomName(), drill: drillId, reportId: report.reportId });
-    // TODO(T-31): live rooms with the P1 bindings (re)schedule `report.export` 60 s after this update.
     return report;
+  }
+
+  /** Live rooms export when both P1 bindings exist. Demo rooms never use D1, R2 or the Queue (FR-38). */
+  private exportsReports(): boolean {
+    return this.meta('mode') === 'live' && this.env.REPORT_QUEUE !== undefined && this.env.REPORTS !== undefined;
+  }
+
+  /** Point the alarm at a job enqueued outside a job pass; a failure is logged and the next pass re-arms. */
+  private async rearmQuietly(): Promise<void> {
+    try {
+      await this.scheduler.rearm();
+    } catch {
+      log('job.failed', { room: this.roomName(), kind: 'rearm' });
+    }
+  }
+
+  /**
+   * `report.export <drillId>`: send a `ReportJob` (SRS §7.5) for the drill's saved report. The consumer reads
+   * the report back through `getReport`, so the message carries IDs only. A send failure throws, and the
+   * scheduler retries with backoff.
+   */
+  private async sendReportExport(drillId: string): Promise<void> {
+    const queue = this.env.REPORT_QUEUE;
+    if (!this.exportsReports() || !queue) return;
+    const report = readReport(this.sql, drillId);
+    if (!report) return;
+    const room = this.roomName();
+    const job: ReportJob = { kind: 'report.export', roomName: room, drillId, reportId: report.reportId };
+    await queue.send(job);
+    log('report.exported', { room, drill: drillId, reportId: report.reportId, stage: 'queued' });
   }
 
   // ---- mods (SRS §8.4, T-13) ---------------------------------------------------------------
