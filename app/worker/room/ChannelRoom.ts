@@ -18,6 +18,7 @@ import {
   type FiltersView,
   type JobKind,
   type ModAction,
+  type ModHistoryEntry,
   type Report,
   type ReportJob,
   type Role,
@@ -56,6 +57,15 @@ import { PushEngine } from './push.js';
 
 /** The export waits this long after a report's latest update, so a burst of updates sends one message (SRS §3.4). */
 export const REPORT_EXPORT_DELAY_MS = 60_000;
+
+const HistoryReportZ = z.object({
+  drillId: z.string().min(1),
+  createdAt: z.number().finite(),
+  score: z.object({ mods: z.array(z.object({
+    participantId: z.string().min(1), name: z.string(), isSim: z.boolean(), caught: z.number().finite(),
+    falseBans: z.number().finite(), avgReactionMs: z.number().finite().nullable()
+  })) })
+});
 
 export type BootstrapInput = {
   mode: 'live' | 'demo';
@@ -573,6 +583,52 @@ export class ChannelRoom extends DurableObject<Env> {
     return readReport(this.sql, drillId);
   }
 
+  /** Numeric moderator history from saved reports, keyed internally by Twitch identity when available. */
+  async getModHistory(participantId?: string): Promise<ModHistoryEntry[]> {
+    if (!this.bootstrapped()) return [];
+    const participant = participantId === undefined ? undefined : this.sql
+      .exec<{ twitch_user_id: string | null }>('SELECT twitch_user_id FROM participants WHERE id = ?', participantId)
+      .toArray()[0];
+    if (participantId !== undefined && !participant) return [];
+    const targetKey = participantId === undefined ? null : participant?.twitch_user_id ?? `pid:${participantId}`;
+    const rows = this.sql.exec<{
+      participant_id: string;
+      twitch_user_id: string | null;
+      display_name: string;
+      report: string;
+    }>(`SELECT p.id AS participant_id, p.twitch_user_id, p.display_name, r.report
+        FROM reports r
+        JOIN drill_participants dp ON dp.drill_id = r.drill_id
+        JOIN participants p ON p.id = dp.participant_id
+        WHERE p.is_sim = 0
+        ORDER BY r.created_at, p.joined_at, p.id`).toArray();
+    const history = new Map<string, ModHistoryEntry>();
+    for (const row of rows) {
+      const key = row.twitch_user_id ?? `pid:${row.participant_id}`;
+      if (targetKey !== null && key !== targetKey) continue;
+      let raw: unknown;
+      try {
+        raw = JSON.parse(row.report) as unknown;
+      } catch {
+        continue;
+      }
+      const parsed = HistoryReportZ.safeParse(raw);
+      if (!parsed.success) continue;
+      const score = parsed.data.score.mods.find((mod) => mod.participantId === row.participant_id && !mod.isSim);
+      if (!score) continue;
+      const entry = history.get(key) ?? { name: score.name || row.display_name, drills: [] };
+      entry.name = score.name || row.display_name;
+      entry.drills.push({
+        drillId: parsed.data.drillId,
+        createdAt: parsed.data.createdAt,
+        caught: score.caught,
+        falseBans: score.falseBans,
+        avgReactionMs: score.avgReactionMs
+      });
+      history.set(key, entry);
+    }
+    return [...history.values()];
+  }
 
 
   /**
@@ -743,6 +799,9 @@ export class ChannelRoom extends DurableObject<Env> {
     server.serializeAttachment(auth satisfies Attachment);
     send(server, { type: 'hello', data: { role: auth.role, ...(auth.pid ? { participantId: auth.pid } : {}), serverTime: Date.now() } });
     send(server, { type: 'drill.state', data: this.snapshot(auth.role, auth.pid) });
+    if (auth.role === 'mod' && auth.pid) {
+      send(server, { type: 'mod.history', data: await this.getModHistory(auth.pid) });
+    }
     const vote = auth.role === 'mod' ? null : this.drills.voteSnapshot();
     if (vote) send(server, { type: 'vote.update', data: vote });
     this.touch();

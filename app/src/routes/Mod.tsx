@@ -113,6 +113,8 @@ export function Mod() {
   const avatarUrl = channel?.avatarUrl ?? null;
   const participantName = room.snapshot?.participants.find((person) => person.id === session?.participantId)?.name ?? session?.displayName ?? '';
   const ownScore = drill?.score.mods.find((mod) => mod.participantId === session?.participantId);
+  const historyMessage = room.messages.filter((message) => message.type === 'mod.history').at(-1);
+  const ownHistory = historyMessage?.type === 'mod.history' ? historyMessage.data[0] : undefined;
   const connectionLabel = room.connection === 'open' ? 'Connected' : room.connection === 'connecting' ? 'Connecting…' : 'Reconnecting…';
 
   if (!session) return <section className="mod-page" aria-labelledby="mod-title">
@@ -175,7 +177,11 @@ export function Mod() {
           <Scoreboard score={drill.score} participantId={session.participantId} />
           <ParticipantList participants={room.snapshot?.participants ?? []} />
           {drill.status === 'ended' && <section className="mod-own-result"><h2>Your result</h2><p>{ownScore?.caught ?? 0} attacks caught</p><p>{ownScore?.falseBans ?? 0} false bans</p>
-            <p>Average reaction: {ownScore?.avgReactionMs == null ? '—' : (ownScore.avgReactionMs / 1000).toFixed(1) + ' s'}</p></section>}
+            <p>Average reaction: {ownScore?.avgReactionMs == null ? '—' : (ownScore.avgReactionMs / 1000).toFixed(1) + ' s'}</p>
+            {ownHistory && <><h3>History across drills</h3><ol>{ownHistory.drills.map((item, index) => <li key={item.drillId}>
+              <span>Drill {index + 1}</span>
+              <span>{item.caught} caught · {item.falseBans} false bans · {item.avgReactionMs == null ? '—' : (item.avgReactionMs / 1000).toFixed(1) + ' s average'}</span>
+            </li>)}</ol></>}</section>}
         </aside>
       </div>}
     </div>

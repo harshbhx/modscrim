@@ -1,5 +1,5 @@
 import type { DrillScore, Engine, GradePhase, ModAction, Segment, Tactic } from './types.js';
-import type { DrillSnapshot, PushResult, ReportCard } from './views.js';
+import type { DrillSnapshot, ModHistoryEntry, PushResult, ReportCard } from './views.js';
 
 export type Role = 'console' | 'mod' | 'overlay';
 
@@ -23,6 +23,7 @@ export type ServerMsg =
   | { type: 'grade.done'; data: { phase: GradePhase; passed: number; total: number; engine: Engine | 'mixed' } }
   | { type: 'push.result'; data: PushResult }
   | { type: 'report.ready'; data: { drillId: string; card: ReportCard } }
+  | { type: 'mod.history'; data: ModHistoryEntry[] }
   | { type: 'chat.stats'; data: { count: number; lastAt: number | null } }
   | { type: 'vote.update'; data: { counts: Record<Tactic, number>; endsAt: number } }
   | { type: 'error'; data: { code: string; message: string } };
