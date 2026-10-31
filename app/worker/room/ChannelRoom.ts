@@ -7,6 +7,8 @@ import {
   type DrillConfigInput,
   type DrillSnapshot,
   type DrillView,
+  type GradePhase,
+  type GradesView,
   type FiltersView,
   type JobKind,
   type ModAction,
@@ -40,6 +42,7 @@ import * as tickets from './tickets.js';
 import { RoomTokens } from './tokens.js';
 import { getAutoModSettings, getBlockedTerms, getUsers, HelixError } from '../twitch/helix.js';
 import { chatRetentionMs, DAY_MS, purgeExpired, type PurgeResult } from './chatlog.js';
+import { GradingEngine } from './grading.js';
 
 /** The export waits this long after a report's latest update, so a burst of updates sends one message (SRS §3.4). */
 export const REPORT_EXPORT_DELAY_MS = 60_000;
@@ -69,6 +72,18 @@ export class ChannelRoom extends DurableObject<Env> {
     connectedMods: () => this.connectedMods(),
     refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
+  private readonly grading = new GradingEngine({
+    ctx: this.ctx,
+    env: this.env,
+    scheduler: this.scheduler,
+    roomName: () => this.roomName(),
+    mode: () => this.meta('mode'),
+    broadcasterId: () => this.meta('broadcaster_id'),
+    broadcasterType: () => this.meta('broadcaster_type'),
+    getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
+    blockedTerms: () => this.sql.exec<{ text: string }>('SELECT text FROM blocked_terms ORDER BY rowid').toArray().map((row) => row.text),
+    refreshReport: (drillId, now) => this.refreshReport(drillId, now)
+  });
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -84,6 +99,7 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('line.slip', (job) => this.drills.slip(job));
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
+    this.grading.register((kind, handler) => this.scheduler.register(kind, handler));
     // Demo rooms delete themselves 2 hours after their last activity (FR-38).
     this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
     // Report export (FR-27, P1): live rooms with the bindings send the latest report to the Queue.
@@ -371,7 +387,6 @@ export class ChannelRoom extends DurableObject<Env> {
     });
     await this.scheduler.rearm();
     if (fresh) log('demo.created', { room: roomName });
-    // TODO(T-15): grading in demo rooms is always local (FR-29), labelled "local estimate".
     // TODO(T-16): push and undo in demo rooms are simulated (FR-34): they edit `blocked_terms` only.
     // Demo reports stay in the room (`refreshReport` never schedules `report.export`): no D1, R2 or Queue.
     return this.createDrill(DEMO_DRILL_CONFIG);
@@ -441,6 +456,21 @@ export class ChannelRoom extends DurableObject<Env> {
   async getDrill(drillId: string): Promise<DrillView> {
     if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
     return this.drills.view(drillId);
+  }
+
+  async requestGrading(drillId: string, phase: GradePhase): Promise<{ queued: number }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.requestGrading(drillId, phase);
+  }
+
+  async gradeLocally(drillId: string, phase: GradePhase): Promise<{ passed: number; total: number }> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.gradeLocally(drillId, phase);
+  }
+
+  async getGrades(drillId: string): Promise<GradesView> {
+    if (!this.bootstrapped()) throw new Error('room_not_bootstrapped');
+    return this.grading.getGrades(drillId);
   }
 
   // ---- reports (SRS §8.4, T-17) ------------------------------------------------------------

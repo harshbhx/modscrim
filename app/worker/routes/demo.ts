@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { createMiddleware } from 'hono/factory';
 import { z } from 'zod';
+import type { GradePhase } from '@mfd/core';
 import { COOKIES, readCookie, setCookie } from '../auth/cookies.js';
 import { readToken, signToken, type DemoSession } from '../auth/session.js';
 import { drillCall, drillIdOf, readDrillConfig, reportOrNotFound } from '../lib/drillHttp.js';
@@ -182,7 +183,38 @@ demoRoutes.get('/:room/drills/:id/report', requireDemoRoom, async (context) => {
   return context.json(reportOrNotFound(report));
 });
 
-// TODO(T-15): POST /:room/drills/:id/grade and /grade/local, GET /:room/drills/:id/grades. Demo rooms always
-//             grade locally (FR-29) and every grade is labelled engine `local` ("local estimate").
+demoRoutes.post('/:room/drills/:id/grade', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const room = roomOf(context.env, context.get('demoId'));
+  const result = await drillCall(() => room.gradeLocally(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json({ ...result, engine: 'local' as const });
+});
+
+demoRoutes.post('/:room/drills/:id/grade/local', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const phase = await readGradePhase(context.req.raw);
+  const room = roomOf(context.env, context.get('demoId'));
+  const result = await drillCall(() => room.gradeLocally(drillId, phase), 'The drill cannot be graded right now.');
+  return context.json({ ...result, engine: 'local' as const });
+});
+
+demoRoutes.get('/:room/drills/:id/grades', requireDemoRoom, async (context) => {
+  const drillId = drillIdOf(context.req.param('id'));
+  const room = roomOf(context.env, context.get('demoId'));
+  return context.json(await drillCall(() => room.getGrades(drillId), 'The grades are unavailable.'));
+});
 // TODO(T-16): POST /:room/drills/:id/rules, /prove, /push and /undo. Push and undo are simulated (FR-34): they
 //             add to and remove from the room's own `blocked_terms`, never Twitch, and write no D1 audit row.
+
+async function readGradePhase(request: Request): Promise<GradePhase> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    throw new AppError('invalid', 'Invalid grading request.', 'phase');
+  }
+  const parsed = z.object({ phase: z.enum(['A', 'B-before', 'B-after']) }).safeParse(body);
+  if (!parsed.success) throw new AppError('invalid', 'Invalid grading phase.', 'phase');
+  return parsed.data.phase;
+}
