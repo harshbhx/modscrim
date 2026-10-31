@@ -22,6 +22,9 @@ const AUTOMOD_SETTINGS_RESPONSE = z.object({
     sex_based_terms: z.number().int().min(0).max(4)
   }))
 });
+const MODERATORS_RESPONSE = z.object({
+  data: z.array(z.object({ user_id: z.string().min(1), user_login: z.string().optional(), user_name: z.string().optional() }))
+});
 
 export type AutoModLevels = NonNullable<FiltersView['automod']>;
 export type TwitchBlockedTerm = { id: string; text: string; createdAt: string | null };
@@ -78,6 +81,23 @@ export async function getUsers(env: Env, accessToken: string): Promise<TwitchUse
   const user = parsed.success ? parsed.data.data[0] : undefined;
   if (!user) throw new HelixError(response.status, limits.remaining, limits.reset);
   return user;
+}
+
+/** A Twitch broadcaster may join as a moderator; otherwise check Get Moderators with the broadcaster token. */
+export async function isChannelModerator(env: Env, broadcasterId: string, userId: string): Promise<boolean> {
+  if (userId === broadcasterId) return true;
+  return withUserToken(env, broadcasterId, async (accessToken) => {
+    const query = new URLSearchParams({ broadcaster_id: broadcasterId, user_id: userId });
+    const response = await fetch(`https://api.twitch.tv/helix/moderation/moderators?${query}`, {
+      headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(4_000)
+    });
+    const limits = readRateLimitHeaders(response, `ch:${broadcasterId}`, 'moderation/moderators');
+    if (!response.ok) throw new HelixError(response.status, limits.remaining, limits.reset);
+    const parsed = MODERATORS_RESPONSE.safeParse(await response.json());
+    if (!parsed.success) throw new HelixError(response.status, limits.remaining, limits.reset);
+    return parsed.data.data.some((moderator) => moderator.user_id === userId);
+  });
 }
 
 export async function getBlockedTerms(
