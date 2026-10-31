@@ -52,6 +52,14 @@ jobs:
               const cells = cats.map((c) => Math.round(100 * median(lhrs.map((l) => l.categories[c].score ?? 0))));
               out += `| ${url} | ${lhrs.length} | ${cells.join(" | ")} |\n`;
             }
+            out += "\n### Failed audits in categories under 90\n\n";
+            for (const [url, lhrs] of byUrl) {
+              const l = lhrs[0];
+              for (const c of cats.filter((k) => (l.categories[k].score ?? 0) < 0.9)) {
+                const failed = l.categories[c].auditRefs.map((r) => l.audits[r.id]).filter((a) => a.score !== null && a.score < 0.9 && a.scoreDisplayMode !== "informative").map((a) => a.title);
+                out += `- ${url} (${c}): ${failed.join("; ") || "none listed"}\n`;
+              }
+            }
             console.log(out);
             appendFileSync(process.env.GITHUB_STEP_SUMMARY, out);
           '
@@ -61,4 +69,5 @@ jobs:
         with:
           name: lighthouse-reports
           path: .lighthouseci/
+          include-hidden-files: true
           if-no-files-found: error
