@@ -46,9 +46,6 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Install Vitest coverage provider
-        run: npm install --no-save --no-package-lock @vitest/coverage-v8@4.1.12
-
       - name: Run core tests in Node and report line coverage
         run: npm run test -w packages/core -- --coverage --coverage.provider=v8 --coverage.reporter=text
 
