@@ -940,12 +940,12 @@ export function Console() {
           </section>
           <aside className="console-live-sidebar">
             <section className="console-section" aria-labelledby="scoreboard-title">
-              <div className="console-section-heading"><h3 id="scoreboard-title">Team scoreboard</h3><span>{score?.slipped ?? 0} slipped</span></div>
+              <div className="console-section-heading"><h3 id="scoreboard-title">Team scoreboard</h3><span aria-live="polite" aria-atomic="true">{score?.slipped ?? 0} slipped</span></div>
               {!score || score.mods.length === 0 ? <p className="console-empty">No mods have joined yet.</p> :
                 <ol className="console-score-list">{score.mods.map((mod, index) => <li key={mod.participantId}>
                   <span className="console-rank">{index + 1}</span>
                   <strong>{mod.name}{mod.isSim ? ' (sim)' : ''}</strong>
-                  <span>{mod.caught} caught · {mod.falseBans} false bans</span>
+                  <span aria-live="polite" aria-atomic="true">{mod.caught} caught · {mod.falseBans} false bans</span>
                 </li>)}</ol>}
             </section>
             <section className="console-section" aria-labelledby="mods-live-title">
