@@ -23,7 +23,8 @@ const SECOND_DRILL_CONFIG = {
   seed: 20261101
 };
 
-const DemoResponseZ = z.object({ room: z.string().uuid(), joinCode: z.string().regex(/^\d{6}$/) });
+const OVERLAY_COUNT = 2;
+const DemoResponseZ = z.object({ room: z.string().uuid(), joinCode: z.string().regex(/^\d{6}$/), overlayKey: z.string().min(1) });
 const DrillResponseZ = z.object({ drillId: z.string().min(1), joinCode: z.string().regex(/^\d{6}$/) });
 const JoinResponseZ = z.object({
   participantId: z.string().min(1),
@@ -85,6 +86,30 @@ function printMetric(label, samples) {
 function messageData(schema, value) {
   const parsed = schema.safeParse(value);
   return parsed.success ? parsed.data : null;
+}
+
+function connectOverlay(room, overlayKey) {
+  const wsProto = BASE_URL.protocol === 'https:' ? 'wss' : 'ws';
+  const url = `${wsProto}://${BASE_URL.host}/ws/demo/${encodeURIComponent(room)}?overlayKey=${encodeURIComponent(overlayKey)}`;
+  const socket = new WebSocket(url);
+  const heartbeat = setInterval(() => {
+    if (socket.readyState === WebSocket.OPEN) socket.send('ping');
+  }, 20000);
+  const ready = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('Overlay socket did not become ready.')), 15000);
+    socket.addEventListener('message', (event) => {
+      let raw;
+      try { raw = JSON.parse(String(event.data)); } catch { return; }
+      const envelope = SocketEnvelopeZ.safeParse(raw);
+      if (envelope.success && envelope.data.type === 'hello') {
+        clearTimeout(timeout);
+        resolve();
+      }
+    });
+    socket.addEventListener('error', () => { clearTimeout(timeout); reject(new Error('Overlay socket error.')); });
+    socket.addEventListener('close', () => { clearInterval(heartbeat); clearTimeout(timeout); reject(new Error('Overlay socket closed.')); });
+  });
+  return { socket, ready };
 }
 
 function connectMod(join, index, tracker) {
@@ -227,6 +252,7 @@ async function runRound(room, cookie, drillId) {
 }
 
 const tracker = createTracker();
+const overlays = [];
 
 async function run() {
   if (BASE_URL.protocol !== 'https:' && BASE_URL.hostname !== 'localhost' && BASE_URL.hostname !== '127.0.0.1') {
@@ -257,8 +283,13 @@ async function run() {
   }
   await Promise.all(clients.map((client) => client.ready));
 
+  for (let i = 0; i < OVERLAY_COUNT; i++) {
+    overlays.push(connectOverlay(created.room, created.overlayKey));
+  }
+  await Promise.all(overlays.map((o) => o.ready));
+
   console.log(`Load room: ${created.room}`);
-  console.log(`Connected clients: ${MOD_COUNT} mods, 0 overlays (overlay sockets skipped).`);
+  console.log(`Connected clients: ${MOD_COUNT} mods, ${OVERLAY_COUNT} overlays.`);
   await runRound(room, cookie, first.drillId);
   const second = parseResponse(
     DrillResponseZ,
@@ -282,11 +313,10 @@ run().catch(() => {
   process.exitCode = 1;
 }).finally(() => {
   for (const client of tracker.clients) {
-    try {
-      client.socket.close(1000, 'load complete');
-    } catch {
-      // A socket may already be closed after a failed run.
-    }
+    try { client.socket.close(1000, 'load complete'); } catch {}
+  }
+  for (const overlay of overlays) {
+    try { overlay.socket.close(1000, 'load complete'); } catch {}
   }
 });
 
