@@ -68,8 +68,8 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☑ | T-31 | P1: Queue and R2 export, share link | FR-27 | P1 | Harsh | M4 | T-17 | [#33](https://github.com/harshbhx/modscrim/issues/33) |
 | ☑ | T-32 | P1: revoke subscription and handler | FR-12 | P1 | Dhairya | M4 | T-27 | [#34](https://github.com/harshbhx/modscrim/issues/34) |
 | ☑ | T-33 | P1: mod Twitch sign-in and moderator check | FR-23 | P1 | Dhairya | M4 | T-13 | [#35](https://github.com/harshbhx/modscrim/issues/35) |
-| ☐ | T-34 | P2: chat votes | FR-40 | P2 | Dhairya | M4 | T-10, T-12 | [#36](https://github.com/harshbhx/modscrim/issues/36) |
-| ☐ | T-35 | P2: announcement | FR-41 | P2 | Dhairya | M4 | T-12 | [#37](https://github.com/harshbhx/modscrim/issues/37) |
+| ☑ | T-34 | P2: chat votes | FR-40 | P2 | Dhairya | M4 | T-10, T-12 | [#36](https://github.com/harshbhx/modscrim/issues/36) |
+| ☑ | T-35 | P2: announcement | FR-41 | P2 | Dhairya | M4 | T-12 | [#37](https://github.com/harshbhx/modscrim/issues/37) |
 | ☑ | T-36 | P2: coach's note | FR-42 | P2 | Harsh | M4 | T-17 | [#38](https://github.com/harshbhx/modscrim/issues/38) |
 | ☑ | T-37 | Shared types, WebSocket protocol and view types in core | — | P0 | Dhairya | M1 | T-02 | [#41](https://github.com/harshbhx/modscrim/issues/41) |
 | ☑ | T-38 | Worker foundations: router layout, error handling, structured logs and IDs | NFR-10, NFR-11, NFR-20 | P0 | Harsh | M1 | T-01 | [#42](https://github.com/harshbhx/modscrim/issues/42) |
@@ -77,7 +77,7 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-40 | Register the Twitch app and deploy the Worker to Cloudflare | — | P0 | Harsh | M1 | T-01 | [#44](https://github.com/harshbhx/modscrim/issues/44) |
 | ☐ | T-41 | Run the day-0 kill test and record the decision | A-01 to A-06 | P0 | Dhairya | M3 | T-06, T-40 | [#45](https://github.com/harshbhx/modscrim/issues/45) |
 | ☑ | T-42 | Hide mod names on the overlay | FR-46 | P1 | Harsh | M4 | T-09, T-24 | [#46](https://github.com/harshbhx/modscrim/issues/46) |
-| ☐ | T-43 | Mod history across drills | FR-27 | P2 | Dhairya | M4 | T-17 | [#47](https://github.com/harshbhx/modscrim/issues/47) |
+| ☑ | T-43 | Mod history across drills | FR-27 | P2 | Dhairya | M4 | T-17 | [#47](https://github.com/harshbhx/modscrim/issues/47) |
 | ☐ | T-44 | End-to-end test of the demo loop | M-05 | P1 | Dhairya | M4 | T-25 | [#48](https://github.com/harshbhx/modscrim/issues/48) |
 | ☐ | T-45 | README, licence and a judge-ready public repository | M-06 | P0 | Dhairya | M6 | T-18, T-40 | [#49](https://github.com/harshbhx/modscrim/issues/49) |
 | ☐ | T-46 | Accessibility, responsive and cross-browser pass | NFR-06, NFR-15, NFR-16 | P1 | Dhairya | M4 | T-21, T-23, T-24 | [#50](https://github.com/harshbhx/modscrim/issues/50) |

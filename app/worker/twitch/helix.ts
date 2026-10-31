@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { FiltersView } from '@mfd/core';
 import { log } from '../lib/log.js';
+import { ANNOUNCEMENT_TEXT } from '../room/chatlog.js';
 
 const BLOCKED_TERMS_RESPONSE = z.object({
   data: z.array(z.object({ id: z.string().min(1), text: z.string().min(1), created_at: z.string().optional() })),
@@ -25,6 +26,7 @@ const AUTOMOD_SETTINGS_RESPONSE = z.object({
 const MODERATORS_RESPONSE = z.object({
   data: z.array(z.object({ user_id: z.string().min(1), user_login: z.string().optional(), user_name: z.string().optional() }))
 });
+const CHAT_MESSAGE_RESPONSE = z.object({ data: z.array(z.object({ is_sent: z.boolean() })) });
 
 export type AutoModLevels = NonNullable<FiltersView['automod']>;
 export type TwitchBlockedTerm = { id: string; text: string; createdAt: string | null };
@@ -97,6 +99,28 @@ export async function isChannelModerator(env: Env, broadcasterId: string, userId
     const parsed = MODERATORS_RESPONSE.safeParse(await response.json());
     if (!parsed.success) throw new HelixError(response.status, limits.remaining, limits.reset);
     return parsed.data.data.some((moderator) => moderator.user_id === userId);
+  });
+}
+
+/** Send only the fixed FR-41 announcement; callers cannot supply arbitrary chat text. */
+export async function sendDrillAnnouncement(env: Env, broadcasterId: string): Promise<void> {
+  await withUserToken(env, broadcasterId, async (accessToken) => {
+    const response = await fetch('https://api.twitch.tv/helix/chat/messages', {
+      method: 'POST',
+      headers: {
+        'Client-Id': env.TWITCH_CLIENT_ID,
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ broadcaster_id: broadcasterId, sender_id: broadcasterId, message: ANNOUNCEMENT_TEXT }),
+      signal: AbortSignal.timeout(4_000)
+    });
+    const limits = readRateLimitHeaders(response, `ch:${broadcasterId}`, 'chat/messages');
+    if (!response.ok) throw new HelixError(response.status, limits.remaining, limits.reset);
+    const parsed = CHAT_MESSAGE_RESPONSE.safeParse(await response.json());
+    if (!parsed.success || parsed.data.data.length !== 1 || !parsed.data.data[0]?.is_sent) {
+      throw new HelixError(response.status, limits.remaining, limits.reset);
+    }
   });
 }
 
