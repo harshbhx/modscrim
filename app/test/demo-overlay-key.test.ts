@@ -5,7 +5,7 @@ import worker from '../worker/index.js';
 // POST /api/demo returns the room's overlay key so a client (scripts/load.ts, OBS) can open overlay sockets.
 const BASE_URL = 'https://mfd.test';
 
-function call(path: string, init?: RequestInit): Promise<Response> {
+async function call(path: string, init?: RequestInit): Promise<Response> {
   return worker.fetch(new Request(`${BASE_URL}${path}`, init), env, {} as ExecutionContext);
 }
 
