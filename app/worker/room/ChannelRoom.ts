@@ -105,6 +105,7 @@ export class ChannelRoom extends DurableObject<Env> {
     broadcasterId: () => this.meta('broadcaster_id'),
     getAccessToken: (rejectedToken) => this.getAccessToken(rejectedToken),
     proveFreshWave: (drillId, terms) => this.rules.proveFreshWave(drillId, terms),
+    requestGrading: (drillId, phase) => this.grading.requestGrading(drillId, phase),
     refreshReport: (drillId, now) => this.refreshReport(drillId, now)
   });
 
