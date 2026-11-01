@@ -17,6 +17,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: firefox-console-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   firefox:
     runs-on: ubuntu-latest
