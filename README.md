@@ -58,6 +58,16 @@ npm test
 npm run typecheck
 ```
 
+## End-to-end tests
+
+Run the Playwright suite against the local app (the dev server starts automatically and reuses an existing server on port 5173):
+
+```sh
+npm run e2e
+```
+
+Set `PLAYWRIGHT_BASE_URL` to run the same suite against another app URL. Each run creates one shared demo room for all Playwright projects. View the HTML report with `npm run e2e:report` or open Playwright's UI with `npm run e2e:ui`.
+
 ## Twitch app setup
 
 1. Create a **Confidential** application in the [Twitch Developer Console](https://dev.twitch.tv/console/apps).

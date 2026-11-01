@@ -45,6 +45,8 @@ Required for the Devpost submission. Get each ID with `/status` in Codex.
 
 Template: date and time · tickets touched · what changed · test evidence (command and result) · next step.
 
+2026-11-01 · T-122 (#198) · Added the Playwright project dependency tree (`setup` → `smoke`, `safety`, `console`, `demo`), one shared demo fixture plus browser storage state, the setup and smoke specs, root scripts, ignored artifacts, a dedicated E2E TypeScript project, and README instructions. The local setup validates `/api/health`, creates one demo room, and writes its typed details and cookie state for the dependent projects. `npm run typecheck` passed; `npm run e2e` passed (setup and smoke, 2 tests) against both local and deployed Worker. Fixed Vitest picking up e2e specs inside the workerd pool. · Next: T-123 full demo loop.
+
 2026-11-01 · T-43 (#47) · Added a room query over saved reports that groups moderators across drills by Twitch identity, returns caught, false bans and average reaction time only, and provides each moderator a scoped history message. Added history panels to mod results and console reports plus a two-report aggregation test. `npm run typecheck` passed; `npm test` passed (19 core tests, 71 app tests). · Next: T-44.
 
 2026-11-01 · T-35 (#37) · Added the fixed FR-41 Twitch chat announcement, gated by `ANNOUNCE_ENABLED` and the drill opt-in, claimed once per drill, with rate-limit logging and chat-ingest suppression for the fixed copy. Added tests for exact outbound text and the once-only claim. `npm run typecheck` passed; `npm test` passed (19 core tests, 70 app tests). · Next: T-43 mod history.

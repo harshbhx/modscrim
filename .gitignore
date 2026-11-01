@@ -10,4 +10,8 @@ desktop.ini
 *.log
 *.tsbuildinfo
 app/.dev.vars
+app/e2e/report/
+app/e2e/.state/
+app/e2e/.playwright/
+test-results/
 .wrangler/
