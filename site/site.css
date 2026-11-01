@@ -255,6 +255,7 @@ header.top{position:sticky;top:0;z-index:40;border-bottom:3px solid var(--board)
 .line-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 20px}
 .line-head p:last-child{max-width:22em}
 .line .bars{margin-top:28px}
+.line .muted{color:var(--on-wall-muted)}
 .line-scroll{overflow-x:auto}
 .line table{border-collapse:separate;border-spacing:6px;min-width:560px;width:100%}
 .line th{font-family:var(--display);font-variation-settings:"opsz" 72;font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase;color:var(--on-wall-muted);text-align:center;padding:0 0 4px}
@@ -504,6 +505,38 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 }
 @media (prefers-reduced-motion:reduce){.dcard{transition:none}}
 
+/* docs: track note, chooser, previous and next, code, diagrams, on-this-page */
+.docs-track{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--card-edge);max-width:none}
+.docs-main{min-width:0}
+.chooser{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dcard .who{display:block;font-style:normal;font-weight:700;color:var(--ink);margin-bottom:4px}
+.dcard .go{margin-top:auto;padding-top:10px}
+.pn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:64px;padding-top:24px;border-top:1px solid var(--card-edge)}
+.pn-link{display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-radius:10px;text-decoration:none;color:var(--ink);box-shadow:0 0 0 1px var(--card-edge);transition:box-shadow .12s}
+.pn-link:hover{box-shadow:0 0 0 2px var(--ink)}
+.pn-link span{font-size:14px;color:var(--ink-muted)}
+.pn-link b{font-size:17px;line-height:1.3}
+.pn-link:last-child:not(:first-child){text-align:right}
+.prose pre{margin:0;padding:16px 18px;overflow-x:auto;border-radius:8px;background:var(--dugout);color:var(--chalk);box-shadow:0 0 0 1px var(--board-edge);font-family:var(--mono);font-size:14.5px;line-height:1.55;tab-size:2}
+.prose pre code{font-size:inherit;background:none;padding:0;color:inherit}
+.prose :not(pre) > code{padding:1px 5px;border-radius:4px;background:var(--page-alt);box-shadow:inset 0 0 0 1px var(--card-edge);overflow-wrap:anywhere}
+.prose blockquote{margin:0;padding:12px 18px;border-left:3px solid var(--palette-whistle-orange);background:var(--card);border-radius:0 8px 8px 0}
+.prose blockquote > * + *{margin-top:10px}
+.prose hr{border:0;border-top:1px solid var(--card-edge);margin-block:40px}
+.prose h3{margin-top:36px;scroll-margin-top:calc(var(--head-h) + 24px)}
+.prose h4{font-size:18px;margin-top:28px}
+.diagram{margin:0}
+.diagram figcaption{font-size:14px;font-weight:700;color:var(--ink-muted);margin-bottom:8px}
+.mock{margin:0}
+.mock .frame{box-shadow:0 0 0 1px var(--board-edge)}
+.toc{padding:16px 20px;border-radius:8px;background:var(--card);box-shadow:0 0 0 1px var(--card-edge)}
+.toc h2{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-muted);margin:0 0 8px}
+.toc ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 20px}
+.toc a{text-underline-offset:3px}
+.prose .tbl-wrap + *,.prose pre + *{margin-top:18px}
+@media (max-width:1100px){.chooser{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.pn{grid-template-columns:minmax(0,1fr)}.pn-link:last-child:not(:first-child){text-align:left}}
+@media (prefers-reduced-motion:reduce){.pn-link{transition:none}}
 /* ---------- inner-page content (T-136 applies these) ---------- */
 .page{padding-block:88px 128px}
 .two{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:56px;align-items:start}

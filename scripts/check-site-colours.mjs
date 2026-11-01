@@ -25,7 +25,7 @@ for (const f of ['design/tokens.css', 'design/tokens.override.css', 'brand/DESIG
 }
 
 /** Every HTML page in site/ is held to the gate (T-136 finished the inline-colour clean-up). */
-const HTML_PAGES = globSync('site/*.html');
+const HTML_PAGES = globSync('site/**/*.html');
 
 const files = [
   ...globSync('site/*.css'),
