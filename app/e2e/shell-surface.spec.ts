@@ -25,11 +25,35 @@ test.describe('shell', () => {
     await expect(page.getByRole('banner')).toBeVisible();
     await expect(page.getByRole('contentinfo')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Skip to content' })).toHaveCount(1);
-    await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Privacy' })).toHaveAttribute(
+    await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Privacy' })).toHaveAttribute(
       'aria-current',
       'page'
     );
     await expect(page.getByText('ModScrim is not affiliated with or endorsed by Twitch.')).toBeVisible();
+  });
+
+  test('the header carries the marketing site labels and links to pages that exist', async ({ page }) => {
+    await page.goto('/privacy');
+    const nav = page.getByRole('navigation', { name: 'Main', exact: true });
+    for (const [label, path] of [
+      ['How it works', '/how-it-works'],
+      ['For mods', '/mods'],
+      ['Safety', '/safety'],
+      ['FAQ', '/faq']
+    ] as const) {
+      await expect(nav.getByRole('link', { name: label })).toHaveAttribute('href', `https://modscrim.dualmindlab.tech${path}`);
+    }
+    await expect(nav.getByRole('link', { name: 'Demo' })).toHaveAttribute('href', '/demo');
+  });
+
+  test('on a phone the links sit behind a Menu disclosure', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+    const page = await context.newPage();
+    await page.goto('/privacy');
+    await expect(page.getByRole('navigation', { name: 'Main', exact: true })).toBeHidden();
+    await page.getByText('Menu', { exact: true }).click();
+    await expect(page.getByRole('navigation', { name: 'Main, small screens' }).getByRole('link', { name: 'How it works' })).toBeVisible();
+    await context.close();
   });
 
   test('footer links are keyboard reachable with a visible yellow ring', async ({ page }) => {

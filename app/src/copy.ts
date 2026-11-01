@@ -48,19 +48,41 @@ export const pages = {
     skip: 'Skip to content',
     home: 'ModScrim home',
     main: 'Main',
+    menu: 'Menu',
+    menuNav: 'Main, small screens',
+    howItWorks: 'How it works',
+    forMods: 'For mods',
+    safety: 'Safety',
+    demo: 'Demo',
+    faq: 'FAQ',
     privacy: 'Privacy',
     footer: 'More about ModScrim',
-    website: 'Website',
+    product: 'Product',
+    trust: 'Trust',
+    more: 'More',
+    setup: 'Setup guide',
+    overlay: 'OBS overlay',
+    privacyPolicy: 'Privacy policy',
     terms: 'Terms of use',
     source: 'Source code',
+    report: 'Report a problem',
     notTwitch: 'ModScrim is not affiliated with or endorsed by Twitch.'
   },
   landing: {
     title: 'Raid drills for your mod team.',
     pitch:
-      "ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.",
+      "Practice a raid in a chat only your team can see. Find the spam that slips past your channel's own filters, then close the gaps with blocked terms you approve, with one-click undo.",
     signIn: 'Sign in with Twitch',
-    demo: 'Try the demo'
+    demo: 'Try the demo',
+    note: 'Practice chat only. Nothing is posted to Twitch.',
+    stepsTitle: 'How a drill runs',
+    steps: [
+      { title: 'Drill', text: 'Your mods clear a practice chat full of attacks and regulars.' },
+      { title: 'Grade', text: 'Twitch grades your filters and shows what slipped through.' },
+      { title: 'Fix', text: 'Approve new blocked terms. Undo any push with one click.' }
+    ],
+    previewLabel: 'Sample mod view',
+    previewCaption: 'The mod view during a drill. Sample lines, all of them fake.'
   },
   demo: {
     intro:
