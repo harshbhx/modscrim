@@ -2,6 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'node:path';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173';
+/**
+ * Surface specs assert the markup of the branch under test, which is not what
+ * the deployed Worker is serving during a pull request. CI therefore builds
+ * the SPA, serves it with scripts/serve-static.mjs, and points these specs at
+ * that. Unset locally, so they fall back to the dev server like everything else.
+ */
+const surfaceBaseURL = process.env.PLAYWRIGHT_SURFACE_BASE_URL ?? baseURL;
 const isLocal = new URL(baseURL).origin === 'http://localhost:5173';
 const statePath = resolve('app/e2e/.state');
 const storageState = resolve(statePath, 'storage.json');
@@ -37,7 +44,7 @@ export default defineConfig({
       // so this project does not depend on setup and can run on its own.
       name: 'landing',
       testMatch: /landing\.spec\.ts$/,
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
       name: 'smoke',
