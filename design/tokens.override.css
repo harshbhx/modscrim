@@ -25,6 +25,10 @@
    */
   --accent-hover-on-light: #f05c00;  /* darker step; label 4.57:1 */
   --accent-hover-on-dark: #ff9970;   /* lighter step; label 7.36:1 */
+  /* brand/DESIGN.md "deep green", the wells and sunken tones of the dark ground */
+  --palette-deep-green: #051a12;
+  /* brand orange-400: orange as text on the dark ground, 5.0:1 on wall green (the fill orange is 4.2:1) */
+  --accent-text-on-dark: #ff844a;
 }
 
 /* ---- light: the chalk ground ---- */
@@ -88,9 +92,36 @@
   --skeleton-bg: var(--color-surface-sunken, #e2e7db);
 }
 
+
+/*
+ * ONE dark ground (T-137). Dugout is the page, wall green is every card and
+ * panel, deep green is every well. The generated tokens put near-black #080f0c
+ * under the console and overlay while the shell, mod and landing pages used
+ * dugout and wall green; this makes the semantic tier say the same thing for
+ * every surface. Lighter ramp steps replace the few generated values that fell
+ * below the gate on the greener ground (all measured with scripts/contrast-check.mjs;
+ * the same values live in scripts/design-tokens/apply-override.py).
+ */
+
 /* ---- dark: follows the system unless data-theme=light ---- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --color-bg: var(--palette-dugout);
+    --color-bg-subtle: var(--palette-wall-green);
+    --color-surface: var(--palette-wall-green);
+    --color-surface-sunken: var(--palette-deep-green);
+    --color-surface-hover: var(--voice-3-dark-700);
+    --color-border-subtle: var(--voice-3-dark-700);
+    --color-border: var(--voice-2-dark-600);
+    --color-border-strong: var(--neutral-dark-400);
+    --color-accent-text: var(--accent-text-on-dark);
+    --color-voice-2-mark: var(--voice-2-dark-400);
+    --color-voice-3-mark: var(--voice-3-dark-400);
+    --color-success: var(--success-dark-300);
+    --color-on-success: var(--palette-dugout);
+    --color-danger: var(--danger-dark-300);
+    --color-info: var(--info-dark-300);
+    --color-on-info: var(--palette-dugout);
     --color-on-accent: var(--palette-dugout);  /* was neutral-dark-950 #080f0c */
     /* generated hover was #d8b9ad, a pink-beige hue jump rather than a state.
        Replaced with a lighter step of the same hue: dL 0.0786 (clears
@@ -106,6 +137,22 @@
 
 /* ---- dark: explicit opt-in ---- */
 [data-theme="dark"] {
+  --color-bg: var(--palette-dugout);
+  --color-bg-subtle: var(--palette-wall-green);
+  --color-surface: var(--palette-wall-green);
+  --color-surface-sunken: var(--palette-deep-green);
+  --color-surface-hover: var(--voice-3-dark-700);
+  --color-border-subtle: var(--voice-3-dark-700);
+  --color-border: var(--voice-2-dark-600);
+  --color-border-strong: var(--neutral-dark-400);
+  --color-accent-text: var(--accent-text-on-dark);
+  --color-voice-2-mark: var(--voice-2-dark-400);
+  --color-voice-3-mark: var(--voice-3-dark-400);
+  --color-success: var(--success-dark-300);
+  --color-on-success: var(--palette-dugout);
+  --color-danger: var(--danger-dark-300);
+  --color-info: var(--info-dark-300);
+  --color-on-info: var(--palette-dugout);
   --color-on-accent: var(--palette-dugout);
   --color-accent-hover: var(--accent-hover-on-dark);
   --color-card-edge: var(--color-border);

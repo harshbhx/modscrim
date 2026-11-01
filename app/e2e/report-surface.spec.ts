@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockSharedReport, type SharedCard } from './lib/mock-api';
+import { audit } from './lib/audit';
 
 const REPORT_ID = 'surface-rpt-001';
 
@@ -31,6 +32,7 @@ test.describe('shared report surface', () => {
           path: `${SHOTS}/report-${size.name}-${scheme}.png`,
           fullPage: true
         });
+        await audit(page, `share-card-${size.name}-${scheme}`);
         await context.close();
       });
     }
@@ -64,16 +66,39 @@ test.describe('shared report card is numbers only (S-06)', () => {
   });
 
   for (const scheme of ['light', 'dark'] as const) {
-    test(`captures an ungraded, unproven report at 375px in ${scheme}`, async ({ browser }) => {
-      const context = await browser.newContext({ colorScheme: scheme, viewport: { width: 375, height: 812 } });
-      const page = await context.newPage();
-      await mockSharedReport(page, REPORT_ID, { ...card, mods: [], grade: null, fresh: null });
-      await page.goto(`/r/${REPORT_ID}`);
-      await expect(page.getByText('Not graded yet.')).toBeVisible();
-      await page.screenshot({ path: `${SHOTS}/report-empty-375-${scheme}.png`, fullPage: true });
-      await context.close();
-    });
+    for (const size of WIDTHS) {
+      test(`captures an ungraded, unproven report at ${size.name}px in ${scheme}`, async ({ browser }) => {
+        const context = await browser.newContext({ colorScheme: scheme, viewport: { width: size.width, height: size.height } });
+        const page = await context.newPage();
+        await mockSharedReport(page, REPORT_ID, { ...card, mods: [], grade: null, fresh: null });
+        await page.goto(`/r/${REPORT_ID}`);
+        await expect(page.getByText('Filters not graded yet.')).toBeVisible();
+        await page.screenshot({ path: `${SHOTS}/report-empty-${size.name}-${scheme}.png`, fullPage: true });
+        await audit(page, `share-card-empty-${size.name}-${scheme}`);
+        await context.close();
+      });
+    }
   }
+
+  test('a long channel name wraps inside the card at 375px', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+    const page = await context.newPage();
+    await mockSharedReport(page, REPORT_ID, card, 'A_Streamer_With_An_Extremely_Long_Channel_Name_TV');
+    await page.goto(`/r/${REPORT_ID}`);
+    await expect(page.getByRole('heading', { name: 'A_Streamer_With_An_Extremely_Long_Channel_Name_TV' })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    await page.screenshot({ path: `${SHOTS}/report-longname-375-dark.png`, fullPage: true });
+    await context.close();
+  });
+
+  test('the card shows a current date and the real domain', async ({ page }) => {
+    await mockSharedReport(page, REPORT_ID, card);
+    await page.goto(`/r/${REPORT_ID}`);
+    await expect(page.locator('.share-date time')).toHaveAttribute('datetime', '2026-11-01T18:30:00.000Z');
+    await expect(page.getByText('modscrim.dualmindlab.tech')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Run your own fire drill' })).toBeVisible();
+  });
 
   test('no horizontal scroll at 375px', async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 375, height: 812 } });

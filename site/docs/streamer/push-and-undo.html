@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Approve, push, undo and remove everything | Streamer docs | ModScrim</title>
+<meta name="description" content="How pushing blocked terms to Twitch works in ModScrim, how to undo a push, and how to delete all your data.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Approve, push, undo and remove everything | ModScrim docs">
+<meta property="og:description" content="How pushing blocked terms to Twitch works in ModScrim, how to undo a push, and how to delete all your data.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/streamer/push-and-undo">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/streamer/push-and-undo">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/streamer/">Streamer docs</a> / Approve, push, undo and remove everything</p>
+    <h1 id="page-title">Approve, push, undo and remove everything</h1>
+    <p class="lead">Nothing reaches your channel until you press the button, and everything can be taken back.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Streamer docs"><div><h2>Streamer docs</h2><ul><li><a href="../../docs/streamer/">What ModScrim is for</a></li><li><a href="../../docs/streamer/quick-start.html">Quick start</a></li><li><a href="../../docs/streamer/connect-twitch.html">Connect Twitch</a></li><li><a href="../../setup.html">Setup guide</a></li><li><a href="../../docs/streamer/console-walkthrough.html">Console walkthrough</a></li><li><a href="../../overlay.html">OBS overlay setup</a></li><li><a href="../../docs/streamer/grades-and-report.html">Reading the grades and the report</a></li><li><a href="../../docs/streamer/push-and-undo.html" aria-current="page">Approve, push, undo and remove everything</a></li><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy and data retention</a></li><li><a href="../../docs/streamer/troubleshooting.html">Troubleshooting</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Streamer docs. You run a Twitch channel and want your mods ready for a raid. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+
+<h2>Approve and push</h2>
+<p>In step 6, <strong>Approve and push</strong> adds the terms you ticked in step 5 to your channel&rsquo;s blocked terms on Twitch. The button is disabled unless the proposed terms match none of your real chat from the last 7 days. No term reaches Twitch without your explicit approval.</p>
+<p>ModScrim never calls Twitch&rsquo;s AutoMod settings update, which overwrites every setting at once. It only reads your levels.</p>
+<h2>Undo this push</h2>
+<p><strong>Undo this push</strong> removes every term that drill&rsquo;s push added. A term that already existed on Twitch before the push is left alone. You can press it from the console or from that drill&rsquo;s report. You can also remove any term yourself in your Twitch dashboard.</p>
+<h2 id="remove-everything">Remove everything</h2>
+<ul>
+<li><strong>Chat log:</strong> press <strong>Delete chat log</strong> in step 1 at any time, or <strong>Pause logging</strong>. It is otherwise kept for 7 days.</li>
+<li><strong>Overlay URL:</strong> press <strong>Rotate key</strong> and old links stop working at once.</li>
+<li><strong>Everything:</strong> <strong>Sign out and delete my data</strong> removes your tokens, chat log, drills, reports and chat subscription. Removing ModScrim from your Twitch connections does the same once Twitch tells ModScrim about the change.</li>
+<li><strong>Audit log:</strong> pushes, undos, sign-ins, sign-outs, chat-log deletions and overlay key changes are written to your audit log.</li>
+</ul>
+<p>See the <a href="../../privacy.html">privacy policy</a> for what is stored and for how long.</p>
+
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/streamer/grades-and-report.html"><span>Previous</span><b>Reading the grades and the report</b></a><a class="pn-link" href="../../safety.html"><span>Next</span><b>Safety</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

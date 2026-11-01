@@ -10,6 +10,13 @@ on:
       - 'design/tokens*.css'
       - 'app/e2e/site-*.spec.ts'
       - 'scripts/serve-static.mjs'
+      - 'scripts/site-chrome.mjs'
+      - 'scripts/check-site-colours.mjs'
+      - 'scripts/sync-site-tokens.mjs'
+      - 'scripts/build-docs-site.mjs'
+      - 'scripts/docs-site/**'
+      - 'scripts/lib/**'
+      - 'docs/**'
       - '.github/workflows/site.yml'
   push:
     branches: [main]
@@ -31,6 +38,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -54,11 +63,21 @@ jobs:
             npx playwright install-deps chromium
           fi
 
+      - name: Site gates (tokens in sync, no new colours, shared chrome, docs HTML matches a fresh build)
+        run: |
+          npm run site:tokens:check
+          npm run site:colours
+          npm run site:chrome:check
+          # Developer docs are rendered from the docs PR's Markdown until it merges (the script prefers docs/ in the tree once it exists).
+          git fetch --no-tags origin docs-readme-v2:refs/remotes/origin/docs-readme-v2 || true
+          npm run site:docs:check
+
       - name: Serve site/ and run the site project
         env:
           # Set both so the config's isLocal check is false and it does not try to boot `npm run dev`.
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:4174
           PLAYWRIGHT_SITE_BASE_URL: http://127.0.0.1:4174
+          A11Y_ENFORCE: '1'
         run: |
           node scripts/serve-static.mjs site 4174 &
           for i in $(seq 1 30); do

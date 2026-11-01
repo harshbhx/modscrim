@@ -1,14 +1,19 @@
 /*
- * OBS overlay (/overlay/:channel?key=...). Always dark, always 1920 by 1080, transparent ground.
+ * OBS overlay (/overlay/:channel?key=...). Always dark, always a 1920 by 1080 stage scaled to the
+ * browser source, transparent ground.
  *
- * Colours come only from the palette primitives in styles/tokens.css. They are used instead of the
+ * Layout: one alarm bar across the top of the 64 px safe area, and one dock in the bottom-left corner
+ * (practice chat strip stacked directly on the scoreboard, same width). The dock is bottom-anchored
+ * and sized by its content, so the scoreboard never moves when lines arrive and there is no dead
+ * area inside any panel. The after-action poster appears in the middle for 20 s. Everything else on
+ * the stage is left clear for the game.
+ *
+ * Colours come only from the palette primitives in styles/tokens.css, used instead of the
  * scheme-aware roles on purpose: a stream overlay must look the same whatever the OS theme is.
- * Panels are solid, not translucent, so the text on them reads over any game footage and the file
- * needs no colour-mix or rgb() alpha (older OBS browser builds lack colour-mix).
- *
- * Layout is fixed: the scoreboard, the vote panel and the chat panel have set dimensions and their
- * cells truncate, so a longer name or a bigger number can never move another element (OBS captures
- * this live). Motion: one 150 ms slide for a new chat line, nothing else, nothing loops.
+ * Panels are solid, so text on them reads over any footage and this file needs no colour-mix or
+ * alpha colours (older OBS browser builds lack colour-mix). A 1 px lighter edge keeps each panel
+ * visible on a dark backdrop; the dark panel itself carries it on a bright one.
+ * Motion: one 150 ms slide for a new chat line, nothing else, nothing loops.
  */
 html:has(.overlay-viewport),
 body:has(.overlay-viewport),
@@ -31,7 +36,7 @@ body:has(.overlay-viewport) {
   overflow: hidden;
   background: transparent;
   color: var(--chalk-100);
-  font: 600 24px/1.35 var(--font-body);
+  font: 600 22px/1.35 var(--font-body);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
@@ -46,32 +51,23 @@ body:has(.overlay-viewport) {
   transform-origin: center;
 }
 
-/* 64 px safe area on every side. */
-.overlay-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--space-16);
-  text-shadow: 0 2px 8px var(--green-950);
-}
-
-/* ---- alarm bar: card yellow, hazard stripes on both ends ---- */
+/* ---- alarm bar: card yellow, hazard stripes on both ends (the part that already worked) ---- */
 .overlay-alarm {
-  position: relative;
-  overflow: hidden;
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+  left: var(--space-16);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
+  overflow: hidden;
   height: 80px;
-  padding: 0 48px;
+  align-items: center;
+  gap: 20px;
+  padding: 0 52px;
   border: 4px solid var(--green-950);
+  border-radius: var(--radius-md);
   background: var(--yellow-400);
   color: var(--green-950);
-  font: 900 30px/1.1 var(--font-body);
-  letter-spacing: 0.035em;
-  text-shadow: none;
-  text-transform: uppercase;
+  box-shadow: 0 16px 32px -16px var(--green-950);
 }
 
 .overlay-alarm::before,
@@ -87,160 +83,183 @@ body:has(.overlay-viewport) {
 .overlay-alarm::before { left: 0; }
 .overlay-alarm::after { right: 0; }
 
-.overlay-alarm > span:first-child {
+.overlay-alarm-mark { flex: 0 0 auto; }
+
+.overlay-alarm-text {
+  display: flex;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: 18px;
+  margin: 0;
   white-space: nowrap;
+}
+
+.overlay-alarm-text strong {
+  font: 800 44px/1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.overlay-alarm-text span {
+  overflow: hidden;
+  font-size: 24px;
+  font-weight: 800;
+  text-overflow: ellipsis;
 }
 
 .overlay-channel {
-  flex: 0 0 auto;
-  max-width: 34%;
+  min-width: 0;
+  max-width: 360px;
+  flex: 0 1 auto;
   overflow: hidden;
-  font-size: 24px;
+  padding: 4px 16px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--green-950);
+  color: var(--chalk-100);
+  font: 800 26px/1.2 var(--font-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ---- shared panel: a board hung on the wall ---- */
-.overlay-votes,
-.overlay-scoreboard {
+.overlay-alarm-word { flex: 0 0 auto; width: 150px; height: auto; }
+
+/* ---- the dock: bottom-left, stacked, content-sized ---- */
+.overlay-dock {
   position: absolute;
+  bottom: var(--space-16);
   left: var(--space-16);
-  width: 570px;
-  padding: 22px 26px;
+  display: flex;
+  width: 600px;
+  /* never reach up into the alarm bar: stage - 2 safe areas - bar - gap */
+  max-height: calc(1080px - 64px - 64px - 80px - 16px);
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
   overflow: hidden;
-  border: 1px solid var(--green-950);
+}
+
+.overlay-panel {
+  display: flex;
+  min-height: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--green-500);
   border-radius: var(--radius-lg);
   background: var(--green-900);
-  box-shadow: 0 24px 48px -24px var(--green-950);
+  box-shadow: 0 16px 32px -16px var(--green-950);
+}
+
+.overlay-panel-head {
+  display: flex;
+  height: 56px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  background: var(--green-800);
+}
+
+.overlay-panel-head h2 {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+  overflow: hidden;
+  color: var(--chalk-100);
+  font: 800 34px/1 var(--font-display);
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-chip {
+  flex: 0 0 auto;
+  padding: 3px 10px 2px;
+  border-radius: var(--radius-plate);
+  background: var(--yellow-400);
+  color: var(--green-850);
+  font: 800 20px/1.2 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.overlay-chip-quiet {
+  display: inline-block;
+  margin-left: 12px;
+  background: var(--mint-800);
+  color: var(--mint-100);
+  font: 700 18px/1.3 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: middle;
 }
 
 .overlay-label {
-  margin: 0 0 12px;
+  margin: 0 0 4px;
   color: var(--yellow-400);
-  font-size: 17px;
-  font-weight: 900;
+  font: 800 18px/1 var(--font-body);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-/* ---- chat vote (P2): token swap only, no motion ---- */
-.overlay-votes {
-  top: 170px;
-  height: 270px;
-}
-
-.overlay-vote-row {
-  display: grid;
-  grid-template-columns: 155px minmax(0, 1fr) 56px;
+/* ---- chat strip ---- */
+.overlay-live {
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 12px;
-  height: 24px;
-  margin: 0 0 14px;
-  font-size: 17px;
-}
-
-.overlay-vote-row > span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.overlay-vote-track {
-  height: 14px;
-  overflow: hidden;
-  border-radius: var(--radius-plate);
-  background: var(--green-700);
-}
-
-.overlay-vote-track span {
-  display: block;
-  height: 100%;
-  background: var(--yellow-400);
-}
-
-.overlay-vote-row strong { text-align: right; }
-
-.overlay-vote-hint {
-  margin: 0;
-  color: var(--green-300);
-  font-size: 14px;
-}
-
-/* ---- live tag and chat column: right side, fixed height ---- */
-.overlay-activity {
-  position: absolute;
-  top: 170px;
-  right: var(--space-16);
-  width: 560px;
-  height: 758px;
-}
-
-/* The tag sits in its own reserved slot, so showing or hiding it never moves the chat. */
-.overlay-live,
-.overlay-connection {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 48px;
-  margin: 0;
-  padding: 0 18px;
-  border-radius: var(--radius-md);
-  background: var(--green-850);
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  line-height: 48px;
+  gap: 8px;
+  color: var(--orange-400);
+  font: 800 17px/1 var(--font-body);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.overlay-live {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 /* A fixed ring, not a glow: nothing pulses in OBS. */
-.overlay-live span {
-  width: 14px;
-  height: 14px;
+.overlay-live i {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--orange-500);
-  box-shadow: 0 0 0 4px var(--green-700);
+  box-shadow: 0 0 0 3px var(--green-700);
 }
 
-.overlay-connection { text-align: center; }
+.overlay-count {
+  flex: 0 0 auto;
+  color: var(--green-300);
+  font-size: 17px;
+  font-weight: 700;
+}
 
-.overlay-chat {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.overlay-empty {
+  margin: 0;
+  padding: 16px 20px;
+  color: var(--green-300);
+  font-size: 19px;
+}
+
+.overlay-chat-list {
   display: flex;
-  /* 12 rows of 46 px with 11 px gaps: whole rows only, never a cut-off one */
-  height: 673px;
+  min-height: 0;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 11px;
+  gap: 8px;
   overflow: hidden;
+  padding: 12px 14px 14px;
 }
 
 /* The one allowed animation: a new line slides in over 150 ms. */
 @keyframes overlay-line-in {
-  from { opacity: 0; transform: translateX(24px); }
+  from { opacity: 0; transform: translateX(-16px); }
 }
 
 .overlay-chat-line {
   display: grid;
   flex: 0 0 auto;
-  grid-template-columns: 190px minmax(0, 1fr) 34px;
+  grid-template-columns: 190px minmax(0, 1fr) 32px;
   align-items: center;
   gap: 12px;
-  height: 46px;
-  padding: 0 12px;
+  height: 44px;
+  padding: 0 10px 0 14px;
   border-left: 5px solid var(--green-500);
   border-radius: var(--radius-md);
   background: var(--green-850);
@@ -252,7 +271,7 @@ body:has(.overlay-viewport) {
 
 .overlay-user {
   overflow: hidden;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -261,8 +280,8 @@ body:has(.overlay-viewport) {
 /* The hidden message: a censor bar, hatched, never a blurred copy of anything. */
 .overlay-redacted {
   display: flex;
-  align-items: center;
   height: 28px;
+  align-items: center;
   overflow: hidden;
 }
 
@@ -285,117 +304,286 @@ body:has(.overlay-viewport) {
   font-weight: 900;
 }
 
-.overlay-chat-acted .overlay-outcome { color: var(--mint-300); }
-.overlay-chat-slipped .overlay-outcome { color: var(--orange-400); }
+.overlay-chat-acted .overlay-outcome { background: var(--mint-800); color: var(--mint-100); }
+.overlay-chat-slipped .overlay-outcome { background: var(--orange-500); color: var(--green-850); }
 
-/* ---- scoreboard: fixed box, rows are hung plates ---- */
-.overlay-scoreboard {
-  bottom: var(--space-16);
-  display: flex;
-  height: 380px;
-  flex-direction: column;
+.overlay-connection {
+  align-self: flex-start;
+  margin: 0;
+  padding: 10px 18px;
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-md);
+  background: var(--green-900);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.overlay-scoreboard ol {
+/* ---- scoreboard: three number plates, then one row per mod ---- */
+.overlay-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px 16px 0;
+}
+
+.overlay-stat {
+  position: relative;
+  min-width: 0;
+  padding: 12px 14px 8px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-850);
+  box-shadow: inset 0 -3px 0 var(--green-950);
+}
+
+/* Two hanger holes, like the tin numbers on a ballpark board. */
+.overlay-stat::before,
+.overlay-stat::after {
+  position: absolute;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green-950);
+  content: '';
+}
+
+.overlay-stat::before { left: 6px; }
+.overlay-stat::after { right: 6px; }
+
+.overlay-stat-label {
+  display: block;
+  overflow: hidden;
+  padding-top: 4px;
+  color: var(--green-300);
+  font: 800 19px/1 var(--font-display);
+  letter-spacing: 0.07em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.overlay-stat-plate {
+  display: block;
+  margin-top: 4px;
+  font: 800 72px/0.95 var(--font-display);
+  font-variation-settings: 'opsz' 72;
+}
+
+.overlay-stat[data-long='true'] .overlay-stat-plate { font-size: 46px; line-height: 1.4; }
+
+.overlay-stat-plain .overlay-stat-plate { color: var(--chalk-100); }
+.overlay-stat-caught .overlay-stat-plate { color: var(--mint-300); }
+.overlay-stat-foul .overlay-stat-plate { color: var(--yellow-400); }
+.overlay-stat-slipped .overlay-stat-plate { color: var(--orange-400); }
+
+.overlay-mods { padding: 14px 16px 16px; }
+
+.overlay-mods-head,
+.overlay-mods li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 70px 112px 84px;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-mods-head {
+  margin: 0 0 6px;
+  padding: 0 12px;
+  color: var(--green-300);
+  font: 800 14px/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.overlay-mods-head span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.overlay-mods ol {
   display: flex;
-  min-height: 0;
-  flex: 1 1 auto;
   flex-direction: column;
   gap: 6px;
-  overflow: hidden;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.overlay-scoreboard li {
-  display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  height: 36px;
+.overlay-mods li {
+  height: 42px;
   margin: 0;
   padding: 0 12px;
   border-radius: var(--radius-plate);
   background: var(--green-800);
   box-shadow: inset 0 -2px 0 var(--green-950);
-  font-size: 17px;
 }
 
-.overlay-scoreboard li span:first-child {
+.overlay-mod-name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
   overflow: hidden;
+  font-size: 21px;
   font-weight: 800;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.overlay-scoreboard li span:last-child {
-  max-width: 330px;
+.overlay-mod-name em {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border: 1px solid var(--green-300);
+  border-radius: var(--radius-plate);
+  color: var(--green-300);
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.overlay-mod-num {
   overflow: hidden;
-  font-size: 15px;
+  font: 800 28px/1 var(--font-display);
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Slipped is whistle orange with deep green ink, the same chip as everywhere else. */
-.overlay-slipped {
-  align-self: flex-start;
-  flex: 0 0 auto;
-  margin: 14px 0 0;
-  padding: 2px 14px;
-  border-radius: var(--radius-plate);
-  background: var(--orange-500);
-  box-shadow: inset 0 -2px 0 var(--green-950);
-  color: var(--green-850);
-  font-weight: 900;
-  text-shadow: none;
+.overlay-mod-caught { color: var(--mint-300); }
+.overlay-mod-time { font: 700 19px/1 var(--font-body); }
+
+.overlay-more {
+  margin: 8px 0 0;
+  color: var(--green-300);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right;
 }
 
-/* ---- after-action card: shown for 20 s per report update ---- */
+/* ---- chat vote (P2): token swap only, no motion ---- */
+.overlay-vote-row {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 14px;
+  height: 26px;
+  margin: 14px 20px 0;
+  font-size: 20px;
+}
+
+.overlay-vote-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-vote-track {
+  height: 16px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-700);
+}
+
+.overlay-vote-track span {
+  display: block;
+  height: 100%;
+  background: var(--yellow-400);
+}
+
+.overlay-vote-row strong { text-align: right; }
+
+.overlay-vote-hint {
+  margin: 16px 20px 18px;
+  color: var(--green-300);
+  font-size: 16px;
+}
+
+/* ---- after-action poster: shown for 20 s per report update ---- */
 .overlay-report {
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: 640px;
-  min-height: 460px;
-  padding: 44px 48px 40px;
+  /* centred in the free area right of the dock: (1856 - 728 - 780) / 2 + 728 */
+  left: 902px;
+  width: 780px;
+  padding: 44px 40px 40px;
   overflow: hidden;
-  border: 1px solid var(--green-950);
+  border: 1px solid var(--green-500);
   border-radius: var(--radius-lg);
   background: var(--green-900);
-  box-shadow: 0 24px 48px -24px var(--green-950);
-  transform: translate(-50%, -50%);
+  box-shadow: 0 32px 64px -24px var(--green-950);
+  transform: translateY(-50%);
 }
 
-/* Hazard edge ties the card to the alarm bar. */
+/* Hazard edge ties the poster to the alarm bar. */
 .overlay-report::before {
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
-  height: 12px;
+  height: 14px;
   background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
   content: '';
 }
 
-.overlay-report h2 {
-  margin: 0 0 14px;
-  color: var(--chalk-100);
-  font: 800 72px/0.95 var(--font-display);
-  font-variation-settings: 'opsz' 72;
+.overlay-report-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-right: 56px;
 }
 
-.overlay-report-grade {
-  display: inline-block;
-  margin: 0 0 24px;
-  padding: 4px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--mint-800);
-  color: var(--mint-100);
-  font-size: 20px;
-  text-shadow: none;
+.overlay-report-head img { flex: 0 0 auto; }
+
+.overlay-report h2 {
+  margin: 0;
+  color: var(--chalk-100);
+  font: 800 76px/0.95 var(--font-display);
+  font-variation-settings: 'opsz' 72;
+  text-transform: uppercase;
+}
+
+/* The grade is the hero: the big number is how many attack lines would still get past. */
+.overlay-report-hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 26px 0;
+  padding: 18px 28px;
+  border-radius: var(--radius-lg);
+  background: var(--green-950);
+}
+
+.overlay-hero-score {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.overlay-hero-score b {
+  color: var(--orange-400);
+  font-size: 176px;
+  font-variation-settings: 'opsz' 72;
+  font-weight: 800;
+}
+
+.overlay-hero-score i {
+  color: var(--green-300);
+  font-size: 60px;
+  font-style: normal;
+}
+
+.overlay-hero-text {
+  min-width: 0;
+  margin: 0;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .overlay-report-stats {
@@ -406,41 +594,54 @@ body:has(.overlay-viewport) {
 
 .overlay-report-stat {
   margin: 0;
-  padding: 16px 20px 18px;
+  padding: 14px 20px 16px;
   border-radius: var(--radius-plate);
   background: var(--green-800);
-  box-shadow: inset 0 -2px 0 var(--green-950);
-  font-size: 19px;
+  box-shadow: inset 0 -3px 0 var(--green-950);
+  font-size: 20px;
   line-height: 1.25;
 }
 
 .overlay-report-stat strong {
   display: block;
   color: var(--chalk-100);
-  font: 800 72px/1 var(--font-display);
+  font: 800 84px/1 var(--font-display);
   font-variation-settings: 'opsz' 72;
 }
 
 .overlay-report-stat-slipped {
   background: var(--orange-500);
   color: var(--green-850);
-  text-shadow: none;
 }
 
 .overlay-report-stat-slipped strong { color: var(--green-850); }
 
-/* Fresh wave, drawn with two widths: the lighter bar is blocked before, the mint bar is blocked after. */
-.overlay-fresh { margin-top: 24px; }
+/* Fresh wave, two bars on one scale: blocked before the new terms, blocked after. */
+.overlay-fresh { margin-top: 26px; }
 
-.overlay-fresh p {
+.overlay-fresh-title {
   margin: 0 0 10px;
-  font-size: 19px;
+  color: var(--yellow-400);
+  font: 800 18px/1 var(--font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
+.overlay-fresh-row {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 100px;
+  align-items: center;
+  gap: 16px;
+  height: 34px;
+  font-size: 20px;
+}
+
+.overlay-fresh-row + .overlay-fresh-row { margin-top: 8px; }
+.overlay-fresh-row strong { text-align: right; }
+
 .overlay-fresh-track {
-  position: relative;
   display: block;
-  height: 18px;
+  height: 20px;
   overflow: hidden;
   border-radius: var(--radius-plate);
   background: var(--green-700);
@@ -448,11 +649,8 @@ body:has(.overlay-viewport) {
 
 .overlay-fresh-after,
 .overlay-fresh-before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
   display: block;
+  height: 100%;
 }
 
 .overlay-fresh-after { background: var(--mint-300); }
@@ -460,8 +658,8 @@ body:has(.overlay-viewport) {
 
 .overlay-report-dismiss {
   position: absolute;
-  top: 22px;
-  right: 14px;
+  top: 32px;
+  right: 20px;
   width: 44px;
   height: 44px;
   border: 2px solid var(--green-500);
@@ -469,7 +667,6 @@ body:has(.overlay-viewport) {
   background: var(--green-900);
   color: var(--chalk-100);
   font: 32px/1 var(--font-body);
-  text-shadow: none;
   pointer-events: auto;
   cursor: pointer;
 }
