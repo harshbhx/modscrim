@@ -42,6 +42,7 @@ jobs:
           fi
       - name: Run Playwright projects
         env:
+          PLAYWRIGHT_BASE_URL: https://app.modscrim.dualmindlab.tech
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/e2e-results.json
         run: |
           mkdir -p test-results
