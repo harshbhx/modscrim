@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design system and tokens | Developer docs | ModScrim</title>
+<meta name="description" content="ModScrim looks like a practice ground, not a gaming app: wall green and chalk for the field, a hand-hung scoreboard for results, and a coach's whistle for the mark. This page explains the tokens, the ">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Design system and tokens | ModScrim docs">
+<meta property="og:description" content="ModScrim looks like a practice ground, not a gaming app: wall green and chalk for the field, a hand-hung scoreboard for results, and a coach's whistle for the mark. This page explains the tokens, the ">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/design-system">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/design-system">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / Design system and tokens</p>
+    <h1 id="page-title">Design system and tokens</h1>
+    <p class="lead">ModScrim looks like a practice ground, not a gaming app: wall green and chalk for the field, a hand-hung scoreboard for results, and a coach's whistle for the mark. This page explains the tokens, the contrast gate that protects them and how to use the brand kit. The complete rules are <a href="https://github.com/harshbhx/modscrim/blob/main/brand/DESIGN.md"><code>brand/DESIGN.md</code></a>, written for people and for AI coding agents.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html">Architecture</a></li><li><a href="../../docs/dev/run-locally.html">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html">Deployment</a></li><li><a href="../../docs/dev/testing.html">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html" aria-current="page">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#the-idea">The idea</a></li><li><a href="#colours">Colours</a></li><li><a href="#type">Type</a></li><li><a href="#where-the-tokens-live">Where the tokens live</a></li><li><a href="#the-contrast-gate">The contrast gate</a></li><li><a href="#the-brand-kit">The brand kit</a></li><li><a href="#do-and-do-not">Do and do not</a></li></ul></nav>
+<h2 id="the-idea">The idea</h2>
+<ul><li><strong>The practice field.</strong> Wall green is the ground, chalk is the type and the pitch markings.</li><li><strong>The manual scoreboard.</strong> Results sit on dark green boards with hung number plates. Numbers are big and condensed; leading zeros are blank plates.</li><li><strong>The whistle.</strong> The mark is a coach's whistle with chat's typing dots inside. Whistle orange is the one action colour.</li><li><strong>Practice is always labelled.</strong> Card yellow marks anything that is practice.</li></ul>
+<h2 id="colours">Colours</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Role</th><th>Token</th><th>Hex</th><th>Use</th></tr></thead><tbody><tr><td>Wall green</td><td><code>neutral</code>, <code>background-green</code>, <code>text</code></td><td><code>#123D2E</code></td><td>Hero, nav, closing band; ink on chalk</td></tr><tr><td>Dugout</td><td><code>surface-green</code></td><td><code>#0B2A1F</code></td><td>Practice chat and coach's notes panels</td></tr><tr><td>Scoreboard</td><td><code>scoreboard</code></td><td><code>#082319</code></td><td>Scoreboards and linescores</td></tr><tr><td>Plate</td><td><code>plate</code></td><td><code>#103528</code></td><td>Number plates</td></tr><tr><td>Chalk</td><td><code>background</code>, <code>text-on-green</code></td><td><code>#EEF1E8</code></td><td>Light ground; text on green</td></tr><tr><td>Paper</td><td><code>surface</code></td><td><code>#FFFFFF</code></td><td>Cards on chalk</td></tr><tr><td>Whistle orange</td><td><code>primary</code></td><td><code>#FF6A1F</code></td><td>The mark, the main button, raid numbers, Slipped chips</td></tr><tr><td>Orange text</td><td><code>primary-text</code></td><td><code>#B33D00</code></td><td>Orange as text on chalk</td></tr><tr><td>Card yellow</td><td><code>secondary</code></td><td><code>#FFD23F</code></td><td>Practice labels, Foul chips, focus ring on green</td></tr><tr><td>Moss</td><td><code>text-muted</code></td><td><code>#4E6358</code></td><td>Secondary text on chalk</td></tr></tbody></table></div>
+<p>Outcomes each have one meaning and always carry a word: <strong>Caught</strong> (green chip), <strong>Slipped</strong> (orange chip) and <strong>Foul</strong> (yellow chip, the yellow card). There is no Twitch purple anywhere.</p>
+<h2 id="type">Type</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Face</th><th>Used for</th></tr></thead><tbody><tr><td>Big Shoulders (weight 800)</td><td>Headlines, scoreboard numbers, drill-plan times</td></tr><tr><td>Atkinson Hyperlegible Next</td><td>Body text, buttons, navigation, labels</td></tr><tr><td>Atkinson Hyperlegible Mono</td><td>The practice chat and blocked terms only. It keeps look-alike characters such as <code>v1ews</code> and <code>f0ll0w</code> distinct, which is exactly the trick raid spam relies on</td></tr></tbody></table></div>
+<p>All three are self-hosted as variable woff2 in <a href="https://github.com/harshbhx/modscrim/tree/main/brand/fonts"><code>brand/fonts/</code></a> (copies in <code>app/public/fonts/</code> and <code>site/fonts/</code>) with their SIL Open Font Licence files.</p>
+<h2 id="where-the-tokens-live">Where the tokens live</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>File</th><th>Role</th></tr></thead><tbody><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/design/tokens.css"><code>design/tokens.css</code></a>, <a href="https://github.com/harshbhx/modscrim/blob/main/design/tokens.json"><code>tokens.json</code></a>, <a href="https://github.com/harshbhx/modscrim/blob/main/design/palette.json"><code>palette.json</code></a></td><td>Generated by the bundled colour skill from the brand colours. Do not hand-edit; re-run the skill</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/design/tokens.override.css"><code>design/tokens.override.css</code></a></td><td>Every ModScrim deviation from the generated baseline: semantic roles mapped onto the brand primitives, measured hover fills, the action border</td></tr><tr><td><code>site/css/tokens.css</code>, <code>site/css/tokens.override.css</code></td><td>Copies for the website, because Cloudflare Pages publishes only <code>site/</code></td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/app/src/main.tsx"><code>app/src/main.tsx</code></a></td><td>Imports the two <code>design/</code> files for the app</td></tr></tbody></table></div>
+<p>Semantic variables such as <code>--color-bg</code>, <code>--color-text</code> and <code>--color-action</code> are what components use. Colour comes from tokens only.</p>
+<h2 id="the-contrast-gate">The contrast gate</h2>
+<p>Contrast follows WCAG 2.2: body text 4.5:1, large text 3:1 and meaningful non-text 3:1. Measured pairs from the brand file include chalk on wall green at 10.6:1, moss on chalk at 5.7:1, deep green on whistle orange at 5.4:1 (button labels) and deep green on card yellow at 10.7:1.</p>
+<p>Whistle orange as a fill on chalk is only 2.5:1, below the 3:1 non-text bar. That is the one documented exemption, and it holds only because an orange control is identified by its label and its border, not by the fill alone. Two scripts protect it:</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Command</th><th>What it enforces</th></tr></thead><tbody><tr><td><code>npm run contrast:check</code></td><td>The generated tokens pass the validator with no exemptions, and the shipped palette fails on exactly the documented pairs (orange on chalk, orange on white), no more and no fewer</td></tr><tr><td><code>npm run lint:tokens</code></td><td>Any rule that fills itself with the action colour must also declare <code>--color-action-border</code> or <code>--color-border-strong</code></td></tr><tr><td><code>npm run site:tokens:check</code></td><td><code>site/css/tokens*.css</code> still match <code>design/</code> (run <code>npm run site:tokens</code> to copy)</td></tr><tr><td><code>npm run site:colours</code></td><td>Every colour hand-written in <code>site/</code> is a token or listed in <code>brand/DESIGN.md</code></td></tr></tbody></table></div>
+<p>All four run in CI. To change a colour, change the override file and re-run the gate; do not widen the exemption without recording why.</p>
+<h2 id="the-brand-kit">The brand kit</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Folder</th><th>Contents</th></tr></thead><tbody><tr><td><a href="https://github.com/harshbhx/modscrim/tree/main/brand/logo/svg"><code>brand/logo/svg</code></a>, <a href="https://github.com/harshbhx/modscrim/tree/main/brand/logo/png"><code>png</code></a></td><td><code>modscrim-&lt;lockup&gt;-&lt;tone&gt;</code>. Lockups: horizontal, horizontal with tagline, stacked, mark, small mark, wordmark. Tones: <code>color</code> for light grounds, <code>reverse</code> for green grounds, <code>green</code>, <code>white</code>, <code>black</code>. Plus app icons. All SVG text is outlined</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/tree/main/brand/social"><code>brand/social</code></a></td><td>Open Graph image, GitHub preview, Devpost thumbnail, YouTube thumbnail, X header, LinkedIn banner, avatars</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/tree/main/brand/stream"><code>brand/stream</code></a></td><td>OBS overlays: the practice-drill bar, the scorecard, and a Twitch panel</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/tree/main/brand/fonts"><code>brand/fonts</code></a></td><td>The three typefaces and their licences</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/brand/ModScrim-brand-sheet.png"><code>brand/ModScrim-brand-sheet.png</code></a></td><td>One-page overview</td></tr></tbody></table></div>
+<p>The README banner, <a href="https://github.com/harshbhx/modscrim/blob/main/docs/assets/banner.svg"><code>docs/assets/banner.svg</code></a>, is built from the <code>horizontal-tagline-reverse</code> lockup and the reverse mark with the brand colours.</p>
+<p><strong>Logo rules.</strong> Keep at least one mark-height of clear space. Below 48 px use the small cut (no ring, no window); at 16 px drop the dots too.</p>
+<h2 id="do-and-do-not">Do and do not</h2>
+<ul><li>Do label every screen that shows attack text as practice, in card yellow.</li><li>Do keep one orange button per view; second actions are outline buttons.</li><li>Do write plain, specific copy from the moderator's side.</li><li>Do not use Twitch purple, the Twitch logo, or wording that suggests Twitch made or endorses ModScrim.</li><li>Do not render attack text anywhere outside a labelled practice chat, including marketing screenshots.</li><li>Do not put orange text on chalk (use <code>#B33D00</code>), add gradients or glitch effects, or fade sections in on scroll. Motion answers actions, and <code>prefers-reduced-motion</code> turns it off.</li></ul>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/testing.html"><span>Previous</span><b>Testing and CI</b></a><a class="pn-link" href="../../docs/dev/contributing.html"><span>Next</span><b>Contributing</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

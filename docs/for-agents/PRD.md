@@ -492,6 +492,19 @@ Labels, helper text, empty states and status wording on the streamer console tha
 | Grading quota label, minute | Grading quota · minute | Grading quota, per minute |
 | Grading quota label, hour | Grading quota · hour | Grading quota, per hour |
 
+#### 9.6b Website copy (`site/`, T-135/T-136)
+
+The marketing site is static and is not part of the app copy deck above. Its primary strings, kept in step with `app/src/copy.ts` where they overlap:
+
+| Where | String |
+|---|---|
+| Home h1 (same as the app landing) | Raid drills for your mod team. |
+| Home primary action | Start a drill (opens `https://app.modscrim.dualmindlab.tech/console`) |
+| Home secondary action | Try the 30-second drill |
+| Home helper under the actions | Sign in with Twitch, nothing to install. No account? Open a demo room. |
+| Header action | Sign in with Twitch |
+| Docs pages | Documentation, Quick start, Troubleshooting, Glossary (new), next to the Setup guide, How a drill runs, For mods, OBS overlay, Demo room, Safety, Privacy policy and FAQ |
+
 ### 9.7 Visual language
 
 - Colour tokens with light and dark themes for the console and mod screens; the overlay is always dark.
