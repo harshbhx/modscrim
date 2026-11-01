@@ -29,7 +29,6 @@
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
   align-items: center;
   gap: clamp(40px, 8vw, 128px);
-  max-width: 1240px;
 }
 
 .demo-page .demo-intro {

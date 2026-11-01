@@ -19,7 +19,14 @@
   --rail-taken: var(--line);
 }
 
+/* the page fills what the header and footer leave, so no strip of the body ground shows above the footer */
+.site-main:has(> .mod-page) {
+  display: flex;
+  flex-direction: column;
+}
+
 .mod-page {
+  flex: 1;
   min-height: 0;
   padding: var(--space-8) 0 var(--space-16);
   background: var(--bg);
@@ -652,12 +659,14 @@
   :root:not([data-theme='light']) .mod-page,
   :root:not([data-theme='light']) .mod-chat-panel {
     --redact-edge: var(--green-300);
+    --redact-hatch: var(--green-500);
   }
 }
 
 :root[data-theme='dark'] .mod-page,
 :root[data-theme='dark'] .mod-chat-panel {
   --redact-edge: var(--green-300);
+  --redact-hatch: var(--green-500);
 }
 
 .mod-slur-segment {
@@ -666,7 +675,7 @@
   margin: 0 0.1em;
   border-radius: 2px;
   background:
-    repeating-linear-gradient(135deg, transparent 0 3px, var(--redact-hatch) 3px 5px),
+    repeating-linear-gradient(135deg, transparent 0 3px, var(--redact-hatch) 3px 6px),
     var(--redact-fill);
   box-shadow: 0 0 0 1px var(--redact-edge);
   color: var(--redact-fill);
@@ -700,6 +709,7 @@
 .mod-feedback-caught {
   background: var(--caught-bg);
   color: var(--caught-text);
+  text-decoration: none; /* base.css still strikes this chip through; the words stay readable */
 }
 
 /* the caught chip leads with a tick drawn in CSS, so it is not colour alone and not a strike-through over its own words */
@@ -1093,7 +1103,7 @@
 }
 
 /* The end screen shows reveal tags on every line, so let the list grow instead of scrolling inside itself. */
-.mod-main-column:has(.mod-reveal) .mod-chat-list {
+.mod-page:has(.mod-reveal) .mod-chat-list {
   max-height: none;
 }
 
