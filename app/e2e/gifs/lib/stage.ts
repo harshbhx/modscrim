@@ -27,8 +27,8 @@ const ANNOTATION_SCRIPT = `
     '#__gif-cursor svg{width:22px;height:22px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}',
     '.__gif-ripple{position:fixed;z-index:2147483646;pointer-events:none;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:3px solid #ffffff;box-shadow:0 0 0 2px rgba(20,20,24,.7);animation:__gif-ripple 520ms ease-out forwards}',
     '@keyframes __gif-ripple{from{transform:scale(.6);opacity:1}to{transform:scale(3.4);opacity:0}}',
-    '#__gif-key{position:fixed;right:16px;top:16px;z-index:2147483647;pointer-events:none;min-width:44px;padding:8px 14px;border-radius:10px;background:rgba(20,20,24,.9);color:#fff;font:700 22px/1 ui-monospace,Menlo,Consolas,monospace;text-align:center;opacity:0;transition:opacity 120ms}',
-    '#__gif-caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483647;pointer-events:none;max-width:86%;padding:10px 18px;border-radius:12px;background:rgba(20,20,24,.88);color:#fff;font:600 max(20px,1.5vw)/1.25 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;opacity:0;transition:opacity 180ms}'
+    '#__gif-key{position:fixed;right:16px;bottom:64px;z-index:2147483647;pointer-events:none;min-width:44px;padding:8px 14px;border-radius:10px;background:rgba(20,20,24,.9);color:#fff;font:700 22px/1 ui-monospace,Menlo,Consolas,monospace;text-align:center;opacity:0;transition:opacity 120ms}',
+    '#__gif-caption{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483647;pointer-events:none;max-width:86%;padding:8px 14px;border-radius:10px;background:rgba(20,20,24,.88);color:#fff;font:600 clamp(13px,1.5vw,30px)/1.25 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;opacity:0;transition:opacity 180ms}'
   ].join('');
   const install = () => {
     if (document.getElementById('__gif-cursor')) return;
@@ -58,7 +58,7 @@ const ANNOTATION_SCRIPT = `
       setTimeout(() => ripple.remove(), 600);
     }, true);
     addEventListener('keydown', (event) => {
-      if (event.key.length !== 1) return;
+      if (!/^[dtb?]$/i.test(event.key)) return;
       key.textContent = event.key.toUpperCase();
       key.style.opacity = '1';
       clearTimeout(keyTimer);

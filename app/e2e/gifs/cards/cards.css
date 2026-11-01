@@ -1,0 +1,52 @@
+/* Intro and outro cards for the README GIFs and the video. Brand kit only (brand/DESIGN.md):
+   wall green ground, chalk type, whistle orange mark, card yellow nowhere (it means "practice").
+   Big Shoulders for display, Atkinson Hyperlegible Next for text. Motion is restrained: a rise and fade
+   (like "message in"), a settle, a line that draws. No glow, no particles, no bounce. */
+@font-face { font-family: "Big Shoulders"; src: url("../../../../brand/fonts/BigShoulders-Variable.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("../../../../brand/fonts/AtkinsonHyperlegibleNext-Variable.woff2") format("woff2"); font-weight: 200 800; }
+
+:root {
+  --wall: #123D2E;
+  --chalk: #EEF1E8;
+  --muted: #A9BDB2;
+  --line: #2A6149;
+  --orange: #FF6A1F;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 100%; height: 100%; background: var(--wall); color: var(--chalk); overflow: hidden; }
+body { font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; position: relative; }
+body:not(.go) * { animation-play-state: paused !important; }
+
+.pitch { position: absolute; inset: 0; pointer-events: none; }
+.pitch .circle { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1080px; margin: -540px 0 0 -540px; border: 3px solid var(--line); border-radius: 50%;
+  clip-path: inset(0 100% 0 0); animation: sweep 900ms ease-out 0ms both; }
+.pitch .half { position: absolute; left: 50%; top: 0; width: 3px; height: 100%; margin-left: -1.5px; background: var(--line); transform-origin: top; animation: grow 700ms ease-out 100ms both; }
+@keyframes sweep { to { clip-path: inset(0 0 0 0); } }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes land { from { opacity: 0; transform: translateY(-46px) rotate(-7deg); } 70% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ---- intro: stacked-logo composition, the one place the kit allows centring ---- */
+.intro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
+.intro .mark { width: 300px; height: 300px; animation: land 620ms cubic-bezier(.2,.7,.2,1) 350ms both; }
+.intro .wordmark { width: 700px; animation: rise 420ms ease-out 1000ms both; }
+.intro .tagline { font-size: 46px; font-weight: 400; line-height: 1.2; color: var(--chalk); animation: rise 420ms ease-out 1550ms both; }
+
+/* ---- outro: left aligned credit card ---- */
+.outro { position: absolute; left: 128px; right: 128px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
+.outro .mark { width: 96px; height: 96px; animation: rise 400ms ease-out 0ms both; }
+.outro h1 { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 180px; line-height: .95; letter-spacing: -.005em; animation: rise 450ms ease-out 150ms both; }
+.outro .rule { height: 6px; width: 520px; background: var(--orange); transform-origin: left; animation: draw 500ms ease-out 700ms both; }
+.outro .credit { display: flex; align-items: baseline; gap: 36px; animation: rise 450ms ease-out 1100ms both; }
+.outro .by { font-size: 28px; color: var(--muted); }
+.outro .names { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 84px; line-height: 1; letter-spacing: .01em; }
+.outro .amp { color: var(--orange); margin: 0 .3em; }
+.outro .event { font-size: 34px; font-weight: 700; animation: rise 450ms ease-out 1800ms both; }
+.outro .links { display: flex; gap: 56px; font-size: 30px; color: var(--chalk); animation: rise 450ms ease-out 2300ms both; }
+.outro .links span { color: var(--muted); margin-right: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; }
+  .pitch .circle { clip-path: none; }
+}
