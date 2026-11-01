@@ -72,7 +72,7 @@ export default defineConfig({
     },
     {
       name: 'safety',
-      testMatch: /safety\.spec\.ts$/,
+      testMatch: /safety\.[\w-]+\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
     },
