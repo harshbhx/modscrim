@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Run it locally | Developer docs | ModScrim</title>
+<meta name="description" content="Three ways in, from no setup to a full Twitch sign-in: try the hosted demo, run the app on your machine, or register your own Twitch application. Pick the first to see the product in two minutes.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Run it locally | ModScrim docs">
+<meta property="og:description" content="Three ways in, from no setup to a full Twitch sign-in: try the hosted demo, run the app on your machine, or register your own Twitch application. Pick the first to see the product in two minutes.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/run-locally">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/run-locally">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / Run it locally</p>
+    <h1 id="page-title">Run it locally</h1>
+    <p class="lead">Three ways in, from no setup to a full Twitch sign-in: try the hosted demo, run the app on your machine, or register your own Twitch application. Pick the first to see the product in two minutes.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html">Architecture</a></li><li><a href="../../docs/dev/run-locally.html" aria-current="page">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html">Deployment</a></li><li><a href="../../docs/dev/testing.html">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#1-try-the-demo-no-account">1. Try the demo (no account)</a></li><li><a href="#2-run-it-locally">2. Run it locally</a></li><li><a href="#3-set-up-twitch-for-a-real-channel">3. Set up Twitch for a real channel</a></li><li><a href="#4-run-a-drill-with-your-team">4. Run a drill with your team</a></li></ul></nav>
+<h2 id="1-try-the-demo-no-account">1. Try the demo (no account)</h2>
+<p>Open <a href="https://app.modscrim.dualmindlab.tech/demo">https://app.modscrim.dualmindlab.tech/demo</a> and start a demo drill. You get a private practice room with a fake channel (<code>pixelpanda_tv</code>), a simulated co-mod (Kai) and the whole loop: run the drill, review the grade, see the proposed rules, prove them on a fresh wave, and try a simulated push and undo.</p>
+<p>Demo rooms are isolated: they never call Twitch, D1, R2 or the report queue, grading is a labelled local estimate, and a room deletes itself after two hours without activity. You can open the mod view on a phone from the demo page.</p>
+<h2 id="2-run-it-locally">2. Run it locally</h2>
+<p>Requirements: Node.js 22 or newer and npm. No Twitch credentials are needed for demo rooms.</p>
+<pre data-lang="sh"><code>git clone https://github.com/harshbhx/modscrim.git
+cd modscrim
+npm ci</code></pre>
+<p>Create <code>app/.dev.vars</code>. The file is git-ignored and holds local-only placeholder values; generate fresh secrets for anything real and never commit this file.</p>
+<pre data-lang="dotenv"><code>PUBLIC_BASE_URL=http://localhost:5173
+SESSION_HMAC_KEY=local-session-key-change-me
+TOKEN_ENC_KEY=AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8
+EVENTSUB_SECRET=local-eventsub-secret
+TWITCH_CLIENT_ID=local-client-id
+TWITCH_CLIENT_SECRET=local-client-secret</code></pre>
+<p>Start the app and open <a href="http://localhost:5173/demo">http://localhost:5173/demo</a>:</p>
+<pre data-lang="sh"><code>npm run dev</code></pre>
+<p><code>npm run dev</code> runs the Vite dev server with the Cloudflare plugin, so the SPA, the Worker, the Durable Object and a local D1 database all run on port 5173.</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>npm run dev</code></td><td>Dev server on <a href="http://localhost:5173">http://localhost:5173</a></td></tr><tr><td><code>npm test</code></td><td>Core tests (Node) and Worker tests (Vitest in <code>workerd</code>)</td></tr><tr><td><code>npm run typecheck</code></td><td><code>tsc -b</code> across the workspaces</td></tr><tr><td><code>npm run db:migrate:local</code></td><td>Apply D1 migrations to the local database</td></tr><tr><td><code>npm run types</code></td><td>Regenerate the Worker <code>Env</code> types with Wrangler</td></tr></tbody></table></div>
+<p><strong>Local limits.</strong> Twitch accepts only HTTPS redirect URIs and calls only HTTPS webhooks on port 443, so sign-in and live chat ingest are tested on the deployed app. Everything else, including demo rooms, drills and tests, runs locally.</p>
+<h2 id="3-set-up-twitch-for-a-real-channel">3. Set up Twitch for a real channel</h2>
+<ol><li>Create a <strong>Confidential</strong> application in the <a href="https://dev.twitch.tv/console/apps">Twitch Developer Console</a>.</li><li>Set the OAuth redirect URL to <code>https://app.modscrim.dualmindlab.tech/auth/callback</code> and use <code>https://app.modscrim.dualmindlab.tech/eventsub</code> as the EventSub callback. For your own deployment, substitute your app's host.</li><li>Put <code>TWITCH_CLIENT_ID</code> in the Worker's <code>vars</code> and store <code>TWITCH_CLIENT_SECRET</code>, <code>PUBLIC_BASE_URL</code>, <code>EVENTSUB_SECRET</code>, <code>SESSION_HMAC_KEY</code> and <code>TOKEN_ENC_KEY</code> as Worker secrets (see <a href="../../docs/dev/deployment.html">Deployment</a>).</li><li>Sign in on the deployed app. ModScrim requests these scopes: <code>moderator:read:blocked_terms</code>, <code>moderator:manage:blocked_terms</code>, <code>moderator:read:automod_settings</code>, <code>moderation:read</code>, <code>user:read:chat</code>, <code>user:bot</code> and <code>channel:bot</code>. It adds <code>user:write:chat</code> only when the optional announcement flag is on. The endpoints behind them are listed in <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/twitch.md"><code>for-agents/twitch.md</code></a>.</li></ol>
+<h2 id="4-run-a-drill-with-your-team">4. Run a drill with your team</h2>
+<ol><li><strong>Console.</strong> Sign in and open <code>/console</code>. The six screens are Read filters, Configure, Run the drill, Twitch grades, Fix the rules, and Fresh wave and push.</li><li><strong>Mods.</strong> Share the mod link and the six-digit join code from the Configure screen. A mod joins from any device; on a keyboard, D, T and B act on the focused line.</li><li><strong>OBS (optional).</strong> Add the overlay URL as a Browser Source at 1920 x 1080, turn off &quot;Shutdown source when not visible&quot;, and add no custom CSS. If the key was ever visible on screen, use <strong>Rotate key</strong> and copy the URL again. The overlay shows an alarm bar, the scoreboard and a practice chat drawn as blurred bars.</li><li><strong>Rehearsing alone?</strong> Turn on Kai (sim), a simulated co-mod that is always labelled and scored separately.</li></ol>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/architecture.html"><span>Previous</span><b>Architecture</b></a><a class="pn-link" href="../../docs/dev/project-structure.html"><span>Next</span><b>Project structure</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

@@ -4,11 +4,32 @@
   <url><loc>https://modscrim.dualmindlab.tech/how-it-works</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/mods</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/safety</loc></url>
-  <url><loc>https://modscrim.dualmindlab.tech/docs</loc></url>
-  <url><loc>https://modscrim.dualmindlab.tech/quickstart</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/setup</loc></url>
-  <url><loc>https://modscrim.dualmindlab.tech/troubleshooting</loc></url>
-  <url><loc>https://modscrim.dualmindlab.tech/glossary</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/quick-start</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/connect-twitch</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/console-walkthrough</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/grades-and-report</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/push-and-undo</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/streamer/troubleshooting</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/join</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/practice-chat</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/keyboard</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/scoring</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/mods/simulated</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/architecture</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/run-locally</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/project-structure</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/contracts</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/deployment</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/testing</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/design-system</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/contributing</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/dev/built-with-codex</loc></url>
+  <url><loc>https://modscrim.dualmindlab.tech/docs/glossary</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/faq</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/demo</loc></url>
   <url><loc>https://modscrim.dualmindlab.tech/console</loc></url>
