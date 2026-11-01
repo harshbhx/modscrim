@@ -185,7 +185,7 @@ export const pages = {
  * Safety copy (hate.warning, banner.practice, privacy.short) is never changed here.
  */
 export const consoleCopy = {
-  rejectedWhy: 'Would ban a regular: also matches {n} harmless message(s)',
+  rejectedWhy: 'Would ban a regular: also matches {n} harmless {messages}',
   stepEyebrow: 'Step {n} of 6',
   status: {
     allGood: 'All systems working',
