@@ -65,7 +65,7 @@ async function walkThrough(page: Page, mock: ConsoleMock, mode: ConsoleMode, sho
     await shot('4-grades-running');
     mock.finishTwitchGrading();
   }
-  await expect(page.getByText(/^10 of 14 attack lines would get past your filters/)).toBeVisible();
+  await expect(page.getByText(/^11 of 14 attack lines would get past your filters/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Find better rules' })).toBeEnabled();
   await shot('4-grades');
 
