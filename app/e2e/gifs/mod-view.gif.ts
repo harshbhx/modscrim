@@ -94,6 +94,7 @@ test('record the mod phone view', async ({ browser, baseURL }) => {
         await sleep(1100);
       });
       if (ok) acted += 1;
+      if (acted === 3) await caption('');
     }
     tl.mark('mod_acted');
     await caption('');

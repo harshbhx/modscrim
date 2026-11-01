@@ -34,16 +34,16 @@ body:not(.go) * { animation-play-state: paused !important; }
 .intro .tagline { font-size: 46px; font-weight: 400; line-height: 1.2; color: var(--chalk); animation: rise 420ms ease-out 1550ms both; }
 
 /* ---- outro: left aligned credit card ---- */
-.outro { position: absolute; left: 128px; right: 128px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
+.outro { position: absolute; left: 128px; right: 128px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 32px; }
 .outro .mark { width: 96px; height: 96px; animation: rise 400ms ease-out 0ms both; }
-.outro h1 { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 180px; line-height: .95; letter-spacing: -.005em; animation: rise 450ms ease-out 150ms both; }
+.outro h1 { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 200px; line-height: .95; letter-spacing: -.005em; animation: rise 450ms ease-out 150ms both; }
 .outro .rule { height: 6px; width: 520px; background: var(--orange); transform-origin: left; animation: draw 500ms ease-out 700ms both; }
 .outro .credit { display: flex; align-items: baseline; gap: 36px; animation: rise 450ms ease-out 1100ms both; }
-.outro .by { font-size: 28px; color: var(--muted); }
-.outro .names { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 84px; line-height: 1; letter-spacing: .01em; }
+.outro .by { font-size: 38px; color: var(--muted); }
+.outro .names { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; font-size: 112px; line-height: 1; letter-spacing: .01em; }
 .outro .amp { color: var(--orange); margin: 0 .3em; }
-.outro .event { font-size: 34px; font-weight: 700; animation: rise 450ms ease-out 1800ms both; }
-.outro .links { display: flex; gap: 56px; font-size: 30px; color: var(--chalk); animation: rise 450ms ease-out 2300ms both; }
+.outro .event { font-size: 48px; font-weight: 700; animation: rise 450ms ease-out 1800ms both; }
+.outro .links { display: flex; gap: 72px; font-size: 40px; color: var(--chalk); animation: rise 450ms ease-out 2300ms both; }
 .outro .links span { color: var(--muted); margin-right: 14px; }
 
 @media (prefers-reduced-motion: reduce) {

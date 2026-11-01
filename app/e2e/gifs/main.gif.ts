@@ -165,7 +165,9 @@ test('record the console loop in a demo room', async ({ browser, baseURL }) => {
     await caption('Your report card');
     await step(page, 'report-card', async () => {
       const summary = page.getByRole('heading', { name: /Drill summary/ }).first();
-      await glideTo(page, summary, { settleMs: 2500 });
+      await glideTo(page, summary, { settleMs: 600 });
+      await slowScroll(page, 420, 12, 80);
+      await sleep(2200);
     });
     tl.mark('report');
     await sleep(1800);
