@@ -63,7 +63,7 @@ test.describe('reduced motion', () => {
         .getAnimations()
         .filter((animation) => animation.playState === 'running')
         .map((animation) => ('animationName' in animation ? String(animation.animationName) : 'transition'));
-      const styles = [...document.querySelectorAll(selector)].map((el) => {
+      const styles = Array.from(document.querySelectorAll(selector)).map((el) => {
         const style = getComputedStyle(el);
         return {
           cls: el.className,
