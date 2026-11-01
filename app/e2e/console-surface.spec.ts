@@ -217,7 +217,7 @@ for (const view of STATE_VIEWS) {
         await page.mouse.move(0, 0);
         await page.waitForTimeout(250);
         await page.screenshot({ path: `${SHOTS}/console-state-${state.name}-${view.size.name}-${view.scheme}.png`, fullPage: true });
-        await audit(page, `console-state-${state.name}-${view.size.name}-${view.scheme}`);
+        await audit(page, `console-state-${state.name}-${view.size.name}-${view.scheme}`, { loading: state.name === 'loading' });
         noFixtureErrors(mock);
       });
     }

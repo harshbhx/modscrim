@@ -71,7 +71,7 @@ jobs:
           done
           # keep going after a failure so every screenshot and finding is collected
           set +e
-          npx playwright test --project=landing --project=shell-surface --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --project=shared-states --project=a11y --project=site --reporter=list
+          npx playwright test --project=landing --project=shell-surface --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --project=shared-states --project=a11y --project=site --reporter=list --retries=0
           echo "playwright_exit=$?" >> "$GITHUB_ENV"
 
       - name: Sort screenshots into folders and write INDEX.md and AUDIT.md
