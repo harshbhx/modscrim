@@ -56,6 +56,8 @@ jobs:
 
       - name: Serve site/ and run the site project
         env:
+          # Set both so the config's isLocal check is false and it does not try to boot `npm run dev`.
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4174
           PLAYWRIGHT_SITE_BASE_URL: http://127.0.0.1:4174
         run: |
           node scripts/serve-static.mjs site 4174 &
