@@ -153,7 +153,7 @@ header.top{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--wall-r
 .hero > .wrap{position:relative;z-index:1}
 /* pitch marking, as brand/DESIGN.md allows: a centre circle drawn in chalk at low contrast */
 .hero::before,.close::before{content:"";position:absolute;pointer-events:none;border:2px solid color-mix(in oklab,var(--chalk) 13%,transparent)}
-.hero::before{width:min(720px,70vw);aspect-ratio:1;border-radius:50%;right:-190px;top:-150px}
+.hero::before{width:min(720px,70vw);aspect-ratio:1;border-radius:50%;right:-300px;top:-170px}
 .hero-top{position:relative;display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:56px;align-items:end}
 .hero-copy{display:flex;flex-direction:column;gap:28px;padding-bottom:10px}
 .hero-copy .lead{max-width:32em;color:var(--chalk)}
@@ -533,9 +533,9 @@ kbd{font-family:var(--mono);font-size:13px;padding:1px 6px;border-radius:4px;bor
 @media (max-width:640px){
   :root{--gut:16px;--head-h:72px}
   body{font-size:17px}
-  .nav{gap:12px}
-  .brand img{height:26px}
-  .nav .btn{min-height:44px;padding:0 12px;font-size:15px}
+  .nav{gap:10px}
+  .brand img{height:24px}
+  .nav .btn{min-height:44px;padding:0 10px;font-size:14px}
   /* the Menu label stays for screen readers; only the icon shows */
   .menu summary{padding:0 13px;gap:0}
   .menu summary{font-size:0}
