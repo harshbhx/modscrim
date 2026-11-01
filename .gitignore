@@ -26,3 +26,7 @@ __pycache__/
 
 # Landing/surface screenshots are CI artifacts, not source
 app/e2e/screenshots/
+
+# README GIF capture output (CI artifact, not source)
+app/e2e/gifs/out/
+app/.dev.vars.preview

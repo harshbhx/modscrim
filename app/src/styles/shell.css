@@ -1,0 +1,416 @@
+/*
+ * App shell: the green header and footer bands, and the inner pages (privacy,
+ * not found). Colour comes from the .on-green role values in styles/tokens.css
+ * and from design/tokens.css + tokens.override.css; no literal colours.
+ *
+ * Measured "on green" pairs, unchanged from PR #207 (wall green #123D2E):
+ *   chalk text        10.61:1   nav, brand, page title
+ *   muted on green     6.1:1    footer note, lead
+ *   focus card yellow  8.39:1   focus ring
+ *   orange mark        4.23:1   non-text: the current-page marker
+ *
+ * Specificity note: this file is imported by the route components, which load
+ * before base.css and tokens.css, so every rule is scoped one level deeper
+ * than the base rule it refines.
+ *
+ * Studied, rebuilt in our own CSS, nothing pasted: the tab-style current-page
+ * marker of Radix Themes / Linear nav bars, the hairline-plus-rail band edge of
+ * Vercel's app header, shadcn/ui's quiet card. Brand rail and plate shapes come
+ * from brand/DESIGN.md (scoreboard rail, number plates).
+ */
+
+/*
+ * The ground for every page this file, landing.css, demo.css and mod.css own.
+ * Dark values (dugout page, wall-green cards, deep-green wells) now come from
+ * the shared token layer (design/tokens.override.css and styles/tokens.css),
+ * the same ones the console and overlay use, so nothing is restated here.
+ */
+:is(.page-inner, .demo-page, .landing, .mod-page) {
+  --surface: var(--color-surface); /* Paper in light, wall green in dark */
+  background: var(--bg);
+}
+
+.site-main:has(> .legal) {
+  display: flex;
+  flex-direction: column;
+}
+
+.page.legal {
+  flex: 1;
+}
+
+/* ---- header band ---- */
+.site-header.on-green {
+  border-bottom: 3px solid var(--green-950); /* scoreboard-rail */
+}
+
+.site-header.on-green .wrap {
+  min-height: 76px;
+}
+
+.site-header.on-green .brand {
+  align-items: center;
+  min-height: 44px;
+  border-radius: var(--radius-md);
+}
+
+.site-header.on-green .site-nav {
+  gap: var(--space-1);
+}
+
+.site-header.on-green .site-nav a,
+.site-header.on-green .site-menu nav a {
+  position: relative;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.site-header.on-green .site-nav a:hover,
+.site-header.on-green .site-menu nav a:hover {
+  background: var(--green-600);
+  text-decoration: none;
+}
+
+/* current page: an orange underline bar, the same cue the console stepper uses */
+.site-header.on-green .site-nav a[aria-current='page'],
+.site-header.on-green .site-menu nav a[aria-current='page'] {
+  text-decoration: none;
+  box-shadow: inset 0 -3px 0 var(--palette-whistle-orange);
+}
+
+/* small screens: the links move into a disclosure panel */
+.site-header.on-green .site-menu {
+  position: relative;
+  display: none;
+}
+
+.site-header.on-green .site-menu summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 2px solid var(--chalk-100);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font: var(--t-body-s);
+  font-weight: 700;
+  list-style: none;
+  cursor: pointer;
+}
+
+.site-header.on-green .site-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-header.on-green .site-menu summary:hover {
+  background: var(--green-600);
+}
+
+.site-header.on-green .site-menu nav {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--space-2);
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-lg);
+  background: var(--green-850);
+  box-shadow: 0 16px 32px -12px var(--green-950);
+  font: var(--t-body-s);
+}
+
+.site-header.on-green .site-menu nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---- footer band ---- */
+.site-footer.on-green {
+  padding: var(--space-10) 0 var(--space-8);
+  border-top: 3px solid var(--green-950);
+}
+
+.site-footer.on-green .wrap {
+  align-items: flex-start;
+  gap: var(--space-8) var(--space-14);
+}
+
+.site-footer-about {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 22em;
+}
+
+.site-footer-about img {
+  flex: 0 0 auto;
+  display: block;
+}
+
+.site-footer.on-green .site-footer-about p {
+  color: var(--text-muted);
+  font: var(--t-caption);
+}
+
+.site-footer.on-green .site-footer-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, auto));
+  gap: var(--space-6) var(--space-14);
+}
+
+.site-footer.on-green .site-footer-nav h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font: 800 13px/1.2 var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.site-footer.on-green nav ul {
+  display: block;
+}
+
+.site-footer.on-green nav li + li {
+  margin: 0;
+}
+
+.site-footer.on-green nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-inline: calc(var(--space-3) * -1);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font: var(--t-body-s);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.12s ease;
+}
+
+.site-footer.on-green nav a:hover {
+  background: var(--green-600);
+}
+
+/* ---- inner pages ---- */
+.page.page-inner {
+  padding: 0 0 var(--space-24);
+}
+
+/* the title band: green in both themes, as brand/DESIGN.md puts it */
+.page-inner .page-head.on-green {
+  padding: var(--space-14) 0 var(--space-10);
+  border-bottom: 3px solid var(--green-950);
+}
+
+.page-inner .page-head h1 {
+  max-width: 12ch;
+  margin-bottom: var(--space-4);
+  color: var(--text);
+}
+
+.page-inner .page-head .lead {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* ---- privacy ---- */
+.legal .legal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  align-items: start;
+  gap: var(--space-14);
+  padding-top: var(--space-16);
+}
+
+.legal .legal-prose {
+  max-width: var(--measure);
+}
+
+.legal .legal-prose p:last-child,
+.legal .legal-card > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Paper card on chalk: the 1px outline and no shadow, per DESIGN.md */
+.legal .legal-card {
+  padding: var(--space-8);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.legal .legal-card .actions {
+  margin-top: var(--space-6);
+}
+
+.legal .legal-card .contact {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font: var(--t-body-s);
+}
+
+/* ---- not found and placeholder ---- */
+.site-main:has(> .notice) {
+  display: flex;
+  flex-direction: column;
+}
+
+.page.notice {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: var(--space-16) 0 var(--space-24);
+}
+
+/* centred as one group at every width: plate and message side by side, stacked when narrow */
+.notice .notice-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8) var(--space-14);
+  text-align: center;
+}
+
+/* the 404 is one hung number plate: orange digits on a plate, 4.7:1 */
+.notice .notice-plate {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0.06em 0.16em 0.1em;
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow:
+    inset 0 -2px 0 var(--green-950),
+    0 0 0 1px var(--green-950);
+  color: var(--palette-whistle-orange);
+  font-size: clamp(104px, 22vw, 208px);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.notice .notice-plate::before,
+.notice .notice-plate::after {
+  position: absolute;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-950);
+  content: '';
+}
+
+.notice .notice-plate::before {
+  left: 10px;
+}
+
+.notice .notice-plate::after {
+  right: 10px;
+}
+
+.notice .notice-text {
+  max-width: 24em;
+  text-align: left;
+}
+
+.notice .notice-text .lead {
+  margin: 0 auto var(--space-6);
+}
+
+.notice .notice-text > p:not(.lead) {
+  margin-bottom: var(--space-6);
+}
+
+/* ---- widths ---- */
+@media (max-width: 900px) {
+  .site-header.on-green .site-nav {
+    display: none;
+  }
+
+  .site-header.on-green .site-menu {
+    display: block;
+  }
+
+  .site-footer.on-green .site-footer-nav {
+    gap: var(--space-6) var(--space-10);
+  }
+
+  .notice .notice-wrap {
+    flex-direction: column;
+  }
+
+  .notice .notice-text {
+    text-align: center;
+  }
+
+  .legal .legal-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-top: var(--space-10);
+  }
+}
+
+@media (max-width: 640px) {
+  .site-header.on-green .wrap {
+    min-height: 68px;
+  }
+
+  .site-footer.on-green {
+    padding: var(--space-6) 0 var(--space-8);
+  }
+
+  .site-footer.on-green .site-footer-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-inner .page-head.on-green {
+    padding: var(--space-10) 0 var(--space-8);
+  }
+
+  .legal .legal-card {
+    padding: var(--space-6);
+  }
+
+  .page.notice {
+    padding: var(--space-10) 0 var(--space-16);
+  }
+
+  .notice .notice-wrap .btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header.on-green .site-nav a,
+  .site-header.on-green .site-menu nav a,
+  .site-footer.on-green nav a {
+    transition: none;
+  }
+}
+
+/* Windows high-contrast: system colours replace fills, so keep shapes visible. */
+@media (forced-colors: active) {
+  .site-header.on-green .site-nav a[aria-current='page'] {
+    border-bottom: 3px solid Highlight;
+  }
+
+  .notice .notice-plate,
+  .legal .legal-card {
+    border: 1px solid CanvasText;
+  }
+}

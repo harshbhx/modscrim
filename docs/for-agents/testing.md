@@ -33,6 +33,17 @@ npm run typecheck
 ## 2.1 Playwright projects
 
 Run one browser project with `npx playwright test --project=<name>` (for example, `npx playwright test --project=smoke`). The Playwright config starts `npm run dev` and waits for `/api/health` when `PLAYWRIGHT_BASE_URL` is unset or points to `http://localhost:5173`. Set `PLAYWRIGHT_BASE_URL` to the deployed app URL to run against that Worker without starting a local server.
+### Add a surface spec
+
+A surface spec proves one screen renders in CI without Twitch or the Worker, and leaves light and dark screenshots at 375, 768 and 1440 px for review.
+
+1. Create `app/e2e/<surface>-surface.spec.ts` and a project for it in `playwright.config.ts` next to `landing` (same `surfaceBaseURL`). Add `--project=<name>` to the "Run surface projects" step in `.github/workflows/e2e.yml`; surface specs run against `npm run build -w app` served by `scripts/serve-static.mjs`, not the deployed Worker.
+2. Add fixtures to `app/e2e/lib/mock-api.ts`. Build every payload with the zod schema the app parses it with, exported from `app/src/lib/contracts.ts` (add the schema there and import it in the route if it is still inline), so a fixture cannot drift from the real shape. Mock HTTP with `page.route('/api/...')` and sockets with `page.routeWebSocket(/\/ws\/.../, ...)`.
+3. Keep fixtures inside AGENTS.md rule 2: every link ends in `.invalid`, slurs appear only as `slurx`/`slury`, no tokens, and overlay frames are redacted only (a line carries `len`, never text; `OverlayServerMsgZ` is strict so a readable field fails to build).
+4. Use role and text locators. Take screenshots with `SHOTS` and `WIDTHS` from `app/e2e/lib/shots.ts`, one browser context per colour scheme and width, written to `app/e2e/screenshots`. CI uploads that folder as the `screenshots-<run id>` artifact, green or red.
+5. Shared button, focus, disabled, loading, empty and error styles are covered once in `shared-states.spec.ts` (hover shadow without layout shift, reduced motion) and `states-gallery.spec.ts` (state screenshots); a surface spec only needs to apply those classes.
+6. Run it in Actions, never on the VM: push the branch, `gh run watch`, then `gh run download` for the screenshots.
+
 ## 3. Required tests (SRS §13.2)
 
 | File | Asserts | Covers | Ticket |

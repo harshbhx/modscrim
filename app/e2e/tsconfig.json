@@ -6,8 +6,8 @@
     "rootDir": "../..",
     // page.evaluate / locator.evaluate callbacks are serialised and run inside
     // the browser, so specs legitimately reference DOM globals.
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"]
   },
-  "include": ["./**/*.ts", "../../playwright.config.ts"]
+  "include": ["./**/*.ts", "../../playwright.config.ts", "../src/lib/contracts.ts", "../src/lib/consoleContracts.ts"]
 }
