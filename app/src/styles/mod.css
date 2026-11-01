@@ -1012,3 +1012,12 @@
     transform: none;
   }
 }
+
+/* The end screen shows reveal tags on every line, so let the list grow instead of scrolling inside itself. */
+.mod-main-column:has(.mod-reveal) .mod-chat-list {
+  max-height: none;
+}
+
+.practice-badge {
+  white-space: nowrap;
+}
