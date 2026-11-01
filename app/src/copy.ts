@@ -123,3 +123,52 @@ export const pages = {
   notFound: 'Page not found.',
   back: 'Back to the start'
 } as const;
+
+/**
+ * Console microcopy (T-130, T-131): labels, helper text and status wording on the streamer
+ * console that sit outside the exact PRD §9.6 deck. Approved by Harsh on 1 Nov 2026 (explicit
+ * override of AGENTS.md rule 11 for microcopy only); documented in PRD §9.6 "Console microcopy".
+ * Safety copy (hate.warning, banner.practice, privacy.short) is never changed here.
+ */
+export const consoleCopy = {
+  stepEyebrow: 'Step {n} of 6',
+  status: {
+    allGood: 'All systems working',
+    attention: 'Needs attention',
+    tokenOk: 'Connected',
+    subscriptionOk: 'Active',
+    subscriptionPending: 'Verifying',
+    subscriptionBad: 'Needs repair',
+    quotaMinute: 'Grading quota, per minute',
+    quotaHour: 'Grading quota, per hour'
+  },
+  filters: {
+    intro: 'Your drill is written to slip past these filters, so start by reading them.',
+    privateTerms: 'Twitch does not share private terms with apps, so they are not listed.',
+    demoMessages: '{n} sample messages',
+    demoLogDate: 'Curated demo sample',
+    collectingSince: 'Collecting from now on',
+    revealHint: 'Hover or focus a message to reveal it.'
+  },
+  configure: {
+    kai: 'Practice with Kai, a simulated co-mod',
+    noMods: 'No mods yet. Share the mod link, or turn on Kai to rehearse alone.',
+    online: 'Online',
+    reconnecting: 'Reconnecting'
+  },
+  rules: {
+    revealHint: 'Hover or focus a line to reveal it.'
+  },
+  push: {
+    liveNote: 'Nothing is sent to Twitch until you approve it, and every push can be undone.',
+    demoNote: 'This is a simulation. Nothing leaves this private demo room.'
+  }
+} as const;
+
+/** Fill `{name}` placeholders in a console microcopy string. */
+export function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, name: string) => {
+    const value = values[name];
+    return value === undefined ? match : String(value);
+  });
+}

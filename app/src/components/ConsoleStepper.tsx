@@ -1,3 +1,5 @@
+import { Icon } from './ConsoleIcons';
+
 const STEPS = [
   'Read filters',
   'Configure',
@@ -24,16 +26,22 @@ export function ConsoleStepper({
         const step = (index + 1) as ConsoleStep;
         const active = current === step;
         const locked = step > unlockedThrough;
-        return <li key={label} className={active ? 'is-current' : undefined}>
+        // A step is done once the one after it has been unlocked.
+        const done = !locked && step < unlockedThrough;
+        const state = active ? 'current' : locked ? 'locked' : done ? 'done' : 'open';
+        return <li key={label} className={active ? 'is-current' : undefined} data-state={state} data-done={done ? 'true' : undefined}>
           <button
             type="button"
             aria-current={active ? 'step' : undefined}
             aria-label={`Step ${step}: ${label}${locked ? ', locked' : ''}`}
+            title={label}
             disabled={locked}
             onClick={() => onSelect(step)}
           >
-            <span className="console-step-number" aria-hidden="true">{step}</span>
-            <span>{label}</span>
+            <span className="console-step-number" aria-hidden="true">
+              {done && !active ? <Icon name="check" size={14} /> : locked ? <Icon name="lock" size={13} /> : step}
+            </span>
+            <span className="console-step-label" aria-hidden="true">{label}</span>
           </button>
         </li>;
       })}

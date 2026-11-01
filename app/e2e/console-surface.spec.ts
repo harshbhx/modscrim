@@ -128,7 +128,7 @@ test.describe('console behaviour', () => {
     });
     expect(ring.style).not.toBe('none');
     expect(ring.width).toBeGreaterThanOrEqual(2);
-    await expect(nav.getByRole('button', { name: 'Step 2: Configure', exact: true })).toBeEnabled();
+    await expect(nav.getByRole('button', { name: 'Step 1: Read filters', exact: true })).toBeEnabled();
   });
 
   test('sample chat lines stay blurred until hover or focus (S-08)', async ({ page, baseURL }) => {
