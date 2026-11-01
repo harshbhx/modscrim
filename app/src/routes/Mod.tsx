@@ -161,17 +161,19 @@ export function Mod() {
       </header>
       <div className="mod-practice-banner" role="note">{copy['banner.practice']}</div>
       {isRunning && <div className="mod-live-strip"><span className="mod-live-dot" aria-hidden="true" /> Drill in progress <span className="mod-live-time">{formatElapsed(elapsed)}</span></div>}
-      {!drill || drill.status === 'draft' || drill.status === 'voting' ? <section className="mod-waiting" aria-live="polite">
+      {drill?.status === 'ended' && <section className="mod-reveal" aria-labelledby="mod-reveal-title"><div><p className="mod-eyebrow">Drill complete</p><h2 id="mod-reveal-title">What came through</h2></div><p>{drill.score.attacksShown} attacks shown · {drill.score.slipped} slipped through</p></section>}
+      {!drill || drill.status === 'draft' || drill.status === 'voting' ? <div className="mod-waiting-layout">
+      <section className="mod-waiting" aria-live="polite">
         <span className="mod-waiting-icon" aria-hidden="true">◎</span><h2>{copy['mod.waiting']}</h2>
         <p>The chat will appear here when the drill starts.</p>
+      </section>
         <ParticipantList participants={room.snapshot?.participants ?? []} />
-      </section> : <div className="mod-practice-grid">
+      </div> : <div className="mod-practice-grid">
         <div className="mod-main-column">
           <PracticeChat lines={drill.lines} events={actionEvents} reveals={drill.reveal ?? []} participantId={session.participantId} participantName={participantName}
             onAction={(lineId, action) => room.act(lineId, action)} onSync={() => room.sync()} onHelp={() => setShowHelp((visible) => !visible)} actionsEnabled={room.connection === 'open' && isRunning} />
           <div className="mod-help-area"><button type="button" className="mod-help-button" aria-expanded={showHelp} onClick={() => setShowHelp((visible) => !visible)}>Keyboard help <kbd>?</kbd></button>
             {showHelp && <p>Use ↑ and ↓ to focus an open line. Press D to delete, T to timeout, or B to ban. Home and End move to the first or latest open line. Enter activates a focused button.</p>}</div>
-          {drill.status === 'ended' && <section className="mod-reveal" aria-labelledby="mod-reveal-title"><p className="mod-eyebrow">Drill complete</p><h2 id="mod-reveal-title">What came through</h2><p>{drill.score.attacksShown} attacks shown · {drill.score.slipped} slipped through</p></section>}
         </div>
         <aside className="mod-side-column" aria-label="Team status">
           <Scoreboard score={drill.score} participantId={session.participantId} />
