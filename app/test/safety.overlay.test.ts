@@ -250,7 +250,7 @@ describe('T-124 safety at the Worker edge: overlay redaction and token leaks', (
 
     // Control: the console really did receive the readable text the overlay was denied.
     const consoleText = frames.filter((frame) => frame.role === 'console').map((frame) => frame.raw.toLowerCase()).join('\n');
-    for (const attack of attacks) expect(consoleText.includes(attack.text.toLowerCase())).toBe(true);
+    for (const attack of attacks) expect(consoleText.includes(JSON.stringify(attack.segments).toLowerCase())).toBe(true);
     expect(frames.some((frame) => frame.role === 'console' && frame.msg.type === 'drill.ended' && (frame.msg.data.reveal?.length ?? 0) > 0)).toBe(true);
 
     // ---- NFR-12: no token shape and no Worker secret value in any response body, header or frame ---------
