@@ -2,7 +2,7 @@ import { appendFile, readFile } from 'node:fs/promises';
 
 const reportPath = process.env.PLAYWRIGHT_JSON_OUTPUT_NAME ?? 'test-results/e2e-results.json';
 const summaryPath = process.env.GITHUB_STEP_SUMMARY;
-const projectNames = ['setup', 'smoke', 'safety', 'console'];
+const projectNames = ['setup', 'smoke', 'safety', 'console', 'mod'];
 const totals = new Map(projectNames.map((name) => [name, { passed: 0, failed: 0, skipped: 0 }]));
 
 try {
