@@ -19,6 +19,7 @@ import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
 import { consoleCopy, fill, t } from '../copy';
 import { Chip, Icon } from '../components/ConsoleIcons';
+import { displayName } from '../lib/names';
 import '../styles/console.css';
 
 const AutoModLabels: Record<string, string> = {
@@ -938,7 +939,7 @@ export function Console() {
               ? <p className="console-empty">{consoleCopy.configure.noMods}</p>
               : <ul className="console-participant-list">{participants.map((person) => <li key={person.id}>
                 <span className={person.online ? 'console-presence is-online' : 'console-presence'} aria-hidden="true" />
-                <span className="console-person">{person.name}{person.isSim ? ' (sim)' : ''}</span>
+                <span className="console-person">{displayName(person)}</span>
                 <span className={`console-presence-text${person.online ? ' is-online' : ''}`}>{person.online ? consoleCopy.configure.online : consoleCopy.configure.reconnecting}</span>
               </li>)}</ul>}
           </section>
@@ -976,7 +977,7 @@ export function Console() {
               {!score || score.mods.length === 0 ? <p className="console-empty">No mods have joined yet.</p> :
                 <ol className="console-score-list">{score.mods.map((mod, index) => <li key={mod.participantId}>
                   <span className="console-rank">{index + 1}</span>
-                  <strong>{mod.name}{mod.isSim ? ' (sim)' : ''}</strong>
+                  <strong>{displayName(mod)}</strong>
                   <span aria-live="polite" aria-atomic="true"><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans</span>
                 </li>)}</ol>}
             </section>
@@ -984,7 +985,7 @@ export function Console() {
               <div className="console-section-heading"><h3 id="mods-live-title">Mods in the room</h3><span>{humanCount}</span></div>
               <ul className="console-participant-list">{participants.map((person) => <li key={person.id}>
                 <span className={person.online ? 'console-presence is-online' : 'console-presence'} aria-hidden="true" />
-                <span className="console-person">{person.name}{person.isSim ? ' (sim)' : ''}</span>
+                <span className="console-person">{displayName(person)}</span>
                 <span className={`console-presence-text${person.online ? ' is-online' : ''}`}>{person.online ? consoleCopy.configure.online : consoleCopy.configure.reconnecting}</span>
               </li>)}</ul>
             </section>
