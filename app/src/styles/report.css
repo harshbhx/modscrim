@@ -1,0 +1,259 @@
+/*
+ * Shared report card (/r/:reportId). Numbers only (S-06): this file styles counts, a grade and a
+ * fresh-wave comparison, and there is nothing on the page that could hold a chat line or an attack.
+ *
+ * One card, three bands: a wall-green header, hung number plates, then quiet chalk sections divided
+ * by hairlines (brand/DESIGN.md: panels 10px, plates 3px, cards on chalk have a 1px outline and no
+ * shadow). Colours come from the palette primitives and the scheme-aware roles in styles/tokens.css,
+ * so light and dark both follow the OS. The fresh-wave comparison is two static bars, no chart library.
+ * Nothing here animates.
+ */
+.share-card {
+  max-width: 960px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+/* ---- header band ---- */
+.share-head {
+  padding: var(--space-10) var(--space-10) var(--space-8);
+}
+
+.share-head .eyebrow {
+  margin-bottom: var(--space-4);
+}
+
+.share-head h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(48px, 9vw, 96px);
+}
+
+.share-date {
+  margin: var(--space-4) 0 0;
+  color: var(--text-muted);
+  font: var(--t-body-s);
+}
+
+/* ---- number plates ---- */
+.share-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-8) var(--space-10);
+}
+
+.share-stat {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -2px 0 var(--green-950);
+  color: var(--chalk-100);
+}
+
+/* Two hanger holes, like tin numbers on a ballpark board. */
+.share-stat::before,
+.share-stat::after {
+  position: absolute;
+  top: var(--space-2);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-950);
+  content: '';
+}
+
+.share-stat::before { left: var(--space-2); }
+.share-stat::after { right: var(--space-2); }
+
+.share-stat dt {
+  font: var(--t-body-s);
+  font-weight: 700;
+}
+
+.share-stat dd {
+  margin: 0;
+  font: var(--t-display-l);
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: 'opsz' 72;
+}
+
+.share-stat-caught {
+  background: var(--caught-bg);
+  color: var(--caught-text);
+}
+
+.share-stat-slipped {
+  background: var(--slipped-bg);
+  color: var(--slipped-text);
+}
+
+/* ---- sections ---- */
+.share-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  border-top: 1px solid var(--line);
+}
+
+.share-section {
+  min-width: 0;
+  padding: var(--space-8) var(--space-10);
+}
+
+.share-section + .share-section { border-left: 1px solid var(--line); }
+
+.share-section h2 {
+  margin-bottom: var(--space-4);
+  font-size: 28px;
+}
+
+.share-section h3 {
+  margin: var(--space-8) 0 var(--space-3);
+  font-size: 22px;
+}
+
+.share-section p:last-child { margin-bottom: 0; }
+
+.share-grade {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.share-grade p { margin: 0; }
+
+/* The grade as one plate: lines that got past, over the wave size. */
+.share-score {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -2px 0 var(--green-950);
+  color: var(--chalk-100);
+  font-family: var(--font-display);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: 'opsz' 72;
+  font-weight: 800;
+}
+
+.share-score b {
+  font-size: 44px;
+  font-weight: inherit;
+  line-height: 1;
+}
+
+.share-score i {
+  width: 100%;
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: 2px solid var(--green-500);
+  font-size: 24px;
+  font-style: normal;
+  line-height: 1;
+  text-align: center;
+}
+
+.share-engine {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font: var(--t-caption);
+  font-weight: 700;
+}
+
+/* ---- fresh wave: two static bars on one scale ---- */
+.share-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-plate);
+  background: var(--sunken);
+}
+
+.share-bar {
+  display: block;
+  min-width: 36px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-plate);
+  font: 800 18px/28px var(--font-body);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.share-bar-before {
+  background: var(--green-300);
+  color: var(--green-850);
+}
+
+.share-bar-after {
+  background: var(--mint-800);
+  color: var(--mint-100);
+}
+
+/* ---- mods table ---- */
+.share-table-wrap { overflow-x: auto; }
+
+.share-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--t-body-s);
+  font-variant-numeric: tabular-nums;
+}
+
+.share-table th,
+.share-table td {
+  padding: var(--space-3) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.share-table th:first-child { text-align: left; white-space: nowrap; }
+.share-table thead th { color: var(--text-muted); font-weight: 700; }
+.share-table tbody tr:last-child > * { border-bottom: 0; }
+
+/* ---- footer ---- */
+.share-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+  padding: var(--space-6) var(--space-10);
+  border-top: 1px solid var(--line);
+  background: var(--sunken);
+}
+
+.share-foot p { margin: 0; max-width: var(--measure); }
+
+@media (max-width: 900px) {
+  .share-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .share-body { grid-template-columns: minmax(0, 1fr); }
+  .share-section + .share-section { border-top: 1px solid var(--line); border-left: 0; }
+}
+
+@media (max-width: 640px) {
+  .share-head,
+  .share-section,
+  .share-foot { padding-right: var(--space-4); padding-left: var(--space-4); }
+  .share-stats { padding: var(--space-6) var(--space-4); }
+  .share-stat dd { font: var(--t-display-m); font-variation-settings: 'opsz' 72; }
+  .share-foot .btn { width: 100%; }
+}
