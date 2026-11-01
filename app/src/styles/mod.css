@@ -659,14 +659,14 @@
   :root:not([data-theme='light']) .mod-page,
   :root:not([data-theme='light']) .mod-chat-panel {
     --redact-edge: var(--green-300);
-    --redact-hatch: var(--green-500);
+    --redact-hatch: var(--green-300);
   }
 }
 
 :root[data-theme='dark'] .mod-page,
 :root[data-theme='dark'] .mod-chat-panel {
   --redact-edge: var(--green-300);
-  --redact-hatch: var(--green-500);
+  --redact-hatch: var(--green-300);
 }
 
 .mod-slur-segment {
@@ -675,7 +675,7 @@
   margin: 0 0.1em;
   border-radius: 2px;
   background:
-    repeating-linear-gradient(135deg, transparent 0 3px, var(--redact-hatch) 3px 6px),
+    repeating-linear-gradient(135deg, transparent 0 4px, var(--redact-hatch) 4px 6px),
     var(--redact-fill);
   box-shadow: 0 0 0 1px var(--redact-edge);
   color: var(--redact-fill);
