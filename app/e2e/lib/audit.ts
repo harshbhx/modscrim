@@ -30,6 +30,10 @@ export type AuditOptions = {
   bare?: boolean;
   /** A transient loading state: a status message stands in for the page heading. */
   loading?: boolean;
+  /** Product-preview pages on the website use the app bar and have no site footer on purpose. */
+  noFooter?: boolean;
+  /** Known open items: findings whose rule matches and whose target or detail contains the text. */
+  known?: Array<{ rule: string; match: string; reason: string }>;
   /** Skip the Tab walk (pages that are mid-animation or have no focusable content). */
   noFocus?: boolean;
   /** Controls the audit must not complain about: a CSS selector and the reason it is exempt. */
@@ -153,7 +157,7 @@ async function staticAudit(page: Page, options: AuditOptions): Promise<StaticRes
       const banner = [...document.querySelectorAll('header, [role="banner"]')].find((h) => !h.parentElement?.closest(inSection));
       const footer = [...document.querySelectorAll('footer, [role="contentinfo"]')].find((f) => !f.parentElement?.closest(inSection));
       if (!banner) push('landmarks', null, 'no banner (header)');
-      if (!footer) push('landmarks', null, 'no contentinfo (footer)');
+      if (!footer && !opts.noFooter) push('landmarks', null, 'no contentinfo (footer)');
       const navs = [...document.querySelectorAll('nav, [role="navigation"]')].filter(visible);
       if (navs.length > 1) {
         const labels = navs.map((n) => (n.getAttribute('aria-label') ?? n.getAttribute('aria-labelledby') ?? '').trim());
@@ -249,7 +253,8 @@ export async function audit(page: Page, label: string, options: AuditOptions = {
   if (!options.noFocus) findings.push(...(await focusAudit(page, options)));
   const allowed = options.allow ?? [];
   const unique = new Map<string, Finding>();
-  for (const f of findings) unique.set(`${f.rule}|${f.target}|${f.detail}`, f);
+  const known = options.known ?? [];
+  for (const f of findings) if (!known.some((k) => k.rule === f.rule && (f.target + f.detail).includes(k.match))) unique.set(`${f.rule}|${f.target}|${f.detail}`, f);
   const list = [...unique.values()];
   mkdirSync(dirname(AUDIT_FILE), { recursive: true });
   const line = JSON.stringify({ label, viewport: page.viewportSize(), url: new URL(page.url()).pathname, findings: list, allowed });
