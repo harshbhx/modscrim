@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import {
+import { audit } from './lib/audit';
   mockOverlay,
   mockOverlayFixtureSocket,
   mockOverlaySocket,
@@ -73,6 +74,7 @@ for (const state of ['empty', 'live', 'report'] as const) {
         // The empty state keeps its original file name so existing artifact links still match.
         const name = state === 'empty' ? 'overlay' : `overlay-${state}`;
         await page.screenshot({ path: `${SHOTS}/${name}-${size.name}-${scheme}.png`, fullPage: true });
+        await audit(page, `${name}-${size.name}-${scheme}`, { bare: true, noFocus: true });
         await context.close();
       });
     }
@@ -314,6 +316,7 @@ test.describe('overlay captures on stream-like and bright backdrops', () => {
           await expect(page.locator('.overlay-alarm')).toBeVisible();
           await page.evaluate((bg) => document.documentElement.style.setProperty('background', bg, 'important'), css);
           await page.screenshot({ path: `${SHOTS}/overlay-v2-${set.name}-${size.name}-${backdrop}.png` });
+          if (backdrop === 'dark') await audit(page, `overlay-v2-${set.name}-${size.name}`, { bare: true, noFocus: true });
           await context.close();
         });
       }
