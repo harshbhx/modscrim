@@ -267,6 +267,10 @@ test.describe('overlay live render (redacted fixtures, 1920x1080)', () => {
     await expect(report).toContainText('Attacks slipped through');
     await expect(report).toContainText('14 / 20');
     await expect(report).toContainText('19 / 20');
+    // the poster sits in the free area, never on top of the dock
+    const rb = (await report.boundingBox())!;
+    const db = (await page.locator('.overlay-dock').boundingBox())!;
+    expect(rb.x).toBeGreaterThanOrEqual(db.x + db.width);
     await context.close();
   });
 

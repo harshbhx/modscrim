@@ -58,7 +58,7 @@
 .share-head h1 {
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: clamp(56px, 11vw, 120px);
+  font-size: clamp(44px, 11vw, 120px);
   line-height: 0.9;
   text-transform: uppercase;
 }

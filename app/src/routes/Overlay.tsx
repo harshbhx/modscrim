@@ -34,12 +34,18 @@ function formatReaction(value: number | null): string {
 
 /** Bar width as a share of the chat panel: length 4..200 characters maps to 12..100 %. */
 function lineWidth(length: number): string {
-  const bounded = Math.max(4, Math.min(200, length));
-  return `${Math.round(12 + ((bounded - 4) / 196) * 88)}%`;
+  const bounded = Math.max(4, Math.min(140, length));
+  return `${Math.round(12 + ((bounded - 4) / 136) * 88)}%`;
 }
 
-const MAX_CHAT_LINES = 8;
-const MAX_MOD_ROWS = 5;
+const MAX_MOD_ROWS = 4;
+
+/** Chat lines that fit above the scoreboard inside the dock (856 px): whole rows only, never a cut-off one. */
+function chatLineBudget(modCount: number): number {
+  const rows = Math.min(modCount, MAX_MOD_ROWS);
+  const more = modCount > MAX_MOD_ROWS ? 24 : 0;
+  return Math.max(3, Math.min(8, Math.floor((567 - more - 48 * rows) / 52.5)));
+}
 const o = pages.overlay;
 
 function Stat({ label, value, tone }: { label: string; value: number; tone: 'plain' | 'caught' | 'foul' | 'slipped' }) {
@@ -100,6 +106,7 @@ function VoteBars({ counts }: { counts: Record<Tactic, number> }) {
 
 function ChatStrip({ snapshot }: { snapshot: DrillSnapshot | null }) {
   const drill = snapshot?.drill;
+  const maxLines = chatLineBudget(drill?.score?.mods.length ?? 0);
   const lines = drill?.lines ?? [];
   const running = drill?.status === 'running';
   if (!drill) return <p className="overlay-connection">{o.waiting}</p>;
@@ -112,7 +119,7 @@ function ChatStrip({ snapshot }: { snapshot: DrillSnapshot | null }) {
     </header>
     {lines.length === 0 && <p className="overlay-empty">{o.firstLine}</p>}
     <div className="overlay-chat-list">
-      {lines.slice(-MAX_CHAT_LINES).map((item) => <article className={`overlay-chat-line overlay-chat-${item.state}`} key={item.line.lineId}>
+      {lines.slice(-maxLines).map((item) => <article className={`overlay-chat-line overlay-chat-${item.state}`} key={item.line.lineId}>
         <span className="overlay-user">{item.line.user}</span>
         <span className="overlay-redacted" aria-label="Hidden practice message">
           <span className="overlay-redacted-bar" style={{ width: lineWidth('len' in item.line ? item.line.len : 4) }} />

@@ -142,7 +142,7 @@ body:has(.overlay-viewport) {
 .overlay-panel {
   display: flex;
   min-height: 0;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--green-500);
@@ -384,7 +384,7 @@ body:has(.overlay-viewport) {
 .overlay-mods-head,
 .overlay-mods li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px 96px 88px;
+  grid-template-columns: minmax(0, 1fr) 70px 112px 84px;
   align-items: center;
   gap: 8px;
 }
@@ -503,7 +503,8 @@ body:has(.overlay-viewport) {
 .overlay-report {
   position: absolute;
   top: 50%;
-  left: 50%;
+  /* centred in the free area right of the dock: (1856 - 728 - 780) / 2 + 728 */
+  left: 902px;
   width: 780px;
   padding: 44px 40px 40px;
   overflow: hidden;
@@ -511,7 +512,7 @@ body:has(.overlay-viewport) {
   border-radius: var(--radius-lg);
   background: var(--green-900);
   box-shadow: 0 32px 64px -24px var(--green-950);
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
 }
 
 /* Hazard edge ties the poster to the alarm bar. */
