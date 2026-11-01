@@ -15,3 +15,7 @@ app/e2e/.state/
 app/e2e/.playwright/
 test-results/
 .wrangler/
+
+# Python bytecode from the bundled design skill
+__pycache__/
+*.pyc
