@@ -20,6 +20,9 @@ import {
   type OverlayServerMsg
 } from '../../src/lib/contracts';
 
+/** The fixed "now" of every fixture: 1 Nov 2026, 18:30 UTC. Shown on the shared report as its date. */
+export const FIXTURE_NOW = 1793557800000;
+
 const NOT_FOUND = { status: 404, contentType: 'application/json', body: '{"error":"not_found"}' } as const;
 
 export async function mockConsoleDemo(page: Page, room: string): Promise<void> {
@@ -42,13 +45,13 @@ export async function mockConsoleDemo(page: Page, room: string): Promise<void> {
       race_ethnicity_or_religion: 3,
       sex_based_terms: 1
     },
-    fetchedAt: 1730000000000
+    fetchedAt: FIXTURE_NOW
   });
 
   const chatLog = ChatLogZ.parse({
     count: 71,
-    oldest: 1730000000000 - 86400_000,
-    newest: 1730000000000 - 300_000,
+    oldest: FIXTURE_NOW - 86400_000,
+    newest: FIXTURE_NOW - 300_000,
     logging: false,
     samples: [
       { login: 'viewer_one', text: 'great stream today' },
@@ -77,11 +80,16 @@ const DEFAULT_SHARED_CARD: SharedCard = {
   fresh: { before: 14, after: 17, total: 18 }
 };
 
-export async function mockSharedReport(page: Page, reportId: string, card: SharedCard = DEFAULT_SHARED_CARD): Promise<void> {
+export async function mockSharedReport(
+  page: Page,
+  reportId: string,
+  card: SharedCard = DEFAULT_SHARED_CARD,
+  displayName = 'Pixel Panda'
+): Promise<void> {
   const report = SharedReportZ.parse({
     reportId,
-    channel: { login: 'pixelpanda_tv', displayName: 'Pixel Panda' },
-    createdAt: 1730000000000,
+    channel: { login: 'pixelpanda_tv', displayName },
+    createdAt: FIXTURE_NOW,
     card
   });
   await page.route(`/api/public/reports/${reportId}`, (route) =>
@@ -114,19 +122,19 @@ export async function mockOverlay(page: Page, channel: string): Promise<void> {
  */
 export function overlayFrames(withReport: boolean): OverlayServerMsg[] {
   const frames: unknown[] = [
-    { type: 'hello', data: { role: 'overlay', serverTime: 1730000000000 } },
+    { type: 'hello', data: { role: 'overlay', serverTime: FIXTURE_NOW } },
     {
       type: 'drill.state',
       data: {
         drill: {
           drillId: 'drill-surface',
           status: 'running',
-          startedAt: 1730000000000,
+          startedAt: FIXTURE_NOW,
           total: 18,
           lines: [
-            { line: { lineId: 'l1', user: 'viewer_a', len: 64 }, shownAt: 1730000001000, state: 'acted' },
-            { line: { lineId: 'l2', user: 'viewer_b', len: 120 }, shownAt: 1730000002000, state: 'slipped' },
-            { line: { lineId: 'l3', user: 'viewer_c', len: 36 }, shownAt: 1730000003000, state: 'open' }
+            { line: { lineId: 'l1', user: 'viewer_a', len: 64 }, shownAt: FIXTURE_NOW + 1000, state: 'acted' },
+            { line: { lineId: 'l2', user: 'viewer_b', len: 120 }, shownAt: FIXTURE_NOW + 2000, state: 'slipped' },
+            { line: { lineId: 'l3', user: 'viewer_c', len: 36 }, shownAt: FIXTURE_NOW + 3000, state: 'open' }
           ],
           score: {
             mods: [
@@ -231,16 +239,16 @@ export async function mockOverlayFixtureSocket(page: Page, fixture: OverlayFixtu
       return;
     }
     const send = (type: string, data: unknown): void => ws.send(JSON.stringify({ type, data }));
-    send('hello', { role: 'overlay', serverTime: 1730000000000 });
+    send('hello', { role: 'overlay', serverTime: FIXTURE_NOW });
     send('drill.state', {
       drill: {
         drillId: 'drill-fixture',
         status: fixture.status,
-        startedAt: 1730000000000,
+        startedAt: FIXTURE_NOW,
         total: 20,
         lines: fixture.lines.map((line, i) => ({
           line: { lineId: `l${i}`, user: line.user, len: line.len },
-          shownAt: 1730000000000 + i * 1500,
+          shownAt: FIXTURE_NOW + i * 1500,
           state: line.state
         })),
         score: {
