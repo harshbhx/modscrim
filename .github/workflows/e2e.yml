@@ -1,0 +1,61 @@
+name: End-to-end
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Read Playwright version
+        id: playwright-version
+        run: node -e "console.log('version=' + require('playwright/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium (download on cache miss, system deps always)
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install --with-deps chromium
+          else
+            npx playwright install-deps chromium
+          fi
+      - name: Run Playwright projects
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/e2e-results.json
+        run: |
+          mkdir -p test-results
+          npx playwright test --project=setup --project=smoke --project=safety --project=console --pass-with-no-tests --reporter=list,html,json
+      - name: Add per-project results to the job summary
+        if: always()
+        run: node scripts/e2e-summary.mjs
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-${{ github.run_id }}
+          path: |
+            app/e2e/report
+            test-results
+          if-no-files-found: warn
+          retention-days: 14
