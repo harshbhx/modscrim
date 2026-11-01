@@ -75,6 +75,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
+      name: 'site',
+      testMatch: /site-.*\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: process.env.PLAYWRIGHT_SITE_BASE_URL ?? 'http://127.0.0.1:4174' }
+    },
+    {
       name: 'smoke',
       testMatch: /smoke\.spec\.ts$/,
       dependencies: ['setup'],
