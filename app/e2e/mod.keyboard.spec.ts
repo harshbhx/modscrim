@@ -177,10 +177,8 @@ for (const { key, action, done } of SHORTCUTS) {
     await expect.poll(() => sentActions.filter((item) => item.lineId === lineId)).toEqual([{ lineId, action }]);
     const line = page.getByRole('listitem').filter({ has: page.locator(`[data-line-id="${lineId}"]`) });
     await expect(line.getByText(done)).toBeVisible();
-    // The line leaves the open queue: its three buttons are disabled.
-    await expect(line.getByRole('button', { name: /^Delete line from / })).toBeDisabled();
-    await expect(line.getByRole('button', { name: /^Timeout line from / })).toBeDisabled();
-    await expect(line.getByRole('button', { name: /^Ban line from / })).toBeDisabled();
+    // The line leaves the open queue: a decided line hides its action buttons (mod.css), so none stay visible or pressable.
+    await expect(line.locator('button.mod-action-button:visible:enabled')).toHaveCount(0);
     expect(await openLineIds()).not.toContain(lineId);
     // Caught or false bans goes up by one (the line may have been banter).
     await expect.poll(ownTotal).toBe(before + 1);
