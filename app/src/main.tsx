@@ -11,6 +11,7 @@ import '../../design/tokens.css';
 import '../../design/tokens.override.css';
 import './styles/base.css';
 import './styles/animations.css';
+import './styles/mod.css';
 
 const root = document.getElementById('root');
 
