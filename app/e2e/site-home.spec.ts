@@ -10,6 +10,10 @@ import { SHOTS, WIDTHS } from './lib/shots';
 
 const PAGES = [
   'index',
+  'docs',
+  'quickstart',
+  'troubleshooting',
+  'glossary',
   'how-it-works',
   'mods',
   'safety',
@@ -36,7 +40,9 @@ test.describe('site home', () => {
       await page.setViewportSize({ width: size.width, height: size.height });
       await page.goto('/index.html');
       await expect(page.getByRole('heading', { level: 1, name: 'Raid drills for your mod team.' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Start a drill' }).first()).toBeVisible();
+      const start = page.getByRole('link', { name: 'Start a drill' }).first();
+      await expect(start).toBeVisible();
+      await expect(start).toHaveAttribute('href', 'https://app.modscrim.dualmindlab.tech/console');
       await noSidewaysScroll(page);
     }
   });
@@ -59,6 +65,31 @@ test.describe('site home', () => {
     expect(after.width).toBe('2px');
     expect(after.box).toBe(before.box);
     expect(after.shadow).not.toBe('none');
+  });
+
+  test('the hero changes with the theme, not only the lower sections', async ({ browser }) => {
+    const bg = async (scheme: 'light' | 'dark') => {
+      const ctx = await browser.newContext({ colorScheme: scheme });
+      const page = await ctx.newPage();
+      await page.goto('/index.html');
+      const v = await page.locator('.hero').evaluate((el) => getComputedStyle(el).backgroundColor);
+      await ctx.close();
+      return v;
+    };
+    expect(await bg('light')).not.toBe(await bg('dark'));
+  });
+
+  test('drill widget: the cover is solid, so no chat line shows through, and Start stays on screen at 375', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/index.html#try');
+    const cover = page.locator('[data-cover]');
+    const colour = await cover.evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(colour, 'cover must not be translucent').not.toMatch(/rgba|\//);
+    const start = page.getByRole('button', { name: 'Start the 30-second drill' });
+    await start.scrollIntoViewIfNeeded();
+    const box = (await start.boundingBox())!;
+    const coverBox = (await cover.boundingBox())!;
+    expect(box.y + box.height).toBeLessThanOrEqual(coverBox.y + coverBox.height);
   });
 
   test('small-screen menu opens and closes by keyboard and marks the current page', async ({ page }) => {
@@ -114,4 +145,41 @@ test.describe('site screenshots', () => {
       }
     }
   }
+});
+
+test.describe('site docs', () => {
+  test('docs pages: one h1, a sidebar that marks the current page', async ({ page }) => {
+    for (const name of ['docs', 'quickstart', 'troubleshooting', 'glossary']) {
+      await page.goto(`/${name}.html`);
+      await expect(page.locator('h1')).toHaveCount(1);
+      await expect(page.locator(`.docnav a[aria-current="page"]`)).toHaveAttribute('href', `${name}.html`);
+      await expect(page.locator('header .nav-links a[aria-current="page"]')).toHaveText('Docs');
+    }
+  });
+
+  test('every internal link on every page resolves', async ({ page, request }) => {
+    const seen = new Set<string>();
+    const bad: string[] = [];
+    for (const name of PAGES) {
+      await page.goto(`/${name}.html`);
+      const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => (a as HTMLAnchorElement).getAttribute('href') ?? ''));
+      for (const href of hrefs) {
+        if (/^(https?:|mailto:|#)/.test(href) || seen.has(href)) continue;
+        seen.add(href);
+        const res = await request.get(`/${href.split('#')[0]}`);
+        if (!res.ok()) bad.push(`${name}: ${href} -> ${res.status()}`);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  test('no page scrolls sideways at any width', async ({ page }) => {
+    for (const name of PAGES) {
+      for (const size of WIDTHS) {
+        await page.setViewportSize({ width: size.width, height: size.height });
+        await page.goto(`/${name}.html`);
+        await noSidewaysScroll(page);
+      }
+    }
+  });
 });
