@@ -2,33 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { pages, t } from '../copy';
+import { SharedReportZ } from '../lib/contracts';
 
 /**
  * `/r/:reportId` (FR-27 P1, PRD F-20): the read-only report card a streamer chose to share. Numbers only
  * (S-06): the API sends counts, the grade and the fresh-wave proof, with mods shown as "Mod 1", "Mod 2".
  */
-
-const SharedReportZ = z.object({
-  reportId: z.string(),
-  channel: z.object({ login: z.string(), displayName: z.string() }),
-  createdAt: z.number(),
-  card: z.object({
-    attacksShown: z.number(),
-    slipped: z.number(),
-    mods: z.array(
-      z.object({
-        name: z.string(),
-        isSim: z.boolean(),
-        caught: z.number(),
-        falseBans: z.number(),
-        avgReactionMs: z.number().nullable()
-      })
-    ),
-    grade: z.object({ passed: z.number(), total: z.number(), engine: z.enum(['twitch', 'local', 'mixed']) }).nullable(),
-    termsPushed: z.number(),
-    fresh: z.object({ before: z.number(), after: z.number(), total: z.number() }).nullable()
-  })
-});
 
 type Shared = z.infer<typeof SharedReportZ>;
 type State = { kind: 'loading' } | { kind: 'missing' } | { kind: 'error' } | { kind: 'ready'; report: Shared };

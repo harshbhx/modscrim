@@ -4,15 +4,10 @@ import { z } from 'zod';
 import { TacticZ, type DrillSnapshot, type ReportCard, type ServerMsg, type Tactic } from '@mfd/core';
 import { t } from '../copy.js';
 import { apiFetch } from '../lib/api.js';
+import { ChannelInfoZ, ReportCardZ } from '../lib/contracts.js';
 import { useRoom } from '../lib/useRoom.js';
 import '../styles/overlay.css';
 
-const ChannelInfoZ = z.object({
-  broadcasterId: z.string().min(1),
-  displayName: z.string(),
-  avatarUrl: z.string().nullable(),
-  drillOpen: z.boolean()
-});
 type ChannelInfo = z.infer<typeof ChannelInfoZ>;
 
 function readChannelInfo(value: unknown): ChannelInfo | null {
@@ -28,13 +23,7 @@ type VoteUpdate = Extract<ServerMsg, { type: 'vote.update' }>['data'];
 const VoteUpdateZ = z.object({ counts: z.record(TacticZ, z.number().int().nonnegative()), endsAt: z.number() });
 
 function safeReport(value: unknown): ReportCard | null {
-  const parsed = z.object({
-    drillId: z.string(), attacksShown: z.number(), slipped: z.number(),
-    mods: z.array(z.object({ name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() })),
-    grade: z.object({ passed: z.number(), total: z.number(), engine: z.enum(['twitch', 'local', 'mixed']) }).nullable(),
-    termsPushed: z.number(),
-    fresh: z.object({ before: z.number(), after: z.number(), total: z.number() }).nullable()
-  }).safeParse(value);
+  const parsed = ReportCardZ.safeParse(value);
   return parsed.success ? parsed.data : null;
 }
 
