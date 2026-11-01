@@ -321,7 +321,7 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 .frame-bar .tag{height:24px;font-size:13px;flex:none}
 .frame .msg{cursor:default}
 .frame .msg:hover{background:transparent}
-.frame .sb{padding:14px 20px;gap:20px 24px}
+.frame .sb{display:flex;flex-wrap:wrap;padding:14px 20px;gap:12px 24px}
 .frame .sb-tag{display:none}
 .frame .slot-clock{margin-left:auto}
 .frame .pl{width:34px;height:46px;font-size:34px}
@@ -402,7 +402,7 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 /* drill section */
 .drill-head{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:56px;align-items:end;margin-bottom:40px}
 .drill-head .lead{max-width:28em}
-.drill-sec .field{margin-top:0}
+.drill-sec .field{margin:0}
 
 /* trust */
 .trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;padding:0;list-style:none;border-top:2px solid var(--ink);border-left:1px solid var(--card-edge)}
@@ -464,6 +464,7 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
   .phases li,.phases li + li{padding:24px 20px 20px 0;border-left:0}
   .phases li:nth-child(even){padding-left:20px;border-left:1px solid var(--card-edge)}
   .trust{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mini-steps .done span{display:none}
   .docnav{position:static;flex-direction:row;flex-wrap:wrap;gap:12px 32px}
   .docnav ul{flex-direction:row;flex-wrap:wrap}
   .foot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -472,8 +473,10 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
   .hero{padding-block:32px 56px}
   .hero-grid{gap:36px}
   .mini-steps li:not(.on) span{display:none}
-  .mini-steps li{padding:8px 10px}
-  .frame .slot-clock{grid-column:1/-1;grid-row:1;justify-self:end}
+  .mini-steps li{padding:8px 7px}
+  .frame .bar{grid-template-columns:56px minmax(0,1fr) 76px}
+  .frame .bar .num{white-space:nowrap;font-size:14px}
+  .frame .slot-clock{order:-1;width:100%;justify-content:flex-end}
   .frame .sb{padding:12px 14px}
   .frame-url{font-size:12px}
   .frame-bar .tag{display:none}
