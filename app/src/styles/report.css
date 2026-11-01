@@ -2,34 +2,65 @@
  * Shared report card (/r/:reportId). Numbers only (S-06): this file styles counts, a grade and a
  * fresh-wave comparison, and there is nothing on the page that could hold a chat line or an attack.
  *
- * One card, three bands: a wall-green header, hung number plates, then quiet chalk sections divided
- * by hairlines (brand/DESIGN.md: panels 10px, plates 3px, cards on chalk have a 1px outline and no
- * shadow). Colours come from the palette primitives and the scheme-aware roles in styles/tokens.css,
- * so light and dark both follow the OS. The fresh-wave comparison is two static bars, no chart library.
- * Nothing here animates.
+ * The card is a poster that looks the same in light and dark (it is what gets screenshotted and
+ * posted): wall-green throughout via .on-green, a hazard edge on top, the channel name as a display
+ * headline, the grade as a hero number on a deep plate beside the fresh-wave proof, four hung number
+ * plates, the mods table and a call to action with the real domain. The page around it follows the OS.
+ * Colours come from the palette primitives in styles/tokens.css. The fresh-wave comparison is two
+ * static bars, no chart library. Nothing here animates.
  */
-.share-card {
+.share-card,
+.share-card.on-green {
+  position: relative;
   max-width: 960px;
   margin: 0 auto;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid var(--green-500);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: var(--green-900);
 }
 
-/* ---- header band ---- */
+/* Hazard edge ties the poster to the stream alarm bar. */
+.share-card::before {
+  display: block;
+  height: 14px;
+  background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
+  content: '';
+}
+
+/* ---- header ---- */
 .share-head {
-  padding: var(--space-10) var(--space-10) var(--space-8);
+  padding: var(--space-8) var(--space-10) var(--space-8);
 }
 
-.share-head .eyebrow {
-  margin-bottom: var(--space-4);
+.share-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.share-brand img { flex: 0 0 auto; height: auto; }
+.share-brand img:first-child { width: 44px; }
+.share-brand img:nth-child(2) { width: 132px; }
+
+.share-head .share-chip {
+  margin: 0 0 0 auto;
+  padding: 4px 12px 3px;
+  border-radius: var(--radius-plate);
+  background: var(--yellow-400);
+  color: var(--green-850);
+  font: 800 17px/1.2 var(--font-display);
+  letter-spacing: 0.06em;
 }
 
 .share-head h1 {
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: clamp(48px, 9vw, 96px);
+  font-size: clamp(56px, 11vw, 120px);
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
 .share-date {
@@ -38,13 +69,121 @@
   font: var(--t-body-s);
 }
 
+/* ---- hero: the grade and the fresh-wave proof ---- */
+.share-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  margin: 0 var(--space-10);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--green-950);
+}
+
+.share-hero h2 {
+  margin: 0 0 var(--space-4);
+  color: var(--yellow-400);
+  font: 800 15px/1 var(--font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.share-hero p { margin: 0; }
+.share-hero p + p,
+.share-hero .share-bars + p { margin-top: var(--space-3); }
+
+.share-grade {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* The grade as a hero: how many attack lines would still get past. */
+.share-score {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-family: var(--font-display);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 0.85;
+}
+
+.share-score b {
+  color: var(--orange-400);
+  font-size: clamp(120px, 20vw, 200px);
+  font-variation-settings: 'opsz' 72;
+  font-weight: 800;
+}
+
+.share-score i {
+  color: var(--green-300);
+  font-size: clamp(40px, 7vw, 64px);
+  font-style: normal;
+}
+
+.share-grade p { font: var(--t-lead); }
+
+.share-engine {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--mint-800);
+  color: var(--mint-100);
+  font: var(--t-caption);
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* ---- fresh wave: two static bars on one scale ---- */
+.share-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.share-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.share-bar-row i {
+  color: var(--text-muted);
+  font: var(--t-caption);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.share-bar {
+  display: block;
+  min-width: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-plate);
+  font: 800 26px/40px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.share-bar-before {
+  background: var(--green-300);
+  color: var(--green-850);
+}
+
+.share-bar-after {
+  background: var(--mint-300);
+  color: var(--green-850);
+}
+
 /* ---- number plates ---- */
 .share-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
-  padding: var(--space-8) var(--space-10);
+  padding: var(--space-6) var(--space-10);
 }
 
 .share-stat {
@@ -57,7 +196,7 @@
   padding: var(--space-6) var(--space-4) var(--space-4);
   border-radius: var(--radius-plate);
   background: var(--green-800);
-  box-shadow: inset 0 -2px 0 var(--green-950);
+  box-shadow: inset 0 -3px 0 var(--green-950);
   color: var(--chalk-100);
 }
 
@@ -79,6 +218,7 @@
 .share-stat dt {
   font: var(--t-body-s);
   font-weight: 700;
+  line-height: 1.3;
 }
 
 .share-stat dd {
@@ -98,117 +238,16 @@
   color: var(--slipped-text);
 }
 
-/* ---- sections ---- */
-.share-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  border-top: 1px solid var(--line);
+/* ---- mods ---- */
+.share-mods { padding: var(--space-2) var(--space-10) var(--space-8); }
+
+.share-mods h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 32px;
 }
 
-.share-section {
-  min-width: 0;
-  padding: var(--space-8) var(--space-10);
-}
+.share-mods p:last-child { margin-bottom: 0; }
 
-.share-section + .share-section { border-left: 1px solid var(--line); }
-
-.share-section h2 {
-  margin-bottom: var(--space-4);
-  font-size: 28px;
-}
-
-.share-section h3 {
-  margin: var(--space-8) 0 var(--space-3);
-  font-size: 22px;
-}
-
-.share-section p:last-child { margin-bottom: 0; }
-
-.share-grade {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-}
-
-.share-grade p { margin: 0; }
-
-/* The grade as one plate: lines that got past, over the wave size. */
-.share-score {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: center;
-  min-width: 72px;
-  padding: var(--space-2) var(--space-3) var(--space-3);
-  border-radius: var(--radius-plate);
-  background: var(--green-800);
-  box-shadow: inset 0 -2px 0 var(--green-950);
-  color: var(--chalk-100);
-  font-family: var(--font-display);
-  font-style: normal;
-  font-variant-numeric: tabular-nums;
-  font-variation-settings: 'opsz' 72;
-  font-weight: 800;
-}
-
-.share-score b {
-  font-size: 44px;
-  font-weight: inherit;
-  line-height: 1;
-}
-
-.share-score i {
-  width: 100%;
-  margin-top: var(--space-1);
-  padding-top: var(--space-1);
-  border-top: 2px solid var(--green-500);
-  font-size: 24px;
-  font-style: normal;
-  line-height: 1;
-  text-align: center;
-}
-
-.share-engine {
-  display: inline-block;
-  padding: 0 var(--space-2);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
-  font: var(--t-caption);
-  font-weight: 700;
-}
-
-/* ---- fresh wave: two static bars on one scale ---- */
-.share-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-  padding: var(--space-2);
-  border-radius: var(--radius-plate);
-  background: var(--sunken);
-}
-
-.share-bar {
-  display: block;
-  min-width: 36px;
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-plate);
-  font: 800 18px/28px var(--font-body);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.share-bar-before {
-  background: var(--green-300);
-  color: var(--green-850);
-}
-
-.share-bar-after {
-  background: var(--mint-800);
-  color: var(--mint-100);
-}
-
-/* ---- mods table ---- */
 .share-table-wrap { overflow-x: auto; }
 
 .share-table {
@@ -226,34 +265,53 @@
 }
 
 .share-table th:first-child { text-align: left; white-space: nowrap; }
+.share-table tbody th { font-weight: 800; }
 .share-table thead th { color: var(--text-muted); font-weight: 700; }
 .share-table tbody tr:last-child > * { border-bottom: 0; }
 
-/* ---- footer ---- */
+/* ---- call to action ---- */
 .share-foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4) var(--space-8);
-  padding: var(--space-6) var(--space-10);
-  border-top: 1px solid var(--line);
-  background: var(--sunken);
+  padding: var(--space-8) var(--space-10);
+  background: var(--green-950);
 }
 
-.share-foot p { margin: 0; max-width: var(--measure); }
+.share-foot p { margin: 0; }
+
+.share-cta-lead {
+  font: var(--t-display-m);
+  font-size: 40px;
+  font-variation-settings: 'opsz' 36;
+}
+
+.share-domain {
+  margin-top: var(--space-1) !important;
+  color: var(--yellow-400);
+  font: var(--t-term);
+}
+
+.share-note {
+  flex: 1 1 100%;
+  color: var(--text-muted);
+  font: var(--t-caption);
+}
 
 @media (max-width: 900px) {
+  .share-hero { grid-template-columns: minmax(0, 1fr); }
   .share-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .share-body { grid-template-columns: minmax(0, 1fr); }
-  .share-section + .share-section { border-top: 1px solid var(--line); border-left: 0; }
 }
 
 @media (max-width: 640px) {
   .share-head,
-  .share-section,
+  .share-mods,
   .share-foot { padding-right: var(--space-4); padding-left: var(--space-4); }
-  .share-stats { padding: var(--space-6) var(--space-4); }
-  .share-stat dd { font: var(--t-display-m); font-variation-settings: 'opsz' 72; }
+  .share-hero { margin: 0 var(--space-4); padding: var(--space-6) var(--space-4); }
+  .share-stats { padding: var(--space-4); }
+  .share-stat dd { font: var(--t-display-m); font-size: 56px; font-variation-settings: 'opsz' 72; }
+  .share-cta-lead { font-size: 34px; }
   .share-foot .btn { width: 100%; }
 }
