@@ -58,7 +58,7 @@ jobs:
             sleep 1
           done
           curl -sf http://127.0.0.1:4173/ >/dev/null || { echo 'static server never came up'; exit 1; }
-          npx playwright test --project=landing --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --reporter=list
+          npx playwright test --project=landing --project=shell-surface --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --reporter=list
 
       - name: Run Playwright projects
         env:

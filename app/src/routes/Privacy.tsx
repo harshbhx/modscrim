@@ -1,4 +1,5 @@
 import { SITE_URL, copy, pages } from '../copy';
+import '../styles/shell.css';
 
 /**
  * `/privacy`: the copy-deck summary plus a link to the one full policy on the website,
@@ -7,13 +8,19 @@ import { SITE_URL, copy, pages } from '../copy';
 export function Privacy() {
   const { privacy } = pages;
   return (
-    <section className="page" aria-labelledby="privacy-title">
-      <div className="wrap">
-        <div className="prose">
+    <section className="page page-inner legal" aria-labelledby="privacy-title">
+      <header className="page-head on-green">
+        <div className="wrap">
           <h1 id="privacy-title">{privacy.title}</h1>
           <p className="lead">{privacy.lead}</p>
+        </div>
+      </header>
+      <div className="wrap legal-body">
+        <div className="prose legal-prose">
           <p>{copy['privacy.short']}</p>
           <p>{privacy.deleteNote}</p>
+        </div>
+        <aside className="legal-card">
           <p>{privacy.full}</p>
           <div className="actions">
             <a className="btn btn-line" href={`${SITE_URL}/privacy`}>
@@ -23,7 +30,7 @@ export function Privacy() {
           <p className="muted contact">
             {privacy.contact} <a href={`mailto:${privacy.email}`}>{privacy.email}</a>
           </p>
-        </div>
+        </aside>
       </div>
     </section>
   );

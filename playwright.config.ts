@@ -45,6 +45,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
+      name: 'shell-surface',
+      testMatch: /shell-surface\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
       name: 'console-surface',
       testMatch: /console-surface\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
