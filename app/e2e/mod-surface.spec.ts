@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockModDemo } from './lib/mock-api';
 import { mockModRoom, type ModScenario } from './lib/mock-mod-room';
+import { audit } from './lib/audit';
 
 const ROOM = 'surface-test';
 
@@ -33,6 +34,7 @@ test.describe('mod view surface (demo join card)', () => {
           path: `${SHOTS}/mod-${size.name}-${scheme}.png`,
           fullPage: true
         });
+        await audit(page, `mod-join-${size.name}-${scheme}`);
         await context.close();
       });
     }
@@ -63,6 +65,7 @@ test.describe('mod view surface (joined screens, mocked room)', () => {
           // let the 150 ms line entrance finish before the camera does
           await page.waitForTimeout(400);
           await page.screenshot({ path: `${SHOTS}/mod-${scenario}-${size.name}-${scheme}.png`, fullPage: true });
+          await audit(page, `mod-${scenario}-${size.name}-${scheme}`);
           await context.close();
         });
       }
@@ -135,6 +138,33 @@ test.describe('mod view surface (joined screens, mocked room)', () => {
     const links = await page.locator('.mod-link-segment').allInnerTexts();
     for (const link of links) expect(link).toMatch(/\.invalid(\/.*)?$/);
     await expect(page.locator('.mod-slur-segment').first()).toHaveText(/^▇+$/);
+    // the bar is one labelled graphic, not a run of characters read out one by one
+    await expect(page.locator('.mod-slur-segment').first()).toHaveAttribute('role', 'img');
+    await expect(page.getByRole('img', { name: 'Redacted term' }).first()).toBeVisible();
     await expect(page.locator('.mod-chat-list')).not.toContainText('slurx');
+  });
+});
+
+test.describe('mod view layout fixes (T-132)', () => {
+  test('waiting: the welcome card starts right under the practice banner', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await mockModRoom(page, ROOM, 'waiting');
+    await page.goto(`/demo/${ROOM}/mod`);
+    const banner = await page.locator('.mod-practice-banner').boundingBox();
+    const card = await page.locator('.mod-waiting').boundingBox();
+    expect(card && banner && card.y - (banner.y + banner.height)).toBeLessThanOrEqual(40);
+    await context.close();
+  });
+
+  test('ended: What came through spans the full width of the content', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await mockModRoom(page, ROOM, 'ended');
+    await page.goto(`/demo/${ROOM}/mod`);
+    const reveal = await page.locator('.mod-reveal').boundingBox();
+    const banner = await page.locator('.mod-practice-banner').boundingBox();
+    expect(reveal?.width).toBeCloseTo(banner?.width ?? 0, 0);
+    await context.close();
   });
 });

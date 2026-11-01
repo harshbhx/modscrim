@@ -1,4 +1,5 @@
 import type { DrillScore, DrillSnapshot, ModAction, Reveal, ServerMsg } from '@mfd/core';
+import { displayName } from '../lib/names.js';
 import { handleModKeyboard } from '../lib/keyboard.js';
 
 export type SnapshotLine = NonNullable<DrillSnapshot['drill']>['lines'][number];
@@ -47,6 +48,8 @@ export function ChatLine({ line, event, reveal, participantId, participantName, 
     <p className="mod-line-text">{'segments' in line.line ? line.line.segments.map((segment, index) => {
       const content = segment.kind === 'slur' ? '▇'.repeat(Math.max(1, segment.text.length)) : segment.text;
       const className = segment.kind === 'link' ? 'mod-link-segment' : segment.kind === 'slur' ? 'mod-slur-segment' : undefined;
+      // a redaction bar is one labelled graphic; the glyphs stay in the DOM as the spec's solid blocks
+      if (segment.kind === 'slur') return <span key={index} className={className} role="img" aria-label="Redacted term">{content}</span>;
       return <span key={index} className={className}>{content}</span>;
     }) : '▇'.repeat(line.line.len)}</p>
     {reveal && reveal.tags.length > 0 && <p className="mod-line-tags">{reveal.tags.join(' · ')}</p>}
@@ -87,7 +90,7 @@ export function Scoreboard({ score, participantId }: { score: DrillScore; partic
     {score.mods.length === 0 ? <p className="mod-muted">No mods have joined yet.</p> : <ol className="mod-score-list">
       {score.mods.map((mod, index) => <li key={mod.participantId} className={mod.participantId === participantId ? 'is-you' : undefined}>
         <span className="mod-score-rank">{index + 1}</span>
-        <span className="mod-score-name">{mod.name}{mod.isSim ? ' (sim)' : ''}{mod.participantId === participantId ? ' · you' : ''}</span>
+        <span className="mod-score-name">{displayName(mod)}{mod.participantId === participantId ? ' · you' : ''}</span>
         <span className="mod-score-numbers" aria-live={mod.participantId === participantId ? undefined : 'polite'} aria-atomic="true">{mod.caught} caught · {mod.falseBans} false bans · {seconds(mod.avgReactionMs)}</span>
       </li>)}
     </ol>}

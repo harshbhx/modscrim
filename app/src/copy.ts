@@ -48,19 +48,41 @@ export const pages = {
     skip: 'Skip to content',
     home: 'ModScrim home',
     main: 'Main',
+    menu: 'Menu',
+    menuNav: 'Main, small screens',
+    howItWorks: 'How it works',
+    forMods: 'For mods',
+    safety: 'Safety',
+    demo: 'Demo',
+    faq: 'FAQ',
     privacy: 'Privacy',
     footer: 'More about ModScrim',
-    website: 'Website',
+    product: 'Product',
+    trust: 'Trust',
+    more: 'More',
+    setup: 'Setup guide',
+    overlay: 'OBS overlay',
+    privacyPolicy: 'Privacy policy',
     terms: 'Terms of use',
     source: 'Source code',
+    report: 'Report a problem',
     notTwitch: 'ModScrim is not affiliated with or endorsed by Twitch.'
   },
   landing: {
     title: 'Raid drills for your mod team.',
     pitch:
-      "ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.",
+      "Practice a raid in a chat only your team can see. Find the spam that slips past your channel's own filters, then close the gaps with blocked terms you approve, with one-click undo.",
     signIn: 'Sign in with Twitch',
-    demo: 'Try the demo'
+    demo: 'Try the demo',
+    note: 'Practice chat only. Nothing is posted to Twitch.',
+    stepsTitle: 'How a drill runs',
+    steps: [
+      { title: 'Drill', text: 'Your mods clear a practice chat full of attacks and regulars.' },
+      { title: 'Grade', text: 'Twitch grades your filters and shows what slipped through.' },
+      { title: 'Fix', text: 'Approve new blocked terms. Undo any push with one click.' }
+    ],
+    previewLabel: 'Sample mod view',
+    previewCaption: 'The mod view during a drill. Sample lines, all of them fake.'
   },
   demo: {
     intro:
@@ -93,10 +115,10 @@ export const pages = {
     retry: 'Try again',
     attacksShown: 'Attacks shown',
     slipped: 'Slipped through',
-    caught: 'Caught by mods',
+    caught: 'Caught by the team',
     termsPushed: 'Terms pushed to Twitch',
-    filters: 'Filters',
-    notGraded: 'Not graded yet.',
+    filters: 'Your filters',
+    notGraded: 'Filters not graded yet.',
     engineMixed: 'graded by Twitch and a local estimate',
     fresh: 'Fresh wave',
     freshLine: 'Blocked {before} of {total} before the new terms, {after} of {total} after.',
@@ -108,7 +130,39 @@ export const pages = {
     seconds: '{s} s',
     noMods: 'No mods took part.',
     note: 'Numbers only. Attack lines, terms and chat are never shared.',
-    cta: 'Run a drill for your channel'
+    ctaLead: 'How would your mod team do?',
+    cta: 'Run your own fire drill',
+    before: 'Before',
+    after: 'After',
+    filterGrade: 'Filter check'
+  },
+  /** `/overlay/:channel`, the OBS overlay: short labels, redacted payloads only. */
+  overlay: {
+    scoreboard: 'Scoreboard',
+    chip: 'Practice drill',
+    chat: 'Practice chat',
+    live: 'Live',
+    linesShown: '{n} shown',
+    waiting: 'Waiting for the practice room',
+    firstLine: 'Waiting for the first line',
+    caught: 'Caught',
+    falseBans: 'False bans',
+    slipped: 'Slipped',
+    reaction: 'Reaction',
+    sim: 'sim',
+    more: '+{n} more',
+    votes: 'Chat picks the next tactic',
+    voteHint: 'Type !attack linkscam, spam, botwave or hateraid',
+    reportLabel: 'After-action report',
+    reportTitle: 'Drill complete',
+    dismiss: 'Dismiss after-action report',
+    termsPushed: 'Terms pushed to Twitch',
+    slippedThrough: 'Attacks slipped through',
+    freshTitle: 'Fresh wave',
+    before: 'Before the new terms',
+    after: 'After the new terms',
+    noGrade: 'No filter grade',
+    engineMixed: 'Twitch and local estimate'
   },
   screens: {
     console: 'Console',
@@ -123,3 +177,53 @@ export const pages = {
   notFound: 'Page not found.',
   back: 'Back to the start'
 } as const;
+
+/**
+ * Console microcopy (T-130, T-131): labels, helper text and status wording on the streamer
+ * console that sit outside the exact PRD §9.6 deck. Approved by Harsh on 1 Nov 2026 (explicit
+ * override of AGENTS.md rule 11 for microcopy only); documented in PRD §9.6 "Console microcopy".
+ * Safety copy (hate.warning, banner.practice, privacy.short) is never changed here.
+ */
+export const consoleCopy = {
+  rejectedWhy: 'Would ban a regular: also matches {n} harmless {messages}',
+  stepEyebrow: 'Step {n} of 6',
+  status: {
+    allGood: 'All systems working',
+    attention: 'Needs attention',
+    tokenOk: 'Connected',
+    subscriptionOk: 'Active',
+    subscriptionPending: 'Verifying',
+    subscriptionBad: 'Needs repair',
+    quotaMinute: 'Grading quota, per minute',
+    quotaHour: 'Grading quota, per hour'
+  },
+  filters: {
+    intro: 'Your drill is written to slip past these filters, so start by reading them.',
+    privateTerms: 'Twitch does not share private terms with apps, so they are not listed.',
+    demoMessages: '{n} sample messages',
+    demoLogDate: 'Curated demo sample',
+    collectingSince: 'Collecting from now on',
+    revealHint: 'Hover or focus a message to reveal it.'
+  },
+  configure: {
+    kai: 'Practice with Kai, a simulated co-mod',
+    noMods: 'No mods yet. Share the mod link, or turn on Kai to rehearse alone.',
+    online: 'Online',
+    reconnecting: 'Reconnecting'
+  },
+  rules: {
+    revealHint: 'Hover or focus a line to reveal it.'
+  },
+  push: {
+    liveNote: 'Nothing is sent to Twitch until you approve it, and every push can be undone.',
+    demoNote: 'This is a simulation. Nothing leaves this private demo room.'
+  }
+} as const;
+
+/** Fill `{name}` placeholders in a console microcopy string. */
+export function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, name: string) => {
+    const value = values[name];
+    return value === undefined ? match : String(value);
+  });
+}

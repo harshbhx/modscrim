@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { pages, t } from '../copy';
+import { SITE_URL, pages, t } from '../copy';
 import { SharedReportZ } from '../lib/contracts';
 import { percentOf } from '../lib/percent';
+import { displayName } from '../lib/names';
 import '../styles/report.css';
 
 /**
@@ -92,17 +93,69 @@ export function SharedReport() {
   const { card } = report;
   const caught = card.mods.reduce((sum, m) => sum + m.caught, 0);
 
+  const passed = card.grade?.passed ?? null;
+  const siteHost = SITE_URL.replace(/^https?:\/\//, '');
+
   return (
     <section className="page share" aria-labelledby="report-title">
       <div className="wrap">
-        <article className="share-card">
-          <header className="share-head on-green">
-            <p className="eyebrow">{r.eyebrow}</p>
+        <article className="share-card on-green">
+          <header className="share-head">
+            <div className="share-brand">
+              <img src="/img/modscrim-mark-small-color.svg" alt="" width="44" height="44" />
+              <img src="/img/modscrim-wordmark-reverse.svg" alt="ModScrim" width="132" height="34" />
+              <p className="eyebrow share-chip">{r.eyebrow}</p>
+            </div>
             <h1 id="report-title">{report.channel.displayName}</h1>
             <p className="share-date">
               <time dateTime={new Date(report.createdAt).toISOString()}>{dateFormat.format(report.createdAt)}</time>
             </p>
           </header>
+
+          <div className="share-hero">
+            <section className="share-hero-grade" aria-labelledby="report-filters">
+              <h2 id="report-filters">{r.filters}</h2>
+              {card.grade ? (
+                <div className="share-grade">
+                  <span className="share-score" aria-hidden="true">
+                    <b>{passed}</b>
+                    <i>/ {card.grade.total}</i>
+                  </span>
+                  <p>
+                    {t('grade.headline', { n: card.grade.passed, total: card.grade.total })}{' '}
+                    <span className="share-engine">{engineLabel(card.grade.engine)}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="muted">{r.notGraded}</p>
+              )}
+            </section>
+
+            <section className="share-hero-fresh" aria-labelledby="report-fresh">
+              <h2 id="report-fresh">{r.fresh}</h2>
+              {card.fresh ? (
+                <div className="share-fresh">
+                  <div className="share-bars" aria-hidden="true">
+                    <span className="share-bar-row">
+                      <i>{r.before}</i>
+                      <span className="share-bar share-bar-before" style={{ width: `${percentOf(card.fresh.before, card.fresh.total)}%` }}>
+                        {card.fresh.before}
+                      </span>
+                    </span>
+                    <span className="share-bar-row">
+                      <i>{r.after}</i>
+                      <span className="share-bar share-bar-after" style={{ width: `${percentOf(card.fresh.after, card.fresh.total)}%` }}>
+                        {card.fresh.after}
+                      </span>
+                    </span>
+                  </div>
+                  <p>{t2(r.freshLine, card.fresh)}</p>
+                </div>
+              ) : (
+                <p className="muted">{r.notProven}</p>
+              )}
+            </section>
+          </div>
 
           <dl className="share-stats">
             <div className="share-stat">
@@ -123,77 +176,45 @@ export function SharedReport() {
             </div>
           </dl>
 
-          <div className="share-body">
-            <section className="share-section" aria-labelledby="report-filters">
-              <h2 id="report-filters">{r.filters}</h2>
-              {card.grade ? (
-                <div className="share-grade">
-                  <span className="share-score" aria-hidden="true">
-                    <b>{card.grade.passed}</b>
-                    <i>{card.grade.total}</i>
-                  </span>
-                  <p>
-                    {t('grade.headline', { n: card.grade.passed, total: card.grade.total })}{' '}
-                    <span className="share-engine">{engineLabel(card.grade.engine)}</span>
-                  </p>
-                </div>
-              ) : (
-                <p className="muted">{r.notGraded}</p>
-              )}
-              <h3>{r.fresh}</h3>
-              {card.fresh ? (
-                <div className="share-fresh">
-                  <div className="share-bars" aria-hidden="true">
-                    <span className="share-bar share-bar-before" style={{ width: `${percentOf(card.fresh.before, card.fresh.total)}%` }}>
-                      {card.fresh.before}
-                    </span>
-                    <span className="share-bar share-bar-after" style={{ width: `${percentOf(card.fresh.after, card.fresh.total)}%` }}>
-                      {card.fresh.after}
-                    </span>
-                  </div>
-                  <p>{t2(r.freshLine, card.fresh)}</p>
-                </div>
-              ) : (
-                <p className="muted">{r.notProven}</p>
-              )}
-            </section>
-
-            <section className="share-section" aria-labelledby="report-mods">
-              <h2 id="report-mods">{r.mods}</h2>
-              {card.mods.length === 0 ? (
-                <p className="muted">{r.noMods}</p>
-              ) : (
-                <div className="share-table-wrap">
-                  <table className="share-table">
-                    <thead>
-                      <tr>
-                        <th scope="col">{r.mod}</th>
-                        <th scope="col">{r.caught}</th>
-                        <th scope="col">{r.falseBans}</th>
-                        <th scope="col">{r.reaction}</th>
+          <section className="share-mods" aria-labelledby="report-mods">
+            <h2 id="report-mods">{r.mods}</h2>
+            {card.mods.length === 0 ? (
+              <p className="muted">{r.noMods}</p>
+            ) : (
+              <div className="share-table-wrap">
+                <table className="share-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{r.mod}</th>
+                      <th scope="col">{r.caught}</th>
+                      <th scope="col">{r.falseBans}</th>
+                      <th scope="col">{r.reaction}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {card.mods.map((m) => (
+                      <tr key={m.name}>
+                        <th scope="row">{displayName(m)}</th>
+                        <td>{m.caught}</td>
+                        <td>{m.falseBans}</td>
+                        <td>{m.avgReactionMs === null ? '–' : t2(r.seconds, { s: (m.avgReactionMs / 1000).toFixed(1) })}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {card.mods.map((m) => (
-                        <tr key={m.name}>
-                          <th scope="row">{m.name}</th>
-                          <td>{m.caught}</td>
-                          <td>{m.falseBans}</td>
-                          <td>{m.avgReactionMs === null ? '–' : t2(r.seconds, { s: (m.avgReactionMs / 1000).toFixed(1) })}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
           <footer className="share-foot">
-            <p className="muted">{r.note}</p>
+            <div className="share-cta-text">
+              <p className="share-cta-lead">{r.ctaLead}</p>
+              <p className="share-domain">{siteHost}</p>
+            </div>
             <Link className="btn btn-orange" to="/">
               {r.cta}
             </Link>
+            <p className="share-note">{r.note}</p>
           </footer>
         </article>
       </div>

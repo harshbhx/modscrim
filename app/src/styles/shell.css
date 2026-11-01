@@ -20,34 +20,14 @@
  */
 
 /*
- * Ground for the pages in this file and /demo. design/tokens.css aliases --bg
- * and --surface onto the generated neutral ramp (dark: near-black, light: a
- * tinted card), which is neither the wall green the bands sit on nor Paper.
- * Restating them here puts these pages on the brand grounds: chalk with Paper
- * cards, and wall green with dugout cards in dark.
+ * The ground for every page this file, landing.css, demo.css and mod.css own.
+ * Dark values (dugout page, wall-green cards, deep-green wells) now come from
+ * the shared token layer (design/tokens.override.css and styles/tokens.css),
+ * the same ones the console and overlay use, so nothing is restated here.
  */
-.page-inner,
-.demo-page {
-  --surface: var(--color-surface); /* Paper, the one #fff DESIGN.md defines */
+:is(.page-inner, .demo-page, .landing, .mod-page) {
+  --surface: var(--color-surface); /* Paper in light, wall green in dark */
   background: var(--bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .page-inner,
-  :root:not([data-theme='light']) .demo-page {
-    --bg: var(--green-700);
-    --surface: var(--green-850);
-    --sunken: var(--green-900);
-    --line: var(--green-500);
-  }
-}
-
-:root[data-theme='dark'] .page-inner,
-:root[data-theme='dark'] .demo-page {
-  --bg: var(--green-700);
-  --surface: var(--green-850);
-  --sunken: var(--green-900);
-  --line: var(--green-500);
 }
 
 .site-main:has(> .legal) {
@@ -75,46 +55,102 @@
 }
 
 .site-header.on-green .site-nav {
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
-.site-header.on-green .site-nav a {
+.site-header.on-green .site-nav a,
+.site-header.on-green .site-menu nav a {
   position: relative;
   padding: 0 var(--space-3);
   border-radius: var(--radius-md);
   color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
   transition:
     background-color 0.12s ease,
     box-shadow 0.12s ease;
 }
 
-.site-header.on-green .site-nav a:hover {
+.site-header.on-green .site-nav a:hover,
+.site-header.on-green .site-menu nav a:hover {
   background: var(--green-600);
   text-decoration: none;
 }
 
 /* current page: an orange underline bar, the same cue the console stepper uses */
-.site-header.on-green .site-nav a[aria-current='page'] {
+.site-header.on-green .site-nav a[aria-current='page'],
+.site-header.on-green .site-menu nav a[aria-current='page'] {
   text-decoration: none;
   box-shadow: inset 0 -3px 0 var(--palette-whistle-orange);
 }
 
+/* small screens: the links move into a disclosure panel */
+.site-header.on-green .site-menu {
+  position: relative;
+  display: none;
+}
+
+.site-header.on-green .site-menu summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 2px solid var(--chalk-100);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font: var(--t-body-s);
+  font-weight: 700;
+  list-style: none;
+  cursor: pointer;
+}
+
+.site-header.on-green .site-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-header.on-green .site-menu summary:hover {
+  background: var(--green-600);
+}
+
+.site-header.on-green .site-menu nav {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--space-2);
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-lg);
+  background: var(--green-850);
+  box-shadow: 0 16px 32px -12px var(--green-950);
+  font: var(--t-body-s);
+}
+
+.site-header.on-green .site-menu nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 /* ---- footer band ---- */
 .site-footer.on-green {
-  padding: var(--space-8) 0 var(--space-10);
+  padding: var(--space-10) 0 var(--space-8);
   border-top: 3px solid var(--green-950);
 }
 
 .site-footer.on-green .wrap {
-  align-items: center;
-  gap: var(--space-6) var(--space-10);
+  align-items: flex-start;
+  gap: var(--space-8) var(--space-14);
 }
 
 .site-footer-about {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
-  max-width: 40em;
+  max-width: 22em;
 }
 
 .site-footer-about img {
@@ -127,17 +163,37 @@
   font: var(--t-caption);
 }
 
+.site-footer.on-green .site-footer-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, auto));
+  gap: var(--space-6) var(--space-14);
+}
+
+.site-footer.on-green .site-footer-nav h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font: 800 13px/1.2 var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .site-footer.on-green nav ul {
-  gap: var(--space-1) var(--space-2);
+  display: block;
+}
+
+.site-footer.on-green nav li + li {
+  margin: 0;
 }
 
 .site-footer.on-green nav a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  margin-inline: calc(var(--space-3) * -1);
   padding: 0 var(--space-3);
   border-radius: var(--radius-md);
   color: var(--text);
+  font: var(--t-body-s);
   font-weight: 700;
   text-decoration: none;
   transition: background-color 0.12s ease;
@@ -220,11 +276,14 @@
   padding: var(--space-16) 0 var(--space-24);
 }
 
+/* centred as one group at every width: plate and message side by side, stacked when narrow */
 .notice .notice-wrap {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: var(--space-8) var(--space-14);
+  text-align: center;
 }
 
 /* the 404 is one hung number plate: orange digits on a plate, 4.7:1 */
@@ -266,10 +325,11 @@
 
 .notice .notice-text {
   max-width: 24em;
+  text-align: left;
 }
 
 .notice .notice-text .lead {
-  margin: 0 0 var(--space-6);
+  margin: 0 auto var(--space-6);
 }
 
 .notice .notice-text > p:not(.lead) {
@@ -278,6 +338,26 @@
 
 /* ---- widths ---- */
 @media (max-width: 900px) {
+  .site-header.on-green .site-nav {
+    display: none;
+  }
+
+  .site-header.on-green .site-menu {
+    display: block;
+  }
+
+  .site-footer.on-green .site-footer-nav {
+    gap: var(--space-6) var(--space-10);
+  }
+
+  .notice .notice-wrap {
+    flex-direction: column;
+  }
+
+  .notice .notice-text {
+    text-align: center;
+  }
+
   .legal .legal-body {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-8);
@@ -294,8 +374,8 @@
     padding: var(--space-6) 0 var(--space-8);
   }
 
-  .site-footer.on-green nav ul {
-    margin-inline: calc(var(--space-3) * -1);
+  .site-footer.on-green .site-footer-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .page-inner .page-head.on-green {
@@ -317,6 +397,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .site-header.on-green .site-nav a,
+  .site-header.on-green .site-menu nav a,
   .site-footer.on-green nav a {
     transition: none;
   }
