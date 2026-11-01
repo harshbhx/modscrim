@@ -31,7 +31,7 @@ export function Demo() {
   return <section className="page demo-page" aria-labelledby="demo-title">
     <div className="wrap demo-wrap">
       <div className="demo-intro">
-        <p className="demo-eyebrow">Private practice room</p>
+        <p className="demo-eyebrow tag-practice">Private practice room</p>
         <h1 id="demo-title">Try a fire drill with your mod team</h1>
         <p className="demo-lead">{pages.demo.intro}</p>
         <ul className="demo-points">
@@ -46,8 +46,10 @@ export function Demo() {
           </button>
         </form>
       </div>
-      <aside className="demo-card" aria-label="How the demo works">
-        <span className="demo-card-mark" aria-hidden="true">M</span>
+      <aside className="demo-card on-green" aria-label="How the demo works">
+        <span className="demo-card-mark" aria-hidden="true">
+          <img src="/img/modscrim-mark-color.svg" alt="" width="44" height="44" />
+        </span>
         <p className="demo-card-kicker">No Twitch account needed</p>
         <h2>Practice safely</h2>
         <p>Every chat line stays inside the practice room. Nothing is posted to a real Twitch channel.</p>

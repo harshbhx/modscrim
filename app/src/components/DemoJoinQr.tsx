@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { pages } from '../copy.js';
 import { createDemoQrMatrix } from '../lib/demoQr.js';
 import { CopyField } from './CopyField.js';
+import '../styles/demo.css';
 
 export function DemoJoinQr({ url }: { url: string }) {
   const qr = useMemo(() => createDemoQrMatrix(url), [url]);
@@ -13,8 +14,8 @@ export function DemoJoinQr({ url }: { url: string }) {
       <CopyField label="Mod link" value={url} />
     </div>
     <svg className="demo-join-qr" role="img" aria-label="QR code for the demo moderator link" viewBox={`-2 -2 ${qr.size + 4} ${qr.size + 4}`}>
-      <rect x={-2} y={-2} width={qr.size + 4} height={qr.size + 4} fill="white" />
-      <path d={qr.path} fill="#082319" />
+      <rect x={-2} y={-2} width={qr.size + 4} height={qr.size + 4} className="demo-join-qr-ground" />
+      <path d={qr.path} className="demo-join-qr-ink" />
     </svg>
   </aside>;
 }

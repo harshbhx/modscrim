@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { SITE_URL, pages } from '../copy';
+import '../styles/shell.css';
 
 /** App shell: green header band, the page on the OS ground (chalk or green), green footer band. */
 export function Layout() {
@@ -24,7 +25,10 @@ export function Layout() {
       </main>
       <footer className="site-footer on-green">
         <div className="wrap">
-          <p>{nav.notTwitch}</p>
+          <div className="site-footer-about">
+            <img src="/img/modscrim-mark-small-reverse.svg" alt="" width="28" height="28" />
+            <p>{nav.notTwitch}</p>
+          </div>
           <nav aria-label={nav.footer}>
             <ul>
               <li>
