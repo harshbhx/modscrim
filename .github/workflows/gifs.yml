@@ -1,0 +1,121 @@
+name: README GIFs
+
+# Records the README / Devpost / video GIFs from scripted Playwright flows. Manual only: it never runs on pull
+# requests or pushes. Re-run it after the UI changes with one command:
+#
+#   gh workflow run gifs.yml --ref <branch>
+#   gh run watch            # then: gh run download <run-id> -n readme-gifs -D readme-gifs
+#
+# What it does: builds this branch's app, serves it with local Cloudflare bindings (no secrets, no deploy),
+# records 1280x720 videos (390x844 for the mod phone view, 1920x1080 for the overlay) of flows against a real
+# demo room (two POST /api/demo calls in all; the limit is 5 per 60 s), converts them with ffmpeg to GIFs under
+# 8 MB plus MP4 copies, and uploads one artifact "readme-gifs" (30 days) with INDEX.md.
+# The flows live in app/e2e/gifs, the cuts in app/e2e/gifs/manifest.json, the converter in scripts/gifs/build.mjs.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gifs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PLAYWRIGHT_BASE_URL: http://localhost:8787
+      GIFS: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ffmpeg
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+
+      - name: Read Playwright version
+        id: playwright-version
+        run: node -e "console.log('version=' + require('playwright/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium (download on cache miss, system deps always)
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install --with-deps chromium
+          else
+            npx playwright install-deps chromium
+          fi
+
+      - name: Typecheck the capture flows
+        continue-on-error: true
+        run: npx tsc -p app/e2e/tsconfig.json --noEmit
+
+      - name: Build this branch and serve it locally
+        run: scripts/gifs/start-local-app.sh
+
+      - name: Record the flows
+        id: record
+        continue-on-error: true
+        run: npx playwright test --project=gifs --reporter=list
+
+      - name: Convert to GIF and MP4
+        id: convert
+        if: always()
+        run: node scripts/gifs/build.mjs app/e2e/gifs/out/raw app/e2e/gifs/out/readme-gifs
+
+      - name: Job summary
+        if: always()
+        run: |
+          if [ -f app/e2e/gifs/out/readme-gifs/INDEX.md ]; then
+            cat app/e2e/gifs/out/readme-gifs/INDEX.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload readme-gifs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-gifs
+          path: app/e2e/gifs/out/readme-gifs
+          if-no-files-found: error
+          retention-days: 30
+
+      # Raw videos, timelines, failure screenshots and the server log: for debugging a flow, not for the README.
+      - name: Upload capture debug files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gifs-debug
+          path: |
+            app/e2e/gifs/out/raw
+            app/e2e/gifs/out/debug
+            app/e2e/gifs/out/app-server.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Fail if a flow or a GIF is missing
+        if: always()
+        run: |
+          status=0
+          if [ "${{ steps.record.outcome }}" != "success" ]; then echo "::error::a capture flow failed"; status=1; fi
+          for f in hero how-it-works mod-view overlay safety share-card end; do
+            [ -s "app/e2e/gifs/out/readme-gifs/$f.gif" ] || { echo "::error::$f.gif is missing"; status=1; }
+          done
+          exit $status

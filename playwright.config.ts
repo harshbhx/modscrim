@@ -108,6 +108,15 @@ export default defineConfig({
       testMatch: /demo\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
-    }
+    },
+    // README GIF capture: only exists when GIFS=1, which only .github/workflows/gifs.yml sets, so a bare
+    // `playwright test` never records anything. No retries: a retry would create another demo room, and
+    // POST /api/demo allows 5 per minute.
+    ...(process.env.GIFS === '1' ? [{
+      name: 'gifs',
+      testMatch: /gifs\/[\w-]+\.gif\.ts$/,
+      retries: 0,
+      use: { ...devices['Desktop Chrome'], video: 'off' as const, screenshot: 'off' as const, trace: 'off' as const }
+    }] : [])
   ]
 });
