@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { apiFetch, ApiError } from '../lib/api.js';
 import { useRoom } from '../lib/useRoom.js';
 import { copy } from '../copy.js';
+import { displayName } from '../lib/names.js';
 import { PracticeChat, Scoreboard, type DrillActionEvent } from '../components/ModPractice.js';
 
 const ChannelInfoZ = z.object({ broadcasterId: z.string(), displayName: z.string(), avatarUrl: z.string().nullable(), drillOpen: z.boolean() });
@@ -194,7 +195,7 @@ function ParticipantList({ participants }: { participants: Array<{ id: string; n
   return <section className="mod-participants" aria-labelledby="mod-participants-title">
     <h2 id="mod-participants-title">Moderators</h2>
     {participants.length === 0 ? <p className="mod-muted">Waiting for your team to join.</p> : <ul>
-      {participants.map((person) => <li key={person.id}><span className={'mod-online-dot' + (person.online ? ' is-online' : '')} aria-hidden="true" />{person.name}{person.isSim ? ' (sim)' : ''}
+      {participants.map((person) => <li key={person.id}><span className={'mod-online-dot' + (person.online ? ' is-online' : '')} aria-hidden="true" />{displayName(person)}
         <span className="mod-muted">{person.online ? 'Here' : 'Away'}</span></li>)}
     </ul>}
   </section>;
