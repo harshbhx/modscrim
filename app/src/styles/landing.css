@@ -35,9 +35,9 @@
 }
 
 .landing .landing-title {
-  max-width: 11ch;
+  max-width: 14ch;
   margin: 0 0 var(--space-6);
-  font-size: clamp(56px, 6.2vw, 92px);
+  font-size: clamp(56px, 5.8vw, 84px);
   line-height: 0.96;
 }
 
@@ -251,8 +251,8 @@
   height: 44px;
   margin-bottom: var(--space-4);
   border-radius: var(--radius-plate);
-  background: var(--palette-wall-green);
-  color: var(--chalk-100);
+  background: var(--text);
+  color: var(--bg);
   font: 800 28px/1 var(--font-display);
 }
 
@@ -276,7 +276,7 @@
   }
 
   .landing .landing-title {
-    max-width: 12ch;
+    max-width: 14ch;
   }
 
   .landing .landing-preview {
