@@ -20,45 +20,14 @@
  */
 
 /*
- * THE ground for every page this file, landing.css, demo.css and mod.css own.
- *
- * design/tokens.css aliases --bg and --surface onto the generated neutral ramp
- * (dark: near-black #080f0c, surface #121a17), which is neither the wall green
- * the header and footer bands sit on nor a brand colour at all. Restating them
- * here gives these pages ONE dark ground made only of brand tokens:
- *   light: chalk page, Paper cards (unchanged)
- *   dark:  dugout #0b2a1f page, wall-green #123d2e cards, deep-green #051a12 wells
- * so the page reads as a field under the green bands rather than a black hole.
- * Measured in dark: chalk text on dugout 12.2:1, on wall-green card 10.6:1;
- * muted green-300 on dugout 8.4:1, on the card 6.1:1.
- * The console and the overlay still use the generated near-black until the
- * shared token layer changes (see the PR notes); that is the one inconsistency left.
+ * The ground for every page this file, landing.css, demo.css and mod.css own.
+ * Dark values (dugout page, wall-green cards, deep-green wells) now come from
+ * the shared token layer (design/tokens.override.css and styles/tokens.css),
+ * the same ones the console and overlay use, so nothing is restated here.
  */
 :is(.page-inner, .demo-page, .landing, .mod-page) {
-  --surface: var(--color-surface); /* Paper, the one #fff DESIGN.md defines */
+  --surface: var(--color-surface); /* Paper in light, wall green in dark */
   background: var(--bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) :is(.page-inner, .demo-page, .landing, .mod-page) {
-    --bg: var(--palette-dugout);
-    --surface: var(--palette-wall-green);
-    --sunken: var(--green-950);
-    --line: var(--green-500);
-    --text-muted: var(--green-300);
-  }
-}
-
-:root[data-theme='dark'] :is(.page-inner, .demo-page, .landing, .mod-page) {
-  --bg: var(--palette-dugout);
-  --surface: var(--palette-wall-green);
-  --sunken: var(--green-950);
-  --line: var(--green-500);
-  --text: var(--chalk-100);
-  --text-muted: var(--green-300);
-  --line-strong: var(--chalk-100);
-  --accent-text: var(--orange-400);
-  --focus: var(--yellow-400);
 }
 
 .site-main:has(> .legal) {

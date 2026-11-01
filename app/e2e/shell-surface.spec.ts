@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockConsoleDemo } from './lib/mock-api';
+import { audit } from './lib/audit';
 
 /**
  * App shell and its pages (T-133): header and footer bands, /demo, /privacy and
@@ -131,6 +132,7 @@ for (const scheme of ['light', 'dark'] as const) {
         await expect(page.getByRole('heading', { level: 1, name: route.heading })).toBeVisible();
         expect(await overflow(page)).toBeLessThanOrEqual(0);
         await page.screenshot({ path: `${SHOTS}/${route.name}-${size.name}-${scheme}.png`, fullPage: true });
+        await audit(page, `shell-${route.name}-${size.name}-${scheme}`);
         await context.close();
       });
     }
@@ -145,6 +147,7 @@ for (const scheme of ['light', 'dark'] as const) {
       await page.goto('/demo/shell-test');
       await expect(page.locator('.console-stepper, [class*="stepper"]')).toBeVisible();
       await page.screenshot({ path: `${SHOTS}/shell-console-${size.name}-${scheme}.png`, fullPage: true });
+      await audit(page, `shell-console-${size.name}-${scheme}`);
       await context.close();
     });
   }

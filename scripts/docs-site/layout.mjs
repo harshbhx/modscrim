@@ -77,7 +77,7 @@ function sidebar(current, prefix) {
   const refs = `<div><h2>Reference</h2><ul><li><a href="${prefix}docs/glossary.html"${current.track === null && current.slug === 'glossary' ? ' aria-current="page"' : ''}>Glossary</a></li><li><a href="${prefix}faq.html">FAQ</a></li></ul></div>`;
   const hub = `<div><h2>Docs</h2><ul><li><a href="${prefix}docs/"${hubHere ? ' aria-current="page"' : ''}>Which docs are for me?</a></li></ul></div>`;
   if (current.track) return `<nav class="docnav" aria-label="${TRACKS[current.track].title}">${list(current.track, current, prefix)}${hub}${refs}</nav>`;
-  return `<nav class="docnav${hubHere ? ' is-hub' : ''}" aria-label="Docs">${hub}${Object.keys(TRACKS).map((k) => list(k, current, prefix)).join('')}${refs}</nav>`;
+  return `<nav class="docnav${hubHere ? ' is-hub' : ''}" aria-label="Documentation sections">${hub}${Object.keys(TRACKS).map((k) => list(k, current, prefix)).join('')}${refs}</nav>`;
 }
 
 /**
