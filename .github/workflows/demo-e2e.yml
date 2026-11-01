@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: demo-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   demo-loop:
     runs-on: ubuntu-latest
@@ -54,4 +58,5 @@ jobs:
             app/e2e/report
             test-results
           if-no-files-found: warn
+          retention-days: 14
           retention-days: 14

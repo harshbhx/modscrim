@@ -13,11 +13,6 @@ name: README GIFs
 # The flows live in app/e2e/gifs, the cuts in app/e2e/gifs/manifest.json, the converter in scripts/gifs/build.mjs.
 on:
   workflow_dispatch:
-  # Interim trigger: GitHub can dispatch a workflow only once it exists on the default branch, so until this lands
-  # on main, an (empty) push to this one branch runs it: git commit --allow-empty -m 'test: recapture GIFs' && git push.
-  # Delete these three lines once `gh workflow run gifs.yml --ref <branch>` works.
-  push:
-    branches: [gifs-capture]
 
 permissions:
   contents: read

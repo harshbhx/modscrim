@@ -14,14 +14,12 @@ on:
       enforce:
         description: 'Fail on audit findings (1) or only record them (0)'
         default: '1'
-  pull_request:
-    branches: [integration/ui-preview]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ui-final-${{ github.event.pull_request.number || github.ref }}
+  group: ui-final-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
