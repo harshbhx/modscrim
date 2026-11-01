@@ -43,7 +43,7 @@
 }
 
 .demo-page .demo-intro h1 {
-  max-width: 13ch;
+  max-width: 16ch;
   margin-bottom: var(--space-6);
   font-size: clamp(52px, 7vw, 92px);
 }
