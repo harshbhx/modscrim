@@ -65,6 +65,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
+      name: 'shared-states',
+      testMatch: /(shared-states|states-gallery)\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
       name: 'smoke',
       testMatch: /smoke\.spec\.ts$/,
       dependencies: ['setup'],
