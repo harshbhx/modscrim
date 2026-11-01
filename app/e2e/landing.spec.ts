@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
+import { audit } from './lib/audit';
 
 /**
  * Landing page (/). Checks the things a screenshot cannot: the copy is the
@@ -135,6 +136,7 @@ test.describe('landing page', () => {
           path: `${SHOTS}/landing-${size.name}-${scheme}.png`,
           fullPage: true
         });
+        await audit(page, `app-landing-${size.name}-${scheme}`);
         await context.close();
       });
     }

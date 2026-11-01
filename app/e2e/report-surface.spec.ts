@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockSharedReport, type SharedCard } from './lib/mock-api';
+import { audit } from './lib/audit';
 
 const REPORT_ID = 'surface-rpt-001';
 
@@ -31,6 +32,7 @@ test.describe('shared report surface', () => {
           path: `${SHOTS}/report-${size.name}-${scheme}.png`,
           fullPage: true
         });
+        await audit(page, `share-card-${size.name}-${scheme}`);
         await context.close();
       });
     }
@@ -72,6 +74,7 @@ test.describe('shared report card is numbers only (S-06)', () => {
         await page.goto(`/r/${REPORT_ID}`);
         await expect(page.getByText('Filters not graded yet.')).toBeVisible();
         await page.screenshot({ path: `${SHOTS}/report-empty-${size.name}-${scheme}.png`, fullPage: true });
+        await audit(page, `share-card-empty-${size.name}-${scheme}`);
         await context.close();
       });
     }

@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
+import { audit } from './lib/audit';
 
 /**
  * The static marketing site (site/), served from the branch under test with
@@ -166,6 +167,7 @@ test.describe('site screenshots', () => {
           await page.goto(`/${name}.html`);
           await page.evaluate(() => document.fonts.ready);
           await page.screenshot({ path: `${SHOTS}/site-${name.replace(/\//g, '-')}-${size.name}-${scheme}.png`, fullPage: true });
+          await audit(page, `${name.startsWith('docs/') ? 'docs' : 'site'}-${name.replace(/\//g, '-')}-${size.name}-${scheme}`);
           expect(errors).toEqual([]);
           await ctx.close();
         });

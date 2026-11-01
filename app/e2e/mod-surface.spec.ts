@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockModDemo } from './lib/mock-api';
 import { mockModRoom, type ModScenario } from './lib/mock-mod-room';
+import { audit } from './lib/audit';
 
 const ROOM = 'surface-test';
 
@@ -33,6 +34,7 @@ test.describe('mod view surface (demo join card)', () => {
           path: `${SHOTS}/mod-${size.name}-${scheme}.png`,
           fullPage: true
         });
+        await audit(page, `mod-join-${size.name}-${scheme}`);
         await context.close();
       });
     }
@@ -63,6 +65,7 @@ test.describe('mod view surface (joined screens, mocked room)', () => {
           // let the 150 ms line entrance finish before the camera does
           await page.waitForTimeout(400);
           await page.screenshot({ path: `${SHOTS}/mod-${scenario}-${size.name}-${scheme}.png`, fullPage: true });
+          await audit(page, `mod-${scenario}-${size.name}-${scheme}`);
           await context.close();
         });
       }

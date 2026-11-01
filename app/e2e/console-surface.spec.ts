@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { installConsoleMock, type ConsoleMock, type ConsoleMockOptions, type ConsoleMode } from './lib/console-mock';
+import { audit } from './lib/audit';
 
 /**
  * Streamer console surface specs (T-130, T-131). The Worker is replaced by the
@@ -19,6 +20,7 @@ function shooter(page: Page, mode: ConsoleMode, size: string, scheme: string): S
     await page.mouse.move(0, 0);
     await page.waitForTimeout(250);
     await page.screenshot({ path: `${SHOTS}/console-${mode}-${name}-${size}-${scheme}.png`, fullPage: true });
+    await audit(page, `console-${mode}-${name}-${size}-${scheme}`);
   };
 }
 
@@ -215,6 +217,7 @@ for (const view of STATE_VIEWS) {
         await page.mouse.move(0, 0);
         await page.waitForTimeout(250);
         await page.screenshot({ path: `${SHOTS}/console-state-${state.name}-${view.size.name}-${view.scheme}.png`, fullPage: true });
+        await audit(page, `console-state-${state.name}-${view.size.name}-${view.scheme}`);
         noFixtureErrors(mock);
       });
     }
