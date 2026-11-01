@@ -44,7 +44,7 @@ const MAX_MOD_ROWS = 4;
 function chatLineBudget(modCount: number): number {
   const rows = Math.min(modCount, MAX_MOD_ROWS);
   const more = modCount > MAX_MOD_ROWS ? 24 : 0;
-  return Math.max(3, Math.min(8, Math.floor((567 - more - 48 * rows) / 52.5)));
+  return Math.max(3, Math.min(8, Math.floor((540 - more - 48 * rows) / 52.5)));
 }
 const o = pages.overlay;
 
