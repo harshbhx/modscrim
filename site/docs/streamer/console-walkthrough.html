@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Console walkthrough | Streamer docs | ModScrim</title>
+<meta name="description" content="The six steps of the ModScrim streamer console, one by one: read filters, configure, run the drill, Twitch grades, fix the rules, fresh wave and push.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Console walkthrough | ModScrim docs">
+<meta property="og:description" content="The six steps of the ModScrim streamer console, one by one: read filters, configure, run the drill, Twitch grades, fix the rules, fresh wave and push.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/streamer/console-walkthrough">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/streamer/console-walkthrough">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/streamer/">Streamer docs</a> / Console walkthrough</p>
+    <h1 id="page-title">Console walkthrough</h1>
+    <p class="lead">The console has six steps, shown as tabs along the top. Here is what each one does.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Streamer docs"><div><h2>Streamer docs</h2><ul><li><a href="../../docs/streamer/">What ModScrim is for</a></li><li><a href="../../docs/streamer/quick-start.html">Quick start</a></li><li><a href="../../docs/streamer/connect-twitch.html">Connect Twitch</a></li><li><a href="../../setup.html">Setup guide</a></li><li><a href="../../docs/streamer/console-walkthrough.html" aria-current="page">Console walkthrough</a></li><li><a href="../../overlay.html">OBS overlay setup</a></li><li><a href="../../docs/streamer/grades-and-report.html">Reading the grades and the report</a></li><li><a href="../../docs/streamer/push-and-undo.html">Approve, push, undo and remove everything</a></li><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy and data retention</a></li><li><a href="../../docs/streamer/troubleshooting.html">Troubleshooting</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Streamer docs. You run a Twitch channel and want your mods ready for a raid. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+
+<p>You can move between steps at any time. The mockups below use sample data from the demo channel; yours shows your own filters, chat and grades. You can also <a href="../../console.html">click through the console preview</a>.</p>
+<h2 id="s1">1. Read filters</h2>
+<p>What your channel blocks today, read from Twitch. ModScrim tests these and never changes your AutoMod settings.</p>
+<ul>
+<li><strong>Public blocked terms.</strong> Twitch doesn&rsquo;t share private blocked terms with apps, so they aren&rsquo;t shown or tested. <strong>Refresh from Twitch</strong> reads them again.</li>
+<li><strong>Chat log.</strong> The number of messages, when collecting started, and that they are kept for 7 days. Recent lines are blurred until you hover or focus them. <strong>Delete chat log</strong> and <strong>Pause logging</strong> are here.</li>
+<li><strong>AutoMod levels.</strong> Read only. Change these in your Twitch moderation settings.</li>
+</ul>
+<h2 id="s2">2. Configure</h2>
+<p>The join code already works while you change settings, so mods can join now.</p>
+<ul>
+<li><strong>Tactics:</strong> Fake giveaway links, Follower and viewer spam, Art and promo bots, and Hate raid (placeholder slurs), which is off by default and shows a content warning.</li>
+<li><strong>Numbers:</strong> attack lines (6 to 30, at most 40 lines in total), banter lines (4 to 20), seconds between lines (0.8 to 3.0) and the slip window (5 to 15 seconds).</li>
+<li><strong>Kai (sim)</strong>, a simulated co-mod, always labelled and scored separately.</li>
+<li><strong>Invite your mods:</strong> the join code and the mod link. <strong>OBS overlay:</strong> the overlay URL, <strong>Rotate key</strong>, <strong>Preview the overlay</strong> and <strong>Hide mod names on the overlay</strong>.</li>
+</ul>
+<h2 id="s3">3. Run the drill</h2>
+<p>The same practice chat your mods see. You can act too, or just watch the scoreboard. Press <strong>Start drill</strong>. Anything nobody removes within the slip window slips through.</p>
+<figure class="mock"><div class="frame"><div class="frame-bar"><span class="frame-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="frame-url">app.modscrim.dualmindlab.tech/console</span><span class="tag tag-sample">Sample data</span></div><div class="sb" role="group" aria-label="Scoreboard, sample"><span class="sb-tag">Practice</span><div class="slot slot-mods"><span class="slot-l">Mods</span><span class="plates"><span class="pl"></span><span class="pl">3</span></span></div><div class="slot slot-raid"><span class="slot-l">Raid</span><span class="plates"><span class="pl"></span><span class="pl">1</span></span></div><div class="slot slot-fouls"><span class="slot-l">Fouls</span><span class="plates"><span class="pl">1</span></span></div></div><div class="frame-chat" role="img" aria-label="Sample practice chat"><div class="msg caught"><span class="u u1">nitrodrops_93</span><span class="t">fr33 nitro for the first 50 viewers &rarr; nitrodrop.invalid</span><span class="st st-caught">Caught</span></div><div class="msg slipped"><span class="u u4">grow_fast_77</span><span class="t">want more v i e w e r s? best promo viewbump .invalid</span><span class="st st-slipped">Slipped through</span></div></div></div></figure>
+<h2 id="s4">4. Twitch grades</h2>
+<p>Every attack line from the drill is checked against your current filters with Twitch&rsquo;s Check AutoMod Status. You see one plain number and a line-by-line table with the tactic and trick each line used. See <a href="../../docs/streamer/grades-and-report.html">reading the grades</a>.</p>
+<h2 id="s5">5. Fix the rules</h2>
+<p>Terms that catch what got past, checked against your last 7 days of chat and the banter pool. Any term that would match a regular is rejected.</p>
+<ul>
+<li><strong>Proposed:</strong> up to six terms, each with its real-chat matches (must be zero) and an example line it catches. Untick any you don&rsquo;t want.</li>
+<li><strong>Add your own term:</strong> 2 to 500 characters; a <code>*</code> may appear only at the start or end of a word.</li>
+<li><strong>Rejected:</strong> terms that would ban a regular, with the line they matched.</li>
+<li><strong>Needs a bot rule:</strong> tricks blocked terms can&rsquo;t express, such as spaced letters. Use a moderation bot for those.</li>
+</ul>
+<figure class="mock"><div class="frame"><div class="frame-bar"><span class="frame-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="frame-url">app.modscrim.dualmindlab.tech/console</span><span class="tag tag-sample">Sample data</span></div><div class="frame-body"><div class="rulecard"><header><b>Proposed</b><span class="micro muted">Sample terms</span></header><ul class="rulelist"><li><div class="what"><span class="kind">Catches 2</span><code>giftsnow*</code></div><div class="acts"><span class="state state-ready">0 real-chat matches</span></div></li><li><div class="what"><span class="kind">Rejected: matches a regular&rsquo;s &ldquo;dm me the build later&rdquo;</span><code>dm me</code></div><div class="acts"><span class="state state-bad">Would ban a regular</span></div></li></ul></div></div></div></figure>
+<h2 id="s6">6. Fresh wave and push</h2>
+<p>30 new attacks from a new seed, built with tricks the rule finder never saw. You see how many your filters block before and after, what still gets through, and that the new rules matched zero real messages. Then <strong>Approve and push</strong> sends the terms you ticked to Twitch. <strong>Undo this push</strong> removes them. See <a href="../../docs/streamer/push-and-undo.html">approve, push and undo</a>.</p>
+
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../setup.html"><span>Previous</span><b>Setup guide</b></a><a class="pn-link" href="../../overlay.html"><span>Next</span><b>OBS overlay setup</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

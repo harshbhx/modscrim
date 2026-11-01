@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Architecture | Developer docs | ModScrim</title>
+<meta name="description" content="One Cloudflare Worker serves the React app and the API, one ChannelRoom Durable Object per channel owns the drill, D1 keeps small global records, and Twitch is reached through OAuth, Helix and EventSu">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Architecture | ModScrim docs">
+<meta property="og:description" content="One Cloudflare Worker serves the React app and the API, one ChannelRoom Durable Object per channel owns the drill, D1 keeps small global records, and Twitch is reached through OAuth, Helix and EventSu">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/architecture">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/architecture">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / Architecture</p>
+    <h1 id="page-title">Architecture</h1>
+    <p class="lead">One Cloudflare Worker serves the React app and the API, one <code>ChannelRoom</code> Durable Object per channel owns the drill, D1 keeps small global records, and Twitch is reached through OAuth, Helix and EventSub webhooks. This page is the overview; the deep digest is <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/architecture.md"><code>for-agents/architecture.md</code></a> and the normative text is the <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/SRS.md">SRS</a>.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html" aria-current="page">Architecture</a></li><li><a href="../../docs/dev/run-locally.html">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html">Deployment</a></li><li><a href="../../docs/dev/testing.html">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#system-context">System context</a></li><li><a href="#components">Components</a></li><li><a href="#the-channelroom-durable-object">The ChannelRoom Durable Object</a></li><li><a href="#where-data-lives">Where data lives</a></li><li><a href="#key-flows">Key flows</a></li><li><a href="#cloudflare-configuration-at-a-glance">Cloudflare configuration at a glance</a></li></ul></nav>
+<h2 id="system-context">System context</h2>
+<figure class="diagram"><figcaption>Diagram (Mermaid source)</figcaption><pre><code>flowchart LR
+  subgraph Clients
+    S([Streamer console])
+    M([Mods on any device])
+    O([OBS overlay])
+    J([Demo visitor])
+  end
+  subgraph Pages[&quot;Cloudflare Pages: modscrim.dualmindlab.tech&quot;]
+    Site[&quot;Static website (site/)&quot;]
+  end
+  subgraph CF[&quot;Cloudflare: Worker mod-fire-drill, app.modscrim.dualmindlab.tech&quot;]
+    W[&quot;Worker: Hono routes, auth, webhook, cron, queue consumer&quot;]
+    A[(&quot;Static assets: React SPA&quot;)]
+    DO[[&quot;ChannelRoom Durable Object&lt;br/&gt;SQLite, alarms, hibernating WebSockets&quot;]]
+    D1[(&quot;D1 mfd:&lt;br/&gt;users, sealed tokens, subscriptions, audit&quot;)]
+    Q[[&quot;Queue mfd-reports&quot;]]
+    R2[(&quot;R2 mfd-reports&quot;)]
+  end
+  subgraph TW[Twitch]
+    OA[OAuth]
+    HX[&quot;Helix&lt;br/&gt;Check AutoMod Status, blocked terms&quot;]
+    ES[EventSub webhooks]
+  end
+  Clients --&gt;|HTTPS, WebSocket| W
+  W --&gt; A
+  W &lt;--&gt;|RPC, WebSocket upgrade| DO
+  W &lt;--&gt; D1
+  DO &lt;--&gt; D1
+  ES --&gt;|&quot;POST /eventsub&quot;| W
+  W --&gt; OA
+  DO --&gt;|terms, AutoMod, grading, push| HX
+  DO --&gt; Q
+  Q --&gt; W
+  W --&gt; R2</code></pre></figure>
+<p>The website and the app are separate deployments. The website (<code>site/</code>) is static and never calls the app's API; its buttons link to the app host. The app (<code>app/</code>) is one Worker: the SPA is served as static assets and the Worker runs first only for <code>/api/*</code>, <code>/auth/*</code>, <code>/ws/*</code> and <code>/eventsub</code>.</p>
+<h2 id="components">Components</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Component</th><th>Location</th><th>Responsibility</th></tr></thead><tbody><tr><td>Core engine</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/packages/core/src"><code>packages/core</code></a> (<code>@mfd/core</code>)</td><td>Pure TypeScript: seeded PRNG, matcher, tricks, templates, wave builder, rule finder, clean index, proof, scoring, Kai (sim), pacing, coach note, schemas. No I/O, no clock, no <code>Math.random()</code></td></tr><tr><td>Worker entry</td><td><a href="https://github.com/harshbhx/modscrim/blob/main/app/worker/index.ts"><code>app/worker/index.ts</code></a></td><td>Hono app; exports <code>ChannelRoom</code>; <code>fetch</code>, <code>scheduled</code> (hourly cron) and <code>queue</code> handlers</td></tr><tr><td>Routes</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/worker/routes"><code>app/worker/routes/</code></a></td><td><code>auth</code>, <code>api</code>, <code>mod</code>, <code>demo</code>, <code>eventsub</code>, <code>reports</code>, <code>ws</code></td></tr><tr><td>Auth</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/worker/auth"><code>app/worker/auth/</code></a></td><td>Token sealing, signed sessions, cookies, origin check, deletion</td></tr><tr><td>Twitch</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/worker/twitch"><code>app/worker/twitch/</code></a></td><td>OAuth, Helix client, webhook signature verification</td></tr><tr><td>Room</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/worker/room"><code>app/worker/room/</code></a></td><td><code>ChannelRoom</code> split into scheduler, hub (sockets), drill, chat log, grading, rules, push, report, demo, tokens and tickets</td></tr><tr><td>Jobs</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/worker/jobs"><code>app/worker/jobs/</code></a></td><td>Hourly token validation, purges and subscription health; report export</td></tr><tr><td>Web app</td><td><a href="https://github.com/harshbhx/modscrim/tree/main/app/src"><code>app/src/</code></a></td><td>React routes: landing, console, mod, overlay, demo, report, privacy</td></tr></tbody></table></div>
+<h2 id="the-channelroom-durable-object">The <code>ChannelRoom</code> Durable Object</h2>
+<ul><li><strong>One room per channel.</strong> Live rooms are <code>ch:&lt;broadcasterId&gt;</code>, demo rooms <code>demo:&lt;uuid&gt;</code>. Everything about a channel lives in its room, so rooms never coordinate with each other.</li><li><strong>One alarm, many jobs.</strong> A <code>schedule</code> table holds <code>(due_at, kind, key, payload, attempts)</code> with a unique <code>(kind, key)</code>. The single alarm fires the earliest due job; jobs are idempotent because alarms can fire more than once, and failures retry with backoff.</li><li><strong>Atomic changes.</strong> First action wins, slip marking and push bookkeeping run inside <code>transactionSync()</code> with no <code>await</code> between read and write.</li><li><strong>Hibernating WebSockets.</strong> Console, mod and overlay sockets use the Hibernation API, so the room can sleep while sockets stay open. Each broadcast builds one payload per role, so overlays only ever get redacted data.</li><li><strong>Drift-free clock.</strong> Line <code>n</code> is due at <code>startedAt + n x interval</code>, never &quot;now plus interval&quot;.</li><li><strong>Lifecycle.</strong> Live rooms last while the streamer is signed in; <code>destroy()</code> deletes all storage. Demo rooms delete themselves after two idle hours.</li></ul>
+<h2 id="where-data-lives">Where data lives</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Store</th><th>Holds</th></tr></thead><tbody><tr><td>Room SQLite (one per channel or demo)</td><td>Channel meta, cached filters, chat log, drills, wave lines, line states, participants, grades, rule runs, proofs, pushes, reports, schedule, ticket nonces</td></tr><tr><td>D1 <code>mfd</code></td><td>Users, sealed OAuth tokens, channel index, EventSub subscriptions, audit log, report summaries (schema in <a href="https://github.com/harshbhx/modscrim/blob/main/app/migrations/0001_init.sql"><code>0001_init.sql</code></a>)</td></tr><tr><td>R2 <code>mfd-reports</code> (production only)</td><td>Exported report JSON and Markdown</td></tr><tr><td>Queue <code>mfd-reports</code> (production only)</td><td>Report-export jobs carrying IDs only</td></tr><tr><td>Browser</td><td>Session cookies; a mod's participant token in <code>sessionStorage</code></td></tr></tbody></table></div>
+<p>D1 is never written per chat message. The Queue, R2 and AI bindings are optional in the Worker's types and every use is guarded, so the core product deploys without them; the preview environment sets R2 and the Queue empty.</p>
+<h2 id="key-flows">Key flows</h2>
+<p><strong>Sign-in.</strong> <code>/auth/login</code> goes to Twitch consent, <code>/auth/callback</code> checks <code>state</code> and exchanges the code, tokens are sealed into D1, the room is bootstrapped (reading terms and AutoMod), the chat subscription is created with the app token, a session is set and the browser lands on <code>/console</code>. A failed subscription does not fail sign-in.</p>
+<p><strong>Chat ingest.</strong> Twitch POSTs to <code>/eventsub</code>. The Worker verifies the HMAC on the raw body, checks the timestamp, and hands the message to the room, which dedupes by message ID, ignores shared-chat messages from other channels, tokenises and stores it. The Worker answers 204, or 500 if the room call fails so Twitch retries.</p>
+<p><strong>Drill, grade, rules, proof, push.</strong> The console starts a drill; <code>line.emit</code> alarms broadcast each line per role; mods send actions; <code>drill.end</code> scores and saves a report; grading sends paced Check AutoMod Status batches; the rule finder runs; the fresh-wave proof runs; push adds terms one at a time; undo removes only what that drill added.</p>
+<h2 id="cloudflare-configuration-at-a-glance">Cloudflare configuration at a glance</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Item</th><th>Value (from <a href="https://github.com/harshbhx/modscrim/blob/main/app/wrangler.jsonc"><code>app/wrangler.jsonc</code></a>)</th></tr></thead><tbody><tr><td>Worker</td><td><code>mod-fire-drill</code>, custom domain <code>app.modscrim.dualmindlab.tech</code>, <code>workers.dev</code> enabled</td></tr><tr><td>Durable Object</td><td><code>ROOM</code> bound to <code>ChannelRoom</code>, SQLite migration tag <code>v1</code></td></tr><tr><td>D1</td><td><code>DB</code> bound to database <code>mfd</code>, migrations in <code>app/migrations</code></td></tr><tr><td>Cron</td><td><code>7 * * * *</code> (hourly)</td></tr><tr><td>Rate limiters</td><td><code>JOIN_LIMITER</code> 10 per 60 s, <code>DEMO_LIMITER</code> 5 per 60 s, <code>AUTH_LIMITER</code> 20 per 60 s</td></tr><tr><td>Reports</td><td>R2 bucket and Queue both named <code>mfd-reports</code>; consumer batch 10, timeout 5 s, 3 retries</td></tr><tr><td>Preview environment</td><td>Separate Worker and database, no cron, R2 or Queue, local grading</td></tr></tbody></table></div>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/"><span>Previous</span><b>Developer docs overview</b></a><a class="pn-link" href="../../docs/dev/run-locally.html"><span>Next</span><b>Run it locally</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>
