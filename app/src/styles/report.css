@@ -225,7 +225,7 @@
   text-align: right;
 }
 
-.share-table th:first-child { text-align: left; }
+.share-table th:first-child { text-align: left; white-space: nowrap; }
 .share-table thead th { color: var(--text-muted); font-weight: 700; }
 .share-table tbody tr:last-child > * { border-bottom: 0; }
 

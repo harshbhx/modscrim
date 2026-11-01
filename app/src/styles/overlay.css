@@ -220,7 +220,8 @@ body:has(.overlay-viewport) {
   bottom: 0;
   left: 0;
   display: flex;
-  height: 690px;
+  /* 12 rows of 46 px with 11 px gaps: whole rows only, never a cut-off one */
+  height: 673px;
   flex-direction: column;
   justify-content: flex-end;
   gap: 11px;
