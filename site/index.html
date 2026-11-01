@@ -22,6 +22,9 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/tokens.override.css">
+<link rel="stylesheet" href="css/surfaces.css">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -29,7 +32,7 @@
 <header class="top on-green">
   <div class="wrap">
     <div class="nav">
-      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
+      <a class="brand" href="index.html" aria-label="ModScrim home" aria-current="page"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
       <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a></nav>
       <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
       <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
@@ -69,7 +72,7 @@
               <button class="btn btn-green btn-sm paused" type="button" data-paused hidden>Chat paused. Jump to newest</button>
               <div class="cover" data-cover>
                 <div class="cover-in">
-                  <p class="h3" style="color:var(--chalk)">A small raid is about to land.</p>
+                  <p class="h3 cover-title">A small raid is about to land.</p>
                   <p>You have 30 seconds. Click a message to delete it. Delete the spam and leave your regulars alone: deleting a regular is a foul. Anything nobody removes within 9 seconds slips through.</p>
                   <button class="btn btn-orange" type="button" data-start>Start the 30-second drill</button>
                 </div>
@@ -82,7 +85,7 @@
     </div>
   </section>
 
-  <section class="sec" id="how" aria-labelledby="how-title" style="padding-top:128px">
+  <section class="sec" id="how" aria-labelledby="how-title">
     <div class="wrap">
       <div class="how">
         <div>
@@ -102,26 +105,26 @@
         <figure class="play">
         <svg viewBox="0 0 520 596" role="img" aria-labelledby="play-t">
           <title id="play-t">Play diagram: raid accounts run at your chat, your mods block four of them, one slips through.</title>
-          <defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#FF6A1F"/></marker></defs>
-          <g fill="none" stroke="#123D2E" stroke-opacity=".28" stroke-width="2">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="play-arrow" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+          <g class="play-faint">
             <rect x="10" y="10" width="500" height="540"/><path d="M190 10 A70 70 0 0 0 330 10"/>
             <rect x="110" y="410" width="300" height="140"/><rect x="190" y="490" width="140" height="60"/><path d="M212 410 A62 62 0 0 1 308 410"/>
           </g>
-          <rect x="222" y="550" width="76" height="14" rx="2" fill="#123D2E"/>
-          <g fill="none" stroke="#FF6A1F" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9">
+          <rect class="play-ink-fill" x="222" y="550" width="76" height="14" rx="2"/>
+          <g class="play-route">
             <path d="M96 98 Q 108 200 140 280"/><path d="M262 112 L 261 248"/><path d="M424 114 Q 414 210 384 282"/><path d="M210 178 Q 216 260 232 316"/>
           </g>
-          <path d="M318 186 C 340 300, 320 430, 266 536" fill="none" stroke="#FF6A1F" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9" marker-end="url(#ah)"/>
-          <g stroke="#FF6A1F" stroke-width="4" stroke-linecap="round"><path d="M128 288 L 152 278"/><path d="M249 252 L 273 252"/><path d="M374 274 L 396 288"/><path d="M221 323 L 244 314"/></g>
-          <g fill="#FFFFFF" stroke="#FF6A1F" stroke-width="4">
+          <path class="play-route" d="M318 186 C 340 300, 320 430, 266 536" marker-end="url(#ah)"/>
+          <g class="play-block"><path d="M128 288 L 152 278"/><path d="M249 252 L 273 252"/><path d="M374 274 L 396 288"/><path d="M221 323 L 244 314"/></g>
+          <g class="play-acct">
             <circle cx="92" cy="80" r="16"/><circle cx="178" cy="56" r="16"/><circle cx="262" cy="94" r="16"/><circle cx="352" cy="58" r="16"/><circle cx="428" cy="96" r="16"/><circle cx="208" cy="160" r="16"/><circle cx="316" cy="168" r="16"/>
           </g>
-          <g stroke="#123D2E" stroke-width="5.5" stroke-linecap="round">
+          <g class="play-mod">
             <path d="M136 300 L 162 326 M162 300 L 136 326"/><path d="M248 264 L 274 290 M274 264 L 248 290"/><path d="M372 296 L 398 322 M398 296 L 372 322"/><path d="M224 332 L 250 358 M250 332 L 224 358"/>
           </g>
-          <g font-family="Atkinson Hyperlegible Next, system-ui, sans-serif" font-size="15" font-weight="700" fill="#123D2E" paint-order="stroke" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round">
+          <g class="play-label">
             <text x="490" y="40" text-anchor="end">Raid accounts</text><text x="30" y="372">Your mods</text><text x="260" y="588" text-anchor="middle">Your chat</text>
-            <text x="338" y="472" fill="#B33D00">Slipped through,</text><text x="338" y="491" fill="#B33D00">so it becomes a rule</text>
+            <text class="play-label-accent" x="338" y="472">Slipped through,</text><text class="play-label-accent" x="338" y="491">so it becomes a rule</text>
           </g>
         </svg>
           <figcaption>Circles are raid accounts, crosses are your mods. A dotted route ending in a bar is a message your team removed.</figcaption>
@@ -130,7 +133,7 @@
     </div>
   </section>
 
-  <section class="sec" id="referee" aria-labelledby="ref-title">
+  <section class="sec sec-alt" id="referee" aria-labelledby="ref-title">
     <div class="wrap">
       <div class="sec-head">
         <h2 id="ref-title" class="d2">Twitch keeps score on your filters</h2>
@@ -138,11 +141,11 @@
       </div>
       <div class="box-wrap">
         <div class="line on-green">
-          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 20px">
+          <div class="line-head">
             <p class="big-n num">9 of 14</p>
-            <p style="max-width:22em">attack lines would get past your filters <span class="engine">graded by Twitch</span></p>
+            <p>attack lines would get past your filters <span class="engine">graded by Twitch</span></p>
           </div>
-          <div class="bars" style="margin-top:28px">
+          <div class="bars">
             <p class="micro muted">Fresh wave of 30 attacks, with tricks the rule finder never saw</p>
             <div class="bar"><span>Before</span><span class="bar-track"><span class="bar-fill" style="display:block;width:33%"></span></span><span class="num">10 of 30</span></div>
             <div class="bar"><span>After</span><span class="bar-track"><span class="bar-fill good" style="display:block;width:63%"></span></span><span class="num">19 of 30</span></div>

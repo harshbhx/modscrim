@@ -53,7 +53,7 @@
   ];
   var TOTAL = {}; SCRIPT.forEach(function (x) { if (x.s) TOTAL[x.k] = (TOTAL[x.k] || 0) + 1; });
   var SPAM = SCRIPT.filter(function (x) { return x.s; }).length;
-  var COLORS = ['#8FE0AE', '#FFC48F', '#A6D8EC', '#F2E58A', '#F6B3A0'];
+  var COLORS = ['var(--success-dark-200)', 'var(--warning-dark-200)', 'var(--info-dark-300)', 'var(--voice-1-dark-200)', 'var(--danger-dark-300)']; /* token colours for chat usernames on the dark practice panel */
   function colorOf(u) { var h = 0; for (var i = 0; i < u.length; i++) h = (h * 31 + u.charCodeAt(i)) >>> 0; return COLORS[h % COLORS.length]; }
 
   /* ---------- scoreboard plates ---------- */
@@ -383,7 +383,22 @@
     window.addEventListener('resize', fit); fit();
   }
 
+  /* ---------- small-screen menu: Enter and Space open it (native <details>), Esc and a click or Tab outside close it ---------- */
+  function menus() {
+    $$('details.menu').forEach(function (d) {
+      var s = $('summary', d);
+      d.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && d.open) { d.open = false; s.focus(); }
+      });
+      d.addEventListener('focusout', function (e) {
+        if (d.open && e.relatedTarget && !d.contains(e.relatedTarget)) d.open = false;
+      });
+      document.addEventListener('click', function (e) { if (d.open && !d.contains(e.target)) d.open = false; });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
+    menus();
     $$('[data-drill]').forEach(Drill);
     ruleCards(); consoleSteps(); copies(); consoleActions(); modJoin(); stage();
   });

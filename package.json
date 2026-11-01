@@ -24,7 +24,10 @@
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report app/e2e/report",
     "load": "node --experimental-strip-types scripts/load.ts",
-    "subscribe-revoke": "node --experimental-strip-types scripts/subscribe-revoke.ts"
+    "subscribe-revoke": "node --experimental-strip-types scripts/subscribe-revoke.ts",
+    "site:tokens": "node scripts/sync-site-tokens.mjs",
+    "site:tokens:check": "node scripts/sync-site-tokens.mjs --check",
+    "site:colours": "node scripts/check-site-colours.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
