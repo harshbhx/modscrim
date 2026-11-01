@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { SITE_URL, pages, t } from '../copy';
 import { SharedReportZ } from '../lib/contracts';
 import { percentOf } from '../lib/percent';
+import { displayName } from '../lib/names';
 import '../styles/report.css';
 
 /**
@@ -193,7 +194,7 @@ export function SharedReport() {
                   <tbody>
                     {card.mods.map((m) => (
                       <tr key={m.name}>
-                        <th scope="row">{m.name}</th>
+                        <th scope="row">{displayName(m)}</th>
                         <td>{m.caught}</td>
                         <td>{m.falseBans}</td>
                         <td>{m.avgReactionMs === null ? '–' : t2(r.seconds, { s: (m.avgReactionMs / 1000).toFixed(1) })}</td>
