@@ -203,7 +203,7 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
   const proofBody = () => ProofResultZ.parse({
     total: gradeTotal,
     blockedBefore: gradeTotal - passedCount,
-    blockedAfter: 12,
+    blockedAfter: 11,
     realChat: ['follow me', 'boost', 'f0llowers', 'c.h.e.a.p'].map((term) => ({ term, count: 0, example: null })),
     pushAllowed: true,
     stillByTag: [{ tag: 'lookalike', count: 1, needsBotRule: true }, { tag: 'dm-me', count: 1, needsBotRule: false }]
@@ -218,7 +218,7 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
       rejected: [{ term: 'free', hits: 4, fp: 3 }, { term: 'promo', hits: 3, fp: 2 }],
       needsBotRule: [{ tag: 'lookalike', count: 1, needsBotRule: true }]
     },
-    proof: { total: gradeTotal, blockedBefore: gradeTotal - passedCount, blockedAfter: 12, realChatMatches: 0 },
+    proof: { total: gradeTotal, blockedBefore: gradeTotal - passedCount, blockedAfter: 11, realChatMatches: 0 },
     modHistory: [
       { name: 'Aria', drills: [{ drillId: 'd0', createdAt: now - 7 * 86_400_000, caught: 8, falseBans: 2, avgReactionMs: 2900 }, { drillId: DRILL_ID, createdAt: now, caught: 6, falseBans: 1, avgReactionMs: 2100 }] },
       { name: 'Jonah', drills: [{ drillId: 'd0', createdAt: now - 7 * 86_400_000, caught: 3, falseBans: 1, avgReactionMs: 4100 }, { drillId: DRILL_ID, createdAt: now, caught: 2, falseBans: 0, avgReactionMs: 3300 }] }
