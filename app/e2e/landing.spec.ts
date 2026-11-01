@@ -12,7 +12,7 @@ import { SHOTS, WIDTHS } from './lib/shots';
 
 const TITLE = 'Raid drills for your mod team.';
 const PITCH =
-  "ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.";
+  "Practice a raid in a chat only your team can see. Find the spam that slips past your channel's own filters, then close the gaps with blocked terms you approve, with one-click undo.";
 const SIGN_IN = 'Sign in with Twitch';
 const DEMO = 'Try the demo';
 
@@ -59,9 +59,9 @@ test.describe('landing page', () => {
     });
     expect(ring.style).not.toBe('none');
     expect(ring.width).toBeGreaterThanOrEqual(2);
-    // Card yellow, per brand/DESIGN.md focus-on-green. It measures 8.39:1 on
-    // the wall-green band; the default green focus ring would be 1.3:1 there.
-    expect(ring.color).toBe('rgb(255, 210, 63)');
+    // Light is the default scheme here: the ring is the wall-green focus colour on chalk
+    // (brand/DESIGN.md focus-on-chalk). The yellow ring is for green bands only.
+    expect(ring.color).toBe('rgb(18, 61, 46)');
 
     await page.keyboard.press('Tab');
     await expect(demo).toBeFocused();
@@ -77,22 +77,42 @@ test.describe('landing page', () => {
   test('hover does not move the layout', async ({ page }) => {
     await page.goto('/');
     const primary = page.locator('.landing-action-primary');
-    // At rest the fill is whistle orange itself, not a ramp step. The
-    // --color-action-* aliases resolve at :root, so a scope that redefines
-    // only --color-accent silently keeps the light ramp's #d96531.
+    // At rest the fill is whistle orange itself, not a ramp step.
     await expect(primary).toHaveCSS('background-color', 'rgb(255, 106, 31)'); // #ff6a1f
 
     const before = await primary.boundingBox();
     const borderBefore = await primaryBorderWidth(page);
 
     await primary.hover();
-    await expect(primary).toHaveCSS('background-color', 'rgb(255, 153, 112)'); // --accent-hover-on-dark
+    await expect(primary).toHaveCSS('background-color', 'rgb(240, 92, 0)'); // --accent-hover-on-light
 
     const after = await primary.boundingBox();
     expect(await primaryBorderWidth(page)).toBe(borderBefore);
     expect(after?.width).toBeCloseTo(before?.width ?? 0, 1);
     expect(after?.height).toBeCloseTo(before?.height ?? 0, 1);
     expect(after?.x).toBeCloseTo(before?.x ?? 0, 1);
+  });
+
+  test('the product picture is hidden from assistive tech and carries no figures', async ({ page }) => {
+    await page.goto('/');
+    const frame = page.locator('.landing-frame');
+    await expect(frame).toHaveAttribute('aria-hidden', 'true');
+    const text = await frame.innerText();
+    expect(text).not.toMatch(/\d+\s*(caught|slipped|s\b)/i);
+    for (const link of await frame.locator('.mod-link-segment').allInnerTexts()) expect(link).toMatch(/\.invalid(\/.*)?$/);
+  });
+
+  test('dark follows the dark ground, not the wall-green band', async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: 'dark' });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.locator('.landing')).toHaveCSS('background-color', 'rgb(11, 42, 31)'); // dugout
+    const light = await browser.newContext({ colorScheme: 'light' });
+    const lightPage = await light.newPage();
+    await lightPage.goto('/');
+    await expect(lightPage.locator('.landing')).toHaveCSS('background-color', 'rgb(238, 241, 232)'); // chalk
+    await context.close();
+    await light.close();
   });
 
   for (const scheme of ['light', 'dark'] as const) {
