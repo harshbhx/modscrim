@@ -19,8 +19,15 @@
   --rail-taken: var(--line);
 }
 
+/* the page fills what the header and footer leave, so no strip of the body ground shows above the footer */
+.site-main:has(> .mod-page) {
+  display: flex;
+  flex-direction: column;
+}
+
 .mod-page {
-  min-height: calc(100vh - 144px);
+  flex: 1;
+  min-height: 0;
   padding: var(--space-8) 0 var(--space-16);
   background: var(--bg);
 }
@@ -418,10 +425,22 @@
 
 /* ---------- waiting room ---------- */
 
+/* waiting room: the welcome card and the roster side by side, both hung straight under the banner */
+.mod-waiting-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  align-items: start;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.mod-waiting-layout .mod-participants {
+  margin-top: 0;
+}
+
 .mod-waiting {
-  max-width: 720px;
-  margin: clamp(var(--space-6), 8vh, 96px) auto;
-  padding: clamp(var(--space-6), 6vw, var(--space-10));
+  margin: 0;
+  padding: clamp(var(--space-6), 5vw, var(--space-14)) clamp(var(--space-6), 4vw, var(--space-10));
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card);
@@ -462,6 +481,7 @@
 
 .mod-waiting > p {
   max-width: 34ch;
+  margin-bottom: 0;
   margin-right: auto;
   margin-left: auto;
   color: var(--text-muted);
@@ -622,8 +642,47 @@
   text-underline-offset: 3px;
 }
 
+/*
+ * Redaction bar (AGENTS.md rule 2: placeholder slurs are solid blocks). The glyphs stay in the
+ * DOM as the specified text and take the bar's own colour so they never show as separate boxes;
+ * the bar is drawn by the background: one solid deep-green strip with a hatch, like censor tape,
+ * edged so it reads as a shape on both grounds. The span is role="img" with a label.
+ */
+.mod-page,
+.mod-chat-panel {
+  --redact-fill: var(--green-950);
+  --redact-hatch: var(--green-800);
+  --redact-edge: var(--green-950);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .mod-page,
+  :root:not([data-theme='light']) .mod-chat-panel {
+    --redact-edge: var(--green-300);
+    --redact-hatch: var(--green-300);
+  }
+}
+
+:root[data-theme='dark'] .mod-page,
+:root[data-theme='dark'] .mod-chat-panel {
+  --redact-edge: var(--green-300);
+  --redact-hatch: var(--green-300);
+}
+
 .mod-slur-segment {
-  letter-spacing: 0.08em;
+  display: inline-block;
+  height: 1em;
+  margin: 0 0.1em;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 4px, var(--redact-hatch) 4px 6px),
+    var(--redact-fill);
+  box-shadow: 0 0 0 1px var(--redact-edge);
+  color: var(--redact-fill);
+  letter-spacing: 0;
+  line-height: 1;
+  vertical-align: -0.14em;
+  overflow: hidden;
 }
 
 .mod-line-tags {
@@ -650,8 +709,18 @@
 .mod-feedback-caught {
   background: var(--caught-bg);
   color: var(--caught-text);
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
+  text-decoration: none; /* base.css still strikes this chip through; the words stay readable */
+}
+
+/* the caught chip leads with a tick drawn in CSS, so it is not colour alone and not a strike-through over its own words */
+.mod-feedback-caught::before {
+  width: 0.5em;
+  height: 0.85em;
+  margin: -0.15em var(--space-2) 0 0;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg) scale(0.8);
+  content: '';
 }
 
 .mod-feedback-false {
@@ -856,25 +925,37 @@
 
 /* ---------- end screen ---------- */
 
-.mod-own-result,
-.mod-reveal {
+.mod-own-result {
   margin-top: var(--space-4);
 }
 
+/* the drill summary spans the whole screen, above the chat and the side column, so it is never narrower than either */
 .mod-reveal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-8);
+  margin-bottom: var(--space-6);
   padding: var(--space-6);
-  border: 2px solid var(--line-strong);
   border-radius: var(--radius-lg);
+  border-left: 8px solid var(--rail-slipped);
   background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.mod-reveal .mod-eyebrow {
+  margin-bottom: var(--space-1);
 }
 
 .mod-reveal h2 {
-  font-size: 32px;
+  margin: 0;
+  font-size: 36px;
 }
 
 .mod-reveal p:last-child {
-  margin-bottom: 0;
-  font: var(--t-body);
+  margin: 0;
+  font: var(--t-lead);
   font-weight: 700;
 }
 
@@ -915,6 +996,10 @@
 /* ---------- breakpoints ---------- */
 
 @media (max-width: 850px) {
+  .mod-waiting-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .mod-practice-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -973,6 +1058,10 @@
     padding: var(--space-4);
   }
 
+  .mod-reveal h2 {
+    font-size: 30px;
+  }
+
   .mod-chat-panel {
     padding: var(--space-3);
   }
@@ -1014,7 +1103,7 @@
 }
 
 /* The end screen shows reveal tags on every line, so let the list grow instead of scrolling inside itself. */
-.mod-main-column:has(.mod-reveal) .mod-chat-list {
+.mod-page:has(.mod-reveal) .mod-chat-list {
   max-height: none;
 }
 

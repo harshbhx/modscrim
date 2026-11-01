@@ -447,6 +447,19 @@ A stepper runs across the top: **Read filters → Configure → Run the drill �
 | privacy.short | We keep your chat log for 7 days only to check that new rules don't ban your regulars. Delete it any time. |
 | announce.chat | Mod fire drill starting. Practice chat only, nothing here is real. |
 
+#### 9.6a App entry and shell text (outside the deck above)
+
+Not exact-match deck strings, but kept in `app/src/copy.ts` (`pages.nav`, `pages.landing`). Changed 1 Nov 2026 with Harsh's approval (poll):
+
+| Key | String |
+|---|---|
+| landing.pitch | Practice a raid in a chat only your team can see. Find the spam that slips past your channel's own filters, then close the gaps with blocked terms you approve, with one-click undo. |
+| landing.note | Practice chat only. Nothing is posted to Twitch. |
+| landing.stepsTitle | How a drill runs |
+| landing.steps | Drill / Grade / Fix, one short line each (see `copy.ts`) |
+| nav (header) | How it works · For mods · Safety · Demo · FAQ · Privacy (same labels as the website; Menu on small screens) |
+| nav (footer) | Product: How it works, Setup guide, OBS overlay · Trust: Safety, Privacy, Terms of use · More: FAQ, Source code, Report a problem |
+
 ### 9.7 Visual language
 
 - Colour tokens with light and dark themes for the console and mod screens; the overlay is always dark.

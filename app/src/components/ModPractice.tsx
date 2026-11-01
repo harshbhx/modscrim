@@ -47,6 +47,8 @@ export function ChatLine({ line, event, reveal, participantId, participantName, 
     <p className="mod-line-text">{'segments' in line.line ? line.line.segments.map((segment, index) => {
       const content = segment.kind === 'slur' ? '▇'.repeat(Math.max(1, segment.text.length)) : segment.text;
       const className = segment.kind === 'link' ? 'mod-link-segment' : segment.kind === 'slur' ? 'mod-slur-segment' : undefined;
+      // a redaction bar is one labelled graphic; the glyphs stay in the DOM as the spec's solid blocks
+      if (segment.kind === 'slur') return <span key={index} className={className} role="img" aria-label="Redacted term">{content}</span>;
       return <span key={index} className={className}>{content}</span>;
     }) : '▇'.repeat(line.line.len)}</p>
     {reveal && reveal.tags.length > 0 && <p className="mod-line-tags">{reveal.tags.join(' · ')}</p>}
