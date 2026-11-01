@@ -27,8 +27,9 @@
   /*
    * EXEMPTION (narrow, deliberate, one colour only)
    * --------------------------------------------------------------------
-   * Pair:    accent fill #ff6a1f on bg #eef1e8  = 2.51:1  (gate wants 3:1)
-   *          accent fill #ff6a1f on surface #fff = 2.86:1  (same colour, same cause)
+   * Pairs:   accent fill #ff6a1f on bg #eef1e8      = 2.51:1  (gate wants 3:1)
+   *          accent fill #ff6a1f on surface #ffffff = 2.86:1
+   *          Both accepted: one colour, one cause, one mitigation.
    * Reason:  the control is identified by its label and its border-strong
    *          outline, not by the fill alone, so WCAG 1.4.11 is met through
    *          the border. Whistle orange is the brand's single action colour
@@ -37,8 +38,9 @@
    * Binding: ANY element using --color-action as a fill MUST also set
    *          border: 2px solid var(--color-action-border).
    *          Enforced by scripts/lint-action-border.mjs (npm run lint:tokens).
-   * Scope:   this exemption covers --color-accent in light mode only.
-   *          No other pair is exempt. Dark mode passes unexempted at 6.77:1.
+   * Scope:   this exemption covers --color-accent in light mode only, on both
+   *          the chalk page and the Paper card. No other pair is exempt.
+   *          Dark mode passes unexempted at 6.77:1.
    * -------------------------------------------------------------------- */
   --color-accent: var(--palette-whistle-orange);  /* was #d96531 */
   --color-on-accent: var(--palette-dugout);       /* was neutral-950 #1a211e - 5.37:1 on orange */
@@ -49,10 +51,17 @@
    * step of the same hue (H 42.5). No darker same-hue step can hold the dark
    * label at 4.5:1 AND clear the 0.06 state_sibling threshold, so the residual
    * flag is answered with the non-colour cue the validator recommends: the
-   * border-strong outline thickens 2px -> 3px on hover.
+   * outline reads 1px heavier on hover.
+   *
+   * That cue is painted with box-shadow, never border-width, because changing
+   * a border's width reflows the element and every element after it. Use:
+   *   .control:hover { box-shadow: 0 0 0 1px var(--color-action-border); }
+   * which draws outside the border box and costs no layout.
    * #f05c00: dL 0.0417, label 4.57:1.
    */
   --color-accent-hover: #f05c00;               /* was #e25d1b */
+  /* the no-layout-shift hover cue; apply as box-shadow, not border-width */
+  --shadow-action-hover: 0 0 0 1px var(--color-action-border);
 
   /* chalk is darker than the generated bg, so the warning fill needed one more
      lightness step to hold 3:1. Lightness only; hue and chroma unchanged. */
@@ -76,6 +85,7 @@
     --color-accent-hover: #ff9970;             /* was accent-dark-200 #d8b9ad */
     --color-card-edge: var(--color-border);
     --color-action-border: var(--color-border-strong);
+    --shadow-action-hover: 0 0 0 1px var(--color-action-border);
   }
 }
 
@@ -85,4 +95,5 @@
   --color-accent-hover: #ff9970;
   --color-card-edge: var(--color-border);
   --color-action-border: var(--color-border-strong);
+  --shadow-action-hover: 0 0 0 1px var(--color-action-border);
 }

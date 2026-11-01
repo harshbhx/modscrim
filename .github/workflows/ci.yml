@@ -13,6 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  contrast-check:
+    name: Design token contrast and action-border lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The bundled skill is standard-library only, so there is nothing to install.
+      - name: Measure the shipped palette against the WCAG gate
+        run: node scripts/contrast-check.mjs
+
+      - name: Fail if an action fill ships without its border
+        run: node scripts/lint-action-border.mjs
+
   verify:
     name: Typecheck, tests, security, and build
     runs-on: ubuntu-latest
