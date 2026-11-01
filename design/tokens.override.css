@@ -84,6 +84,8 @@
 
   /* every interactive control borrows this; 3.04:1 on chalk */
   --color-action-border: var(--color-border-strong);
+
+  --skeleton-bg: var(--color-surface-sunken, #e2e7db);
 }
 
 /* ---- dark: follows the system unless data-theme=light ---- */
@@ -97,6 +99,8 @@
     --color-card-edge: var(--color-border);
     --color-action-border: var(--color-border-strong);
     --shadow-action-hover: 0 0 0 1px var(--color-action-border);
+
+    --skeleton-bg: var(--color-surface-sunken, #082319);
   }
 }
 
@@ -107,4 +111,6 @@
   --color-card-edge: var(--color-border);
   --color-action-border: var(--color-border-strong);
   --shadow-action-hover: 0 0 0 1px var(--color-action-border);
+
+  --skeleton-bg: var(--color-surface-sunken, #082319);
 }
