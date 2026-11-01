@@ -447,6 +447,38 @@ A stepper runs across the top: **Read filters → Configure → Run the drill �
 | privacy.short | We keep your chat log for 7 days only to check that new rules don't ban your regulars. Delete it any time. |
 | announce.chat | Mod fire drill starting. Practice chat only, nothing here is real. |
 
+#### Console microcopy (T-130, T-131)
+
+Labels, helper text, empty states and status wording on the streamer console that sit outside the exact deck above. Approved by Harsh on 1 Nov 2026 (explicit override of AGENTS.md rule 11, microcopy only). The strings live in `app/src/copy.ts` as `consoleCopy`. Safety copy (`banner.practice`, `hate.warning`, `privacy.short`, S-08 blur) and every key of the deck above are unchanged. Headings, button names and ARIA labels that the e2e specs select by are unchanged too.
+
+| Where | Was | Now |
+|---|---|---|
+| Step label above each step title | Step 1 | Step 1 of 6 |
+| Step 1 intro (new line under the title) | (none) | Your drill is written to slip past these filters, so start by reading them. |
+| Step 1, live console, under blocked terms | Private terms are not visible to apps. | Twitch does not share private terms with apps, so they are not listed. |
+| Demo header chip | 71 fixture messages | 71 sample messages |
+| Step 1 chat log date, demo | Curated demo fixture | Curated demo sample |
+| Step 1 chat log date, no history yet | Collecting since now | Collecting from now on |
+| Step 1 chat log hint (new, under the blurred samples) | (none) | Hover or focus a message to reveal it. |
+| Step 2 simulated co-mod checkbox | Kai (sim) | Practice with Kai, a simulated co-mod |
+| Step 2 empty joined-mods list | No mods yet. Share the mod link, or turn on Kai (sim) to rehearse alone. | No mods yet. Share the mod link, or turn on Kai to rehearse alone. |
+| Step 2 share panel heading (new) | (none) | Invite your mods |
+| Joined mods and room lists, online state | (dot only) | Online |
+| Joined mods and room lists, offline state | reconnecting | Reconnecting |
+| Step 5 rejected terms hint (new) | (none) | Hover or focus a line to reveal it. |
+| Step 6 note above the push button, live (new) | (none) | Nothing is sent to Twitch until you approve it, and every push can be undone. |
+| Step 6 note above the push button, demo (new) | (none) | This is a simulation. Nothing leaves this private demo room. |
+| Report, moderator history | Drill 1: ... \| Drill 2: ... on one line | One line per drill, no separator |
+| Report, proposed and rejected terms | a comma-separated sentence | one chip per term |
+| Connection status heading chip, healthy (new) | (none) | All systems working |
+| Connection status heading chip, unhealthy (new) | (none) | Needs attention |
+| Twitch connection value | Ok | Connected |
+| Chat subscription value | Enabled | Active |
+| Chat subscription value, pending | Webhook Callback Verification Pending | Verifying |
+| Chat subscription value, any other state | the raw state, title-cased | Needs repair |
+| Grading quota label, minute | Grading quota · minute | Grading quota, per minute |
+| Grading quota label, hour | Grading quota · hour | Grading quota, per hour |
+
 ### 9.7 Visual language
 
 - Colour tokens with light and dark themes for the console and mod screens; the overlay is always dark.

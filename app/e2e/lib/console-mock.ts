@@ -262,7 +262,12 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
   await page.route(`${DEMO_HOST}/**`, async (route) => {
     const url = new URL(route.request().url());
     const target = new URL(url.pathname + url.search, staticBase);
-    await route.fulfill({ response: await route.fetch({ url: target.toString() }) });
+    try {
+      await route.fulfill({ response: await route.fetch({ url: target.toString() }) });
+    } catch {
+      // the page navigated away or closed while the asset was in flight
+      await route.abort().catch(() => undefined);
+    }
   });
 
   // 2) the API (registered later, so it wins over the forwarder)
@@ -304,6 +309,8 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
       if (sub === 'stop') {
         state.stage = 'ended';
         await json(route, StopResponseZ.parse({ endedAt: Date.now() }));
+        // the socket carries the remaining lines up to the end, then the end itself
+        send({ type: 'drill.state', data: snapshot() });
         send({ type: 'drill.ended', data: { score: scoreFor('ended'), reveal: revealAll() } });
         return;
       }
