@@ -1,0 +1,87 @@
+name: Site
+
+# The static marketing site in site/ (Cloudflare Pages, destination_dir = site).
+# Serves the branch's own files, runs the site Playwright project, and uploads
+# every page in light and dark at 375, 768 and 1440 px as an artifact.
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'design/tokens*.css'
+      - 'app/e2e/site-*.spec.ts'
+      - 'scripts/serve-static.mjs'
+      - '.github/workflows/site.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Site checks and screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Read Playwright version
+        id: playwright-version
+        run: node -e "console.log('version=' + require('playwright/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium (download on cache miss, system deps always)
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install --with-deps chromium
+          else
+            npx playwright install-deps chromium
+          fi
+
+      - name: Serve site/ and run the site project
+        env:
+          PLAYWRIGHT_SITE_BASE_URL: http://127.0.0.1:4174
+        run: |
+          node scripts/serve-static.mjs site 4174 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4174/index.html >/dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:4174/index.html >/dev/null || { echo 'static server never came up'; exit 1; }
+          npx playwright test --project=site --reporter=list
+
+      # Uploaded even when green: this is how the pages get reviewed by eye.
+      - name: Upload site screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-screenshots-${{ github.run_id }}
+          path: app/e2e/screenshots/site-*.png
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-failure-${{ github.run_id }}
+          path: |
+            app/e2e/report
+            test-results
+          if-no-files-found: warn
+          retention-days: 14

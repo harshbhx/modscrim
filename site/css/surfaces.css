@@ -1,0 +1,18 @@
+/*
+ * ModScrim website: brand colours that design/tokens.css has no role for.
+ *
+ * Load order: tokens.css, tokens.override.css, surfaces.css, site.css.
+ * The first two are copies of design/ (npm run site:tokens). This file holds
+ * ONLY colours that brand/DESIGN.md lists and the generated token tiers do not
+ * express. Nothing here is new: scripts/check-site-colours.mjs fails CI if a
+ * value is neither in design/tokens*.css nor in brand/DESIGN.md.
+ */
+:root {
+  --scoreboard: #082319;     /* DESIGN.md "Scoreboard": scoreboards and linescores */
+  --plate: #103528;          /* DESIGN.md "Plate": number plates */
+  --moss: #4E6358;           /* DESIGN.md "Moss": secondary text on chalk and Paper */
+  --caught-bg: #1E5A40;      /* DESIGN.md Caught chip */
+  --caught-text: #C4F2D6;    /* DESIGN.md Caught chip label */
+  --paper: #FFFFFF;          /* DESIGN.md "Paper": a card that is always white */
+  --paper-edge: #C9D3C5;     /* DESIGN.md card outline */
+}
