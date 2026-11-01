@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
-import {
 import { audit } from './lib/audit';
+import {
   mockOverlay,
   mockOverlayFixtureSocket,
   mockOverlaySocket,
