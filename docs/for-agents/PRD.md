@@ -447,6 +447,19 @@ A stepper runs across the top: **Read filters → Configure → Run the drill �
 | privacy.short | We keep your chat log for 7 days only to check that new rules don't ban your regulars. Delete it any time. |
 | announce.chat | Mod fire drill starting. Practice chat only, nothing here is real. |
 
+#### 9.6a Website copy (`site/`, T-135/T-136)
+
+The marketing site is static and is not part of the app copy deck above. Its primary strings, kept in step with `app/src/copy.ts` where they overlap:
+
+| Where | String |
+|---|---|
+| Home h1 (same as the app landing) | Raid drills for your mod team. |
+| Home primary action | Start a drill (opens `https://app.modscrim.dualmindlab.tech/console`) |
+| Home secondary action | Try the 30-second drill |
+| Home helper under the actions | Sign in with Twitch, nothing to install. No account? Open a demo room. |
+| Header action | Sign in with Twitch |
+| Docs pages | Documentation, Quick start, Troubleshooting, Glossary (new), next to the Setup guide, How a drill runs, For mods, OBS overlay, Demo room, Safety, Privacy policy and FAQ |
+
 ### 9.7 Visual language
 
 - Colour tokens with light and dark themes for the console and mod screens; the overlay is always dark.
