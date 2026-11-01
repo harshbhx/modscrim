@@ -1,17 +1,4 @@
-import { z } from 'zod';
-
-export const StatusViewZ = z.object({
-  token: z.object({ status: z.string(), validatedAt: z.number().nullable() }),
-  subscription: z.object({ status: z.string() }),
-  chatLog: z.object({ count: z.number().int().nonnegative(), lastMessageAt: z.number().nullable() }),
-  quota: z.object({
-    minute: z.object({ used: z.number().int().nonnegative(), limit: z.number().int().positive() }),
-    hour: z.object({ used: z.number().int().nonnegative(), limit: z.number().int().positive() }),
-    nextAllowedAt: z.number()
-  })
-});
-
-export type StatusView = z.infer<typeof StatusViewZ>;
+import type { StatusView } from '../lib/consoleContracts';
 
 type Props = {
   status: StatusView | null;

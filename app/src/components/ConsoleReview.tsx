@@ -1,41 +1,8 @@
 import { useState } from 'react';
-import { z } from 'zod';
 import { validateTerm } from '@mfd/core';
 import { t } from '../copy';
+import type { GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../lib/consoleContracts';
 
-const GradeZ = z.object({ lineId: z.string(), phase: z.enum(['A', 'B-before', 'B-after']), engine: z.enum(['twitch', 'local']), permitted: z.boolean(), blockedBy: z.string().optional() });
-const PhaseZ = z.object({ done: z.number().int().nonnegative(), total: z.number().int().nonnegative(), passed: z.number().int().nonnegative(), engine: z.enum(['twitch', 'local', 'mixed']), nextAt: z.number().optional() });
-export const GradesViewZ = z.object({ phases: z.object({ A: PhaseZ.optional(), 'B-before': PhaseZ.optional(), 'B-after': PhaseZ.optional() }), lines: z.array(GradeZ) });
-export const RuleResultZ = z.object({
-  accepted: z.array(z.object({ term: z.string(), hits: z.number().int(), gain: z.number().int(), exampleLineId: z.string() })).max(6),
-  rejected: z.array(z.object({ term: z.string(), hits: z.number().int(), fp: z.number().int(), fpExample: z.string() })).max(6),
-  stillPassing: z.array(z.string()),
-  stillByTag: z.array(z.object({ tag: z.string(), count: z.number().int(), needsBotRule: z.boolean() }))
-});
-export const ProofResultZ = z.object({
-  total: z.number().int().nonnegative(), blockedBefore: z.number().int().nonnegative(), blockedAfter: z.number().int().nonnegative(),
-  realChat: z.array(z.object({ term: z.string(), count: z.number().int().nonnegative(), example: z.string().nullable() })),
-  pushAllowed: z.boolean(), stillByTag: z.array(z.object({ tag: z.string(), count: z.number().int(), needsBotRule: z.boolean() }))
-});
-export const PushResultsZ = z.array(z.object({ term: z.string(), status: z.enum(['added', 'preexisting', 'failed', 'removed']), twitchTermId: z.string().optional(), error: z.string().optional() }));
-export const ReportViewZ = z.object({
-  reportId: z.string(),
-  score: z.object({ mods: z.array(z.object({ participantId: z.string(), name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() })), slipped: z.number(), attacksShown: z.number() }),
-  grading: z.array(z.object({ phase: z.string(), engine: z.enum(['twitch', 'local', 'mixed']), passed: z.number(), total: z.number() })),
-  rules: z.object({ accepted: z.array(z.object({ term: z.string(), gain: z.number() })), rejected: z.array(z.object({ term: z.string(), hits: z.number(), fp: z.number() })), needsBotRule: z.array(z.object({ tag: z.string(), count: z.number(), needsBotRule: z.boolean() })) }).optional(),
-  proof: z.object({ total: z.number(), blockedBefore: z.number(), blockedAfter: z.number(), realChatMatches: z.number() }).optional(),
-  modHistory: z.array(z.object({
-    name: z.string(),
-    drills: z.array(z.object({ drillId: z.string(), createdAt: z.number(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() }))
-  })).optional(),
-  pushes: z.array(z.object({ term: z.string(), status: z.enum(['added', 'preexisting', 'failed', 'removed']), error: z.string().optional() }))
-});
-
-export type GradesView = z.infer<typeof GradesViewZ>;
-export type RuleResult = z.infer<typeof RuleResultZ>;
-export type ProofResult = z.infer<typeof ProofResultZ>;
-export type PushResult = z.infer<typeof PushResultsZ>[number];
-export type ReportView = z.infer<typeof ReportViewZ>;
 export type GradeLine = { id: string; text: string; tactic?: string; trick?: string; tags: string[] };
 
 export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, grading, busy, localOnly = false }: {

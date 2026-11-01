@@ -1,67 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { DEFAULT_CONFIG, DrillConfigInputZ, TacticZ } from '@mfd/core';
+import { DEFAULT_CONFIG, DrillConfigInputZ } from '@mfd/core';
 import type { DrillConfig, DrillSnapshot, Reveal, Segment, Tactic } from '@mfd/core';
 import { ConsoleStepper, type ConsoleStep } from '../components/ConsoleStepper';
-import { GradeTable, GradesViewZ, ProofBars, ProofResultZ, PushResultsZ, ReportCard, ReportViewZ, RuleList, RuleResultZ } from '../components/ConsoleReview';
-import type { GradeLine, GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../components/ConsoleReview';
+import { GradeTable, ProofBars, ReportCard, RuleList } from '../components/ConsoleReview';
+import type { GradeLine } from '../components/ConsoleReview';
 import { CopyField } from '../components/CopyField';
 import { DemoJoinQr } from '../components/DemoJoinQr';
-import { StatusStrip, StatusViewZ, type StatusView } from '../components/StatusStrip';
+import { StatusStrip } from '../components/StatusStrip';
 import { ChatLogZ, FiltersZ } from '../lib/contracts';
+import {
+  DeleteResponseZ, DraftResponseZ, DrillViewZ, GradeLocalZ, GradeQueuedZ, GradesViewZ, LoggingResponseZ, MeZ, ProofResultZ,
+  PushResultsZ, ReportViewZ, RotateResponseZ, RuleResultZ, StartResponseZ, StatusViewZ, StopResponseZ
+} from '../lib/consoleContracts';
+import type { GradesView, ProofResult, PushResult, ReportView, RuleResult, StatusView } from '../lib/consoleContracts';
 import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
 import { t } from '../copy';
 import '../styles/console.css';
 
-const ChannelZ = z.object({
-  id: z.string(),
-  login: z.string(),
-  displayName: z.string(),
-  avatarUrl: z.string().url().nullable(),
-  broadcasterType: z.enum(['', 'affiliate', 'partner'])
-});
-const MeZ = z.object({
-  user: ChannelZ,
-  channel: ChannelZ,
-  tokenStatus: z.string(),
-  subscriptionStatus: z.string(),
-  overlayUrl: z.string().url(),
-  modUrl: z.string().url()
-});
-const DrillViewZ = z.object({
-  drillId: z.string().min(1),
-  status: z.enum(['draft', 'voting', 'running', 'ended', 'cancelled']),
-  config: z.object({
-    tactics: z.array(TacticZ),
-    primaryTactic: TacticZ,
-    attackCount: z.number().int(),
-    banterCount: z.number().int(),
-    intervalMs: z.number().int(),
-    slipWindowMs: z.number().int(),
-    seed: z.number().int(),
-    simMod: z.boolean(),
-    chatVote: z.boolean(),
-    announce: z.boolean()
-  }),
-  joinCode: z.string().regex(/^\d{6}$/),
-  participants: z.array(z.object({ id: z.string(), name: z.string(), isSim: z.boolean() })),
-  score: z.object({
-    mods: z.array(z.object({ participantId: z.string(), name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() })),
-    slipped: z.number(),
-    attacksShown: z.number()
-  }),
-  lines: z.array(z.object({ id: z.string(), text: z.string(), tactic: TacticZ.optional(), trick: z.string().optional(), tags: z.array(z.string()) }))
-});
-const DraftResponseZ = z.object({ drillId: z.string().min(1), joinCode: z.string().regex(/^\d{6}$/), modUrl: z.string().url() });
-const RotateResponseZ = z.object({ overlayUrl: z.string().url() });
-const LoggingResponseZ = z.object({ logging: z.boolean() });
-const DeleteResponseZ = z.object({ deleted: z.number().int().nonnegative() });
-const StartResponseZ = z.object({ startedAt: z.number() });
-const StopResponseZ = z.object({ endedAt: z.number() });
-const GradeQueuedZ = z.object({ queued: z.number().int().nonnegative() });
-const GradeLocalZ = z.object({ passed: z.number().int().nonnegative(), total: z.number().int().nonnegative(), engine: z.literal('local') });
 const AutoModLabels: Record<string, string> = {
   overall_level: 'Overall',
   disability: 'Disability',
