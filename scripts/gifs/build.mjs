@@ -11,7 +11,7 @@
  * Zero dependencies on purpose.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const rawDir = resolve(process.argv[2] ?? 'app/e2e/gifs/out/raw');
@@ -47,7 +47,7 @@ function resolveSegments(def, warnings) {
     const start = src.marks.get(seg.from);
     const end = src.marks.get(seg.to);
     if (start === undefined || end === undefined || end <= start) { warnings.push(`marks ${seg.from}..${seg.to} missing in "${seg.src}"; segment dropped`); continue; }
-    out.push({ src, start: Math.max(0, start + (seg.fromOffset ?? 0) / 1000), end: Math.min(src.length, end + (seg.toOffset ?? 0) / 1000), speed: seg.speed ?? 1 });
+    out.push({ fixed: seg.fixed === true, src, start: Math.max(0, start + (seg.fromOffset ?? 0) / 1000), end: Math.min(src.length, end + (seg.toOffset ?? 0) / 1000), speed: seg.speed ?? 1 });
   }
   return out;
 }
@@ -69,11 +69,11 @@ function buildGif(name, segments, opts) {
   return file;
 }
 
-function buildMp4(name, segments, width) {
+function buildMp4(name, segments, width, crf = 24) {
   const file = resolve(outDir, `${name}.mp4`);
   const { args, graph } = chain(segments, { fps: 30, width });
   run('ffmpeg', ['-y', '-loglevel', 'error', ...args, '-filter_complex', `${graph};[cat]format=yuv420p[out]`, '-map', '[out]',
-    '-c:v', 'libx264', '-preset', 'slow', '-crf', '24', '-movflags', '+faststart', file]);
+    '-c:v', 'libx264', '-preset', 'slow', '-crf', String(crf), '-movflags', '+faststart', file]);
   return file;
 }
 
@@ -83,14 +83,24 @@ for (const [name, def] of Object.entries(manifest.gifs)) {
   const warnings = [];
   let segments = resolveSegments(def, warnings);
   if (segments.length === 0) { rows.push({ name, title: def.title, status: 'MISSING', warnings }); console.log(`[gifs] ${name}: MISSING`); continue; }
-  const total = () => segments.reduce((sum, s) => sum + (s.end - s.start) / s.speed, 0);
+  const length = (list) => list.reduce((sum, s) => sum + (s.end - s.start) / s.speed, 0);
+  const total = () => length(segments);
   let fitted = '';
-  if (total() > def.maxSeconds) {
-    const factor = total() / def.maxSeconds;
-    segments = segments.map((s) => ({ ...s, speed: s.speed * factor }));
-    fitted = `sped up a further ${factor.toFixed(2)}x to fit ${def.maxSeconds} s`;
+  if (def.maxSeconds && total() > def.maxSeconds) {
+    // intro and outro cards are fixed: only the product clips speed up to fit
+    const fixedLen = length(segments.filter((s) => s.fixed));
+    const flexLen = total() - fixedLen;
+    const factor = flexLen / Math.max(1, def.maxSeconds - fixedLen);
+    segments = segments.map((s) => (s.fixed ? s : { ...s, speed: s.speed * factor }));
+    fitted = `product clips sped up a further ${factor.toFixed(2)}x to fit ${def.maxSeconds} s`;
   }
   const seconds = total();
+  if (def.mp4Only) {
+    const mp4 = buildMp4(name, segments, def.mp4Width, def.crf);
+    rows.push({ name, title: def.title, status: 'ok', seconds, mp4Only: true, mp4Bytes: size(mp4), warnings, segments: segments.map((s) => `${s.src.name} ${s.start.toFixed(1)}-${s.end.toFixed(1)} s`) });
+    console.log(`[gifs] ${name}: ${seconds.toFixed(1)} s, mp4 ${mb(size(mp4))}`);
+    continue;
+  }
   const ladder = [
     { colors: 128, fps: def.fps, width: def.width },
     { colors: 96, fps: def.fps, width: def.width },
@@ -122,7 +132,8 @@ const lines = [
   '| File | What it shows | Length | GIF | MP4 | Encoding | Status |',
   '|---|---|---|---|---|---|---|',
   ...rows.map((r) => r.status === 'MISSING'
-    ? `| ${r.name}.gif | ${r.title} | - | - | - | - | MISSING |`
+    ? `| ${r.name} | ${r.title} | - | - | - | - | MISSING |`
+    : r.mp4Only ? `| ${r.name}.mp4 | ${r.title} | ${r.seconds.toFixed(1)} s | - | ${mb(r.mp4Bytes)} | h264, no audio | ${r.status} |`
     : `| ${r.name}.gif | ${r.title} | ${r.seconds.toFixed(1)} s | ${mb(r.gifBytes)} | ${mb(r.mp4Bytes)} | ${r.used.width}px, ${r.used.fps} fps, ${r.used.colors} colours | ${r.status} |`),
   '',
   '## Where each GIF comes from',
@@ -131,6 +142,7 @@ const lines = [
   '- mod-view: a second real demo room, the phone viewport (390x844) joining through the join card and playing with D, T and B while Kai (sim) races it.',
   '- overlay and the overlay part of safety: the branch\'s real overlay page at 1920x1080 on a neutral backdrop, fed by fixture frames over a mocked socket (a demo room\'s overlay is not reachable in a browser). The frames are redacted by construction.',
   '- share-card: the branch\'s real /r/:id page fed a fixture report built with the app\'s own schema (demo rooms keep their report inside the room).',
+  '- intro, outro, and the intro/outro baked into hero.gif and end.gif: the HTML cards in app/e2e/gifs/cards (brand logo SVGs, brand fonts and colours only), recorded at 1920x1080. The README variants say "Thanks for reading."; outro-1080p.mp4 says "Thanks for watching." stills/ holds the reduced-motion (no animation) versions.',
   '- Demo rooms grade with the local estimate; the Twitch-graded flow needs a real channel login and is not recorded.',
   '',
   '## Cuts',
@@ -138,5 +150,10 @@ const lines = [
   ...rows.flatMap((r) => [`### ${r.name}`, ...(r.segments ?? []).map((s) => `- ${s}`), ...(r.fitted ? [`- ${r.fitted}`] : []), ...(r.warnings ?? []).map((w) => `- WARNING: ${w}`), ''])
 ];
 writeFileSync(resolve(outDir, 'INDEX.md'), lines.join('\n'));
+const stills = resolve(rawDir, 'stills');
+if (existsSync(stills)) {
+  mkdirSync(resolve(outDir, 'stills'), { recursive: true });
+  for (const f of readdirSync(stills)) copyFileSync(resolve(stills, f), resolve(outDir, 'stills', f));
+}
 const bad = rows.filter((r) => r.status !== 'ok');
 if (bad.length) console.log(`[gifs] not ok: ${bad.map((r) => `${r.name} (${r.status})`).join(', ')}`);

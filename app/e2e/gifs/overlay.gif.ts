@@ -64,7 +64,7 @@ test('record the OBS overlay', async ({ browser, baseURL }) => {
   const { page, timeline: tl, caption } = rec;
   try {
     await mockOverlay(page, CHANNEL);
-    let play: (() => void) | null = null;
+    let play: () => void = () => undefined;
     const started = new Promise<void>((resolve) => { play = resolve; });
     await page.routeWebSocket(/\/ws\/ch\//, (ws) => {
       const key = new URL(ws.url()).searchParams.get('overlayKey');
@@ -102,14 +102,18 @@ test('record the OBS overlay', async ({ browser, baseURL }) => {
 
     await page.goto(`/overlay/${CHANNEL}?key=${OVERLAY_KEY}`);
     // the page itself draws nothing on a transparent ground; this backdrop stands in for the stream
-    await page.addStyleTag({
-      content: 'html{background:radial-gradient(1200px 700px at 25% 30%,#4a5c85,transparent 70%),linear-gradient(120deg,#2c3550,#4a3350 55%,#23232b) !important}'
+    await page.evaluate(() => {
+      const backdrop = document.createElement('div');
+      backdrop.setAttribute('aria-hidden', 'true');
+      backdrop.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1200px 700px at 25% 30%,#4a5c85,transparent 70%),linear-gradient(120deg,#2c3550,#4a3350 55%,#23232b)';
+      document.documentElement.style.setProperty('background', 'transparent', 'important');
+      document.body.prepend(backdrop);
     });
     await expect(page.getByRole('main', { name: 'OBS practice overlay' })).toBeVisible({ timeout: 25_000 });
     tl.mark('overlay_alarm');
     await caption('OBS overlay: the alarm and the scoreboard');
     await sleep(1800);
-    play?.();
+    play();
     tl.mark('overlay_live');
     await sleep(2500);
     await caption('Chat shown as hidden bars: no text, no links');

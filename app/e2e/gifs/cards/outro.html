@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ModScrim outro</title>
+<link rel="stylesheet" href="cards.css"></head>
+<body>
+<div class="pitch" aria-hidden="true"><div class="circle" style="left:auto;right:-280px;margin-left:0"></div></div>
+<main class="outro">
+  <img class="mark" src="../../../../brand/logo/svg/modscrim-mark-reverse.svg" alt="ModScrim">
+  <h1 id="thanks">Thanks for reading.</h1>
+  <div class="rule"></div>
+  <div class="credit"><span class="by">Built by</span><span class="names">Harsh Bhanushali<span class="amp">&amp;</span>Dhairya Patel</span></div>
+  <p class="event">Built for the Codex x TwitchCon Hackathon</p>
+  <p class="links"><a><span>Try it</span>app.modscrim.dualmindlab.tech/demo</a><a><span>Code</span>github.com/harshbhx/modscrim</a></p>
+</main>
+<script>
+  const say = new URLSearchParams(location.search).get('say') === 'watching' ? 'watching' : 'reading';
+  document.getElementById('thanks').textContent = 'Thanks for ' + say + '.';
+  Promise.all([document.fonts.ready, ...Array.from(document.images).map((i) => i.decode().catch(() => {}))])
+    .then(() => { window.__ready = true; });
+  window.__go = () => document.body.classList.add('go');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.body.classList.add('go');
+</script>
+</body></html>
