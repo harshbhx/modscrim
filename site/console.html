@@ -33,17 +33,17 @@
   <div class="wrap appbar-in">
     <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30"></a>
     <span class="who"><span class="ava" aria-hidden="true">P</span>pixelpanda_tv</span>
-    <div class="status" aria-label="Connection status"><span><i class="dot"></i>Twitch connected</span><span><i class="dot"></i>Chat log <b data-logcount>1,284 messages</b></span><span><i class="dot"></i>Grading 46 of 50 left this hour</span></div>
+    <div class="status" aria-label="Connection status"><span><i class="dot"></i>Twitch connected</span><span><i class="dot"></i>Chat log <b data-logcount>71 messages</b></span><span><i class="dot"></i>Grading 46 of 50 left this hour</span></div>
     <a class="btn btn-line btn-xs" href="index.html">Sign out and delete my data</a>
   </div>
-</header><div class="banner" role="note"><div class="wrap"><span class="tag tag-sample">Sample channel</span><span>You&rsquo;re looking at the console with a sample channel, pixelpanda_tv, and example numbers. On your channel, these come from your own filters, your chat and Twitch&rsquo;s grading.</span></div></div>
+</header><div class="banner" role="note"><div class="wrap"><span class="tag tag-sample">Sample channel</span><span>You&rsquo;re looking at the console with the demo channel, pixelpanda_tv, and example numbers. On your channel, these come from your own filters, your chat and Twitch&rsquo;s grading.</span></div></div>
 <div class="app">
   <div class="wrap"><nav class="stepper" aria-label="Drill steps"><a href="#read-filters" data-step-link><span class="sn">1</span>Read filters</a><a href="#configure" data-step-link><span class="sn">2</span>Configure</a><a href="#run-the-drill" data-step-link><span class="sn">3</span>Run the drill</a><a href="#twitch-grades" data-step-link><span class="sn">4</span>Twitch grades</a><a href="#fix-the-rules" data-step-link><span class="sn">5</span>Fix the rules</a><a href="#fresh-wave" data-step-link><span class="sn">6</span>Fresh wave and push</a></nav></div>
   <main id="main" style="border-top:1px solid var(--wall-rule)">
   <div class="wrap">
 
   <section class="panel" id="read-filters" data-step aria-labelledby="h-1">
-    <div class="panel-head"><div><h1 id="h-1">Read filters</h1><p>What your channel blocks today, read from Twitch. ModScrim tests these; it never changes your AutoMod settings.</p></div><div><button class="btn btn-line btn-sm" type="button" data-refresh>Refresh from Twitch</button><p class="micro muted" data-refresh-msg aria-live="polite" style="margin-top:8px">Last read 2 minutes ago.</p></div></div>
+    <div class="panel-head"><div><h1 id="h-1">Read filters</h1><p>What your channel blocks today, read from Twitch. ModScrim tests these; it never changes your AutoMod settings.</p></div><div><button class="btn btn-line btn-sm" type="button" data-refresh>Refresh from Twitch</button><p class="micro muted" data-refresh-msg aria-live="polite" style="margin-top:8px">Last read just now.</p></div></div>
     <div class="grid-73">
       <div style="display:flex;flex-direction:column;gap:24px">
         <div class="card"><h2>Public blocked terms</h2>
@@ -51,14 +51,14 @@
           <p class="micro muted" style="margin-top:14px">5 terms. Twitch doesn&rsquo;t share private blocked terms with apps, so they aren&rsquo;t shown or tested.</p>
         </div>
         <div class="card"><h2>Chat log</h2>
-          <dl class="kv"><dt>Messages</dt><dd data-logcount class="num">1,284 messages</dd><dt>Collecting since</dt><dd>Fri 23 Oct, 14:02</dd><dt>Kept for</dt><dd>7 days</dd><dt>Status</dt><dd data-logstate>Logging</dd></dl>
+          <dl class="kv"><dt>Messages</dt><dd data-logcount class="num">71 messages</dd><dt>Collecting since</dt><dd>Demo room start</dd><dt>Kept for</dt><dd>7 days</dd><dt>Status</dt><dd data-logstate>Logging</dd></dl>
           <p class="micro muted" style="margin:16px 0 8px">Recent lines, blurred until you hover or focus them</p>
           <ul class="samples" data-samples>
             <li class="blur" tabindex="0">mossy_otter: that last round was clean</li><li class="blur" tabindex="0">nora_reads: dm me the build later</li><li class="blur" tabindex="0">lowtide: free real estate lol</li>
             <li class="blur" tabindex="0">tealkettle: the promo code for the merch is on the panel</li><li class="blur" tabindex="0">quietfox: who claimed the last sub?</li><li class="blur" tabindex="0">baker_beans: hydrate check</li>
           </ul>
           <div class="ctas" style="margin-top:18px"><button class="btn btn-line btn-xs" type="button" data-delete-log>Delete chat log</button><button class="btn btn-line btn-xs" type="button" data-pause aria-pressed="false">Pause logging</button></div>
-          <div class="card" data-confirm-delete hidden style="margin-top:14px;background:var(--deep)"><p>Delete all 1,284 logged messages now? New rules will be checked against the banter pool until the log grows again.</p>
+          <div class="card" data-confirm-delete hidden style="margin-top:14px;background:var(--deep)"><p>Delete all 71 logged messages now? New rules will be checked against the banter pool until the log grows again.</p>
             <div class="ctas" style="margin-top:12px"><button class="btn btn-orange btn-xs" type="button" data-confirm="yes">Delete chat log</button><button class="btn btn-line btn-xs" type="button" data-confirm="no">Keep it</button></div></div>
           <p class="micro muted" style="margin-top:14px">We keep your chat log for 7 days only to check that new rules don&rsquo;t ban your regulars. Delete it any time.</p>
         </div>
@@ -158,11 +158,9 @@
     <div class="grid-73">
       <div class="card"><h2>Proposed</h2>
         <ul class="term-list">
-          <li class="term"><input type="checkbox" checked data-term value="giftsnow*" id="p1" aria-label="giftsnow*"><code>giftsnow*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 2, for example &ldquo;skins giveaway is live, claim yours at giftsnow.invalid&rdquo;</span></li>
-          <li class="term"><input type="checkbox" checked data-term value="viewbump*" id="p2" aria-label="viewbump*"><code>viewbump*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 3, for example &ldquo;grow your channel fast, real f0ll0wers viewbump.invalid&rdquo;</span></li>
-          <li class="term"><input type="checkbox" checked data-term value="fr33" id="p3" aria-label="fr33"><code>fr33</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, number swaps</span></li>
-          <li class="term"><input type="checkbox" checked data-term value="l0g0s" id="p4" aria-label="l0g0s"><code>l0g0s</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, number swaps</span></li>
-          <li class="term"><input type="checkbox" data-term value="emooo*" id="p5" aria-label="emooo*"><code>emooo*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 1, stretched letters</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="nitrodrop*" id="p1" aria-label="nitrodrop*"><code>nitrodrop*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 3, for example &ldquo;fr33 nitro for the first 50 viewers &rarr; nitrodrop.invalid&rdquo;</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="giftsnow*" id="p2" aria-label="giftsnow*"><code>giftsnow*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 2, for example &ldquo;skins giveaway is live, claim yours at giftsnow.invalid&rdquo;</span></li>
+          <li class="term"><input type="checkbox" checked data-term value="viewbump*" id="p3" aria-label="viewbump*"><code>viewbump*</code><span class="badge">0 real-chat matches</span><span class="meta">Catches 3, for example &ldquo;grow your channel fast, real f0ll0wers viewbump.invalid&rdquo;</span></li>
         </ul>
         <form class="form-row" style="margin-top:16px;border:0" onsubmit="return false"><label for="own">Add your own term</label><input class="inp" id="own" placeholder="e.g. cl41m*"><span class="help">2 to 500 characters. A * may appear only at the start or end of a word.</span></form>
       </div>
@@ -185,9 +183,9 @@
     <div class="grid-73">
       <div style="display:flex;flex-direction:column;gap:24px">
         <div class="card"><h2>Blocked by your filters</h2>
-          <div class="bars"><div class="bar"><span>Before</span><span class="bar-track"><span class="bar-fill" style="display:block;width:33%"></span></span><span class="num">10 of 30</span></div>
-          <div class="bar"><span>After</span><span class="bar-track"><span class="bar-fill good" style="display:block;width:63%"></span></span><span class="num">19 of 30</span></div></div>
-          <p style="margin-top:18px">New rules matched <b>0 of 1,284</b> real and harmless messages.</p>
+          <div class="bars"><div class="bar"><span>Before</span><span class="bar-track"><span class="bar-fill" style="display:block;width:13%"></span></span><span class="num">4 of 30</span></div>
+          <div class="bar"><span>After</span><span class="bar-track"><span class="bar-fill good" style="display:block;width:57%"></span></span><span class="num">17 of 30</span></div></div>
+          <p style="margin-top:18px">New rules matched <b>0 of 71</b> real and harmless messages.</p>
           <p class="micro muted" style="margin-top:6px"><span class="engine local">local estimate</span> Twitch re-grades the fresh wave after you push.</p>
         </div>
         <div class="card"><h2>Still gets through</h2>
@@ -198,7 +196,7 @@
       <div class="card" style="display:flex;flex-direction:column;gap:16px">
         <h2>Push to Twitch</h2>
         <p class="micro muted">Uses the terms you ticked in Fix the rules. Nothing changes on your channel until you press the button.</p>
-        <div class="ctas"><button class="btn btn-orange" type="button" data-push>Approve and push 4 terms to Twitch</button><button class="btn btn-line btn-sm" type="button" data-undo disabled>Undo this push</button></div>
+        <div class="ctas"><button class="btn btn-orange" type="button" data-push>Approve and push 3 terms to Twitch</button><button class="btn btn-line btn-sm" type="button" data-undo disabled>Undo this push</button></div>
         <div data-push-out aria-live="polite"></div>
         <a class="btn btn-quiet btn-xs" href="report.html" style="align-self:flex-start">Open the after-action report</a>
       </div>
