@@ -555,7 +555,7 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 .prose ul,.prose ol{padding-left:1.3em}
 .prose li + li{margin-top:8px}
 .prose a{text-underline-offset:3px}
-.prose li > a:only-child{display:inline-flex;align-items:center;min-height:44px}
+.prose ol > li > a:only-child{display:inline-flex;align-items:center;min-height:44px}
 .prose strong{font-weight:700}
 .prose .note{padding:16px 20px;border-radius:8px;background:var(--card);box-shadow:0 0 0 1px var(--card-edge)}
 .tbl-wrap{overflow-x:auto;margin-top:18px}
