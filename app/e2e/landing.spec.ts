@@ -64,10 +64,17 @@ test.describe('landing page', () => {
 
     const ring = await signIn.evaluate((el) => {
       const s = getComputedStyle(el);
-      return { width: Number.parseFloat(s.outlineWidth), style: s.outlineStyle };
+      return {
+        width: Number.parseFloat(s.outlineWidth),
+        style: s.outlineStyle,
+        color: s.outlineColor
+      };
     });
     expect(ring.style).not.toBe('none');
     expect(ring.width).toBeGreaterThanOrEqual(2);
+    // Card yellow, per brand/DESIGN.md focus-on-green. It measures 8.39:1 on
+    // the wall-green band; the default green focus ring would be 1.3:1 there.
+    expect(ring.color).toBe('rgb(255, 210, 63)');
 
     await page.keyboard.press('Tab');
     await expect(demo).toBeFocused();
