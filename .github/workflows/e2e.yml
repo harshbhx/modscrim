@@ -46,10 +46,21 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/e2e-results.json
         run: |
           mkdir -p test-results
-          npx playwright test --project=setup --project=smoke --project=safety --project=console --pass-with-no-tests --reporter=list,html,json
+          npx playwright test --project=setup --project=landing --project=smoke --project=safety --project=console --pass-with-no-tests --reporter=list,html,json
       - name: Add per-project results to the job summary
         if: always()
         run: node scripts/e2e-summary.mjs
+
+      # Uploaded even when green: these are how a surface's light and dark
+      # rendering gets reviewed at each width without running the app locally.
+      - name: Upload surface screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_id }}
+          path: app/e2e/screenshots
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload Playwright failure artifacts
         if: failure()
         uses: actions/upload-artifact@v4
