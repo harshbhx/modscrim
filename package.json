@@ -27,7 +27,9 @@
     "subscribe-revoke": "node --experimental-strip-types scripts/subscribe-revoke.ts",
     "site:tokens": "node scripts/sync-site-tokens.mjs",
     "site:tokens:check": "node scripts/sync-site-tokens.mjs --check",
-    "site:colours": "node scripts/check-site-colours.mjs"
+    "site:colours": "node scripts/check-site-colours.mjs",
+    "site:chrome": "node scripts/site-chrome.mjs",
+    "site:chrome:check": "node scripts/site-chrome.mjs --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

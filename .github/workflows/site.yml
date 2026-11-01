@@ -10,6 +10,9 @@ on:
       - 'design/tokens*.css'
       - 'app/e2e/site-*.spec.ts'
       - 'scripts/serve-static.mjs'
+      - 'scripts/site-chrome.mjs'
+      - 'scripts/check-site-colours.mjs'
+      - 'scripts/sync-site-tokens.mjs'
       - '.github/workflows/site.yml'
   push:
     branches: [main]
@@ -53,6 +56,12 @@ jobs:
           else
             npx playwright install-deps chromium
           fi
+
+      - name: Site gates (tokens in sync, no new colours, shared header and footer)
+        run: |
+          npm run site:tokens:check
+          npm run site:colours
+          npm run site:chrome:check
 
       - name: Serve site/ and run the site project
         env:

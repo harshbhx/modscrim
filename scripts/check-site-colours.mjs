@@ -24,12 +24,8 @@ for (const f of ['design/tokens.css', 'design/tokens.override.css', 'brand/DESIG
   for (const h of readFileSync(f, 'utf8').match(HEX) ?? []) allowed.add(norm(h));
 }
 
-/**
- * HTML pages already held to the gate. T-135 covers the shared layer and the
- * home page; the inner pages still carry inline colours (swatches in the chat
- * samples) that T-136 removes, and it adds each page to this list as it does.
- */
-const HTML_PAGES = ['site/index.html'];
+/** Every HTML page in site/ is held to the gate (T-136 finished the inline-colour clean-up). */
+const HTML_PAGES = globSync('site/*.html');
 
 const files = [
   ...globSync('site/*.css'),
