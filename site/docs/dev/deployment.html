@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deployment | Developer docs | ModScrim</title>
+<meta name="description" content="The app deploys to Cloudflare Workers from GitHub Actions; the website deploys through a Git-connected Cloudflare Pages project. This page covers the one-time setup, the workflows, and how to verify a">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Deployment | ModScrim docs">
+<meta property="og:description" content="The app deploys to Cloudflare Workers from GitHub Actions; the website deploys through a Git-connected Cloudflare Pages project. This page covers the one-time setup, the workflows, and how to verify a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/deployment">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/deployment">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / Deployment</p>
+    <h1 id="page-title">Deployment</h1>
+    <p class="lead">The app deploys to Cloudflare Workers from GitHub Actions; the website deploys through a Git-connected Cloudflare Pages project. This page covers the one-time setup, the workflows, and how to verify a release.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html">Architecture</a></li><li><a href="../../docs/dev/run-locally.html">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html" aria-current="page">Deployment</a></li><li><a href="../../docs/dev/testing.html">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#what-deploys-where">What deploys where</a></li><li><a href="#one-time-setup">One-time setup</a></li><li><a href="#the-workflows">The workflows</a></li><li><a href="#verify-a-release">Verify a release</a></li></ul></nav>
+<h2 id="what-deploys-where">What deploys where</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Host</th><th>Serves</th><th>Source</th><th>How</th></tr></thead><tbody><tr><td><code>https://modscrim.dualmindlab.tech</code></td><td>Static website</td><td><code>site/</code></td><td>Cloudflare Pages project <code>modscrim</code>, Git-connected</td></tr><tr><td><code>https://app.modscrim.dualmindlab.tech</code></td><td>App Worker <code>mod-fire-drill</code>: SPA routes plus <code>/api/*</code>, <code>/auth/*</code>, <code>/ws/*</code>, <code>/eventsub</code></td><td><code>app/</code></td><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/deploy-app.yml"><code>deploy-app.yml</code></a>, or <code>npm run deploy</code></td></tr><tr><td><code>https://mod-fire-drill.creharsh.workers.dev</code></td><td>The same Worker on <code>workers.dev</code></td><td><code>app/</code></td><td>Same</td></tr><tr><td><code>https://mod-fire-drill-preview.creharsh.workers.dev</code></td><td>Preview Worker with its own database</td><td><code>app/</code> with <code>CLOUDFLARE_ENV=preview</code></td><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/preview-app.yml"><code>preview-app.yml</code></a></td></tr></tbody></table></div>
+<p><code>site/</code> is the website and <code>app/</code> is the Worker: app routes, API calls and app screens never go into <code>site/</code>.</p>
+<h2 id="one-time-setup">One-time setup</h2>
+<ol><li>Authenticate Wrangler: <code>npx wrangler login</code>.</li><li>Create the D1 database <code>mfd</code> and put its ID in <a href="https://github.com/harshbhx/modscrim/blob/main/app/wrangler.jsonc"><code>app/wrangler.jsonc</code></a>.</li><li>Apply migrations: <code>npm run db:migrate:remote</code>.</li><li>Set the secrets, one <code>npx wrangler secret put &lt;NAME&gt;</code> per name. Run it from <code>app/</code>, and never paste values into the repository or a chat.</li></ol>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Purpose</th></tr></thead><tbody><tr><td><code>PUBLIC_BASE_URL</code></td><td>Redirect URI, webhook callback, links and the <code>Origin</code> check (<code>https://app.modscrim.dualmindlab.tech</code> in production)</td></tr><tr><td><code>TWITCH_CLIENT_SECRET</code></td><td>OAuth token exchange</td></tr><tr><td><code>EVENTSUB_SECRET</code></td><td>Webhook signatures (10 to 100 ASCII characters)</td></tr><tr><td><code>SESSION_HMAC_KEY</code></td><td>Cookies, tickets and participant tokens</td></tr><tr><td><code>TOKEN_ENC_KEY</code></td><td>AES-256-GCM sealing of OAuth tokens</td></tr></tbody></table></div>
+<p><code>TWITCH_CLIENT_ID</code> and the other settings (<code>CHAT_LOG_RETENTION_DAYS</code>, <code>CLEAN_SET_MAX_LINES</code>, <code>GRADING_ENGINE</code>, <code>GRADING_BATCH_SIZE</code>, <code>GRADING_QUOTA_UNIT</code>, <code>DEMO_ENABLED</code>, <code>ANNOUNCE_ENABLED</code>, <code>COACH_AI_ENABLED</code>) are public <code>vars</code> in the Wrangler config. The config lists the five secrets under <code>secrets.required</code>, so a deploy without them fails.</p>
+<ol><li>Production-only report export: an R2 bucket and a Queue, both named <code>mfd-reports</code>, matching the config.</li><li>In the Twitch Developer Console, register <code>https://app.modscrim.dualmindlab.tech/auth/callback</code> as the redirect URL; EventSub calls <code>https://app.modscrim.dualmindlab.tech/eventsub</code>.</li><li>Deploy with <code>npm run deploy</code> (<code>vite build &amp;&amp; wrangler deploy</code>), then open <code>/api/health</code>; it answers <code>{&quot;ok&quot;:true}</code>. Optionally run <code>npm run subscribe-revoke</code> once to create the app-level revoke subscription.</li></ol>
+<h2 id="the-workflows">The workflows</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Workflow</th><th>Trigger</th><th>What it does</th></tr></thead><tbody><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/deploy-app.yml"><code>deploy-app.yml</code></a></td><td>Push to <code>main</code> touching <code>app/</code>, <code>packages/</code> or the root config; manual</td><td>Install, typecheck, test, apply D1 migrations to <code>mfd</code>, <code>npm run deploy</code>, then retry <code>/api/health</code> up to five times</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/preview-app.yml"><code>preview-app.yml</code></a></td><td>Pull requests to <code>main</code> touching the app (same-repo branches only)</td><td>Same checks, migrations on <code>mfd-preview</code>, deploy the preview Worker, health check, and comment the link on the PR. One shared preview: the latest updated PR is what it shows</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/ci.yml"><code>ci.yml</code></a></td><td>Pull requests and pushes to <code>main</code></td><td>Gates described in <a href="../../docs/dev/testing.html">Testing</a></td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/e2e.yml"><code>e2e.yml</code></a></td><td>Pull requests and pushes to <code>main</code></td><td>Playwright projects</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/site.yml"><code>site.yml</code></a></td><td>Changes under <code>site/</code>, the design tokens or the site spec</td><td>Site Playwright project and screenshots</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/demo-e2e.yml"><code>demo-e2e.yml</code></a></td><td>Nightly at 02:00 UTC; manual with a URL</td><td>The full demo loop against production</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/lighthouse.yml"><code>lighthouse.yml</code></a></td><td>Manual</td><td>Lighthouse scores for the site and the console</td></tr><tr><td><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/firefox-console-check.yml"><code>firefox-console-check.yml</code></a></td><td>Manual; changes to the console page</td><td>Checks that Enter in a console preview form does not reload the page in Firefox</td></tr></tbody></table></div>
+<p>The deploy and preview workflows need a <code>CLOUDFLARE_API_TOKEN</code> secret and a <code>CLOUDFLARE_ACCOUNT_ID</code> variable in the repository settings.</p>
+<h2 id="verify-a-release">Verify a release</h2>
+<ul><li><code>https://app.modscrim.dualmindlab.tech/api/health</code> returns <code>{&quot;ok&quot;:true}</code>.</li><li><code>https://app.modscrim.dualmindlab.tech/demo</code> starts a demo drill.</li><li>Sign in with a test channel: the console shows the connection and the chat subscription becomes enabled.</li><li>Run the nightly demo workflow by hand if you need a fresh end-to-end check.</li></ul>
+<p>Do not deploy from a checkout that contains unreviewed local configuration or secrets.</p>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/contracts.html"><span>Previous</span><b>API and WebSocket contracts</b></a><a class="pn-link" href="../../docs/dev/testing.html"><span>Next</span><b>Testing and CI</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

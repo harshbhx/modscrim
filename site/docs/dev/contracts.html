@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>API and WebSocket contracts | Developer docs | ModScrim</title>
+<meta name="description" content="The zod schemas the ModScrim SPA validates network responses and overlay WebSocket messages with, read from app/src/lib/contracts.ts.">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="API and WebSocket contracts | ModScrim docs">
+<meta property="og:description" content="The zod schemas the ModScrim SPA validates network responses and overlay WebSocket messages with, read from app/src/lib/contracts.ts.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/contracts">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/contracts">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / API and WebSocket contracts</p>
+    <h1 id="page-title">API and WebSocket contracts</h1>
+    <p class="lead">The response shapes the SPA parses at the network boundary, including the redacted overlay messages.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html">Architecture</a></li><li><a href="../../docs/dev/run-locally.html">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html" aria-current="page">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html">Deployment</a></li><li><a href="../../docs/dev/testing.html">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<h2 id="what">What this file is</h2>
+<p>Response shapes the SPA parses at the network boundary. They live here, not inside the route files, so the Playwright fixtures (app/e2e/lib/mock-api.ts) build their payloads with the very schemas the app validates with and cannot drift from them. Value imports are limited to zod so this file also loads in Node; @mfd/core is imported for types only and each schema is pinned to its core type.</p>
+<p>The source is <a href="https://github.com/harshbhx/modscrim/blob/main/app/src/lib/contracts.ts"><code>app/src/lib/contracts.ts</code></a>. The WebSocket message types <code>ClientMsg</code> and <code>ServerMsg</code> are re-exported from <code>@mfd/core</code>; their definitions are in <a href="https://github.com/harshbhx/modscrim/blob/main/packages/core/src/protocol.ts"><code>packages/core/src/protocol.ts</code></a>. Routes, role routing and error codes are specified in <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/interfaces.md"><code>docs/for-agents/interfaces.md</code></a>.</p>
+<h2 id="exports">Exports</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Export</th><th>Notes from the source</th></tr></thead><tbody><tr><td><code>FiltersZ</code></td><td>Response shapes the SPA parses at the network boundary. They live here, not inside the route files, so the Playwright fixtures (app/e2e/lib/mock-api.ts) build their payloads with the very schemas the app validates with and cannot drift from them. Value imports are limited to zod so this file also loads in Node; @mfd/core is imported for types only and each schema is pinned to its core type.</td></tr><tr><td><code>ChatLogZ</code></td><td>&nbsp;</td></tr><tr><td><code>ChannelInfoZ</code></td><td>&nbsp;</td></tr><tr><td><code>ReportCardZ</code></td><td>&nbsp;</td></tr><tr><td><code>SharedReportZ</code></td><td>&nbsp;</td></tr><tr><td><code>OverlayServerMsgZ</code></td><td>&nbsp;</td></tr><tr><td><code>OverlayServerMsg</code></td><td>&nbsp;</td></tr></tbody></table></div>
+<h2 id="source">Source</h2>
+<p>The file as of this build, so the schemas below are exactly what the app validates with.</p>
+<pre data-lang="ts"><code>import { z } from 'zod';
+import type { FiltersView, ReportCard } from '@mfd/core';
+
+export type { ClientMsg, ServerMsg } from '@mfd/core';
+
+/**
+ * Response shapes the SPA parses at the network boundary. They live here, not
+ * inside the route files, so the Playwright fixtures (app/e2e/lib/mock-api.ts)
+ * build their payloads with the very schemas the app validates with and cannot
+ * drift from them. Value imports are limited to zod so this file also loads in
+ * Node; @mfd/core is imported for types only and each schema is pinned to its
+ * core type.
+ */
+
+export const FiltersZ: z.ZodType&lt;FiltersView&gt; = z.object({
+  terms: z.array(z.object({ id: z.string(), text: z.string() })),
+  automod: z.record(z.string(), z.number().int().min(0).max(4).nullable()).nullable(),
+  fetchedAt: z.number().nullable()
+});
+
+export const ChatLogZ = z.object({
+  count: z.number().int().nonnegative(),
+  oldest: z.number().nullable(),
+  newest: z.number().nullable(),
+  logging: z.boolean(),
+  samples: z.array(z.object({ login: z.string(), text: z.string() })).max(6)
+});
+
+export const ChannelInfoZ = z.object({
+  broadcasterId: z.string().min(1),
+  displayName: z.string(),
+  avatarUrl: z.string().nullable(),
+  drillOpen: z.boolean()
+});
+
+/** The numbers a report card carries; the shared `/r/:id` card omits the drill id. */
+const reportCardShape = z.object({
+  attacksShown: z.number(),
+  slipped: z.number(),
+  mods: z.array(z.object({ name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() })),
+  grade: z.object({ passed: z.number(), total: z.number(), engine: z.enum(['twitch', 'local', 'mixed']) }).nullable(),
+  termsPushed: z.number(),
+  fresh: z.object({ before: z.number(), after: z.number(), total: z.number() }).nullable()
+});
+
+export const ReportCardZ: z.ZodType&lt;ReportCard&gt; = reportCardShape.extend({ drillId: z.string() });
+
+export const SharedReportZ = z.object({
+  reportId: z.string(),
+  channel: z.object({ login: z.string(), displayName: z.string() }),
+  createdAt: z.number(),
+  card: reportCardShape
+});
+
+/**
+ * What an overlay socket may ever receive (SRS §8.3): redacted lines carry only
+ * a length, never text or segments. `.strict()` makes a fixture that smuggles in
+ * readable attack text fail to build.
+ */
+const RedactedLineZ = z.object({ lineId: z.string(), user: z.string(), len: z.number().int().nonnegative() }).strict();
+const OverlayScoreZ = z.object({
+  mods: z.array(z.object({ participantId: z.string(), name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() }).strict()),
+  slipped: z.number(),
+  attacksShown: z.number()
+}).strict();
+
+export const OverlayServerMsgZ = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('hello'), data: z.object({ role: z.literal('overlay'), serverTime: z.number() }).strict() }).strict(),
+  z.object({
+    type: z.literal('drill.state'),
+    data: z.object({
+      drill: z.object({
+        drillId: z.string(),
+        status: z.enum(['draft', 'voting', 'running', 'ended', 'cancelled']),
+        startedAt: z.number().nullable(),
+        total: z.number(),
+        lines: z.array(z.object({ line: RedactedLineZ, shownAt: z.number(), state: z.enum(['open', 'acted', 'slipped']) }).strict()),
+        score: OverlayScoreZ
+      }).strict().nullable(),
+      participants: z.array(z.object({ id: z.string(), name: z.string(), isSim: z.boolean(), online: z.boolean() }).strict())
+    }).strict()
+  }).strict(),
+  z.object({ type: z.literal('report.ready'), data: z.object({ drillId: z.string(), card: ReportCardZ }).strict() }).strict()
+]);
+export type OverlayServerMsg = z.infer&lt;typeof OverlayServerMsgZ&gt;;</code></pre>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/project-structure.html"><span>Previous</span><b>Project structure</b></a><a class="pn-link" href="../../docs/dev/deployment.html"><span>Next</span><b>Deployment</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>
