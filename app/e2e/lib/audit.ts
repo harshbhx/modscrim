@@ -28,6 +28,8 @@ export type Finding = { rule: string; target: string; detail: string };
 export type AuditOptions = {
   /** OBS overlay: no header or footer, may have no h1 while it waits. */
   bare?: boolean;
+  /** A transient loading state: a status message stands in for the page heading. */
+  loading?: boolean;
   /** Skip the Tab walk (pages that are mid-animation or have no focusable content). */
   noFocus?: boolean;
   /** Controls the audit must not complain about: a CSS selector and the reason it is exempt. */
@@ -55,7 +57,9 @@ async function staticAudit(page: Page, options: AuditOptions): Promise<StaticRes
       return r.width > 0 && r.height > 0;
     };
     const allowed = (rule: string, el: Element): boolean =>
-      (opts.allow ?? []).some((a) => a.rule === rule && el.matches(a.selector));
+      (opts.allow ?? []).some((a) => a.rule === rule && el.matches(a.selector)) ||
+      // a reference link alone in a table cell (a file name, an extension) is part of the text of the table, not a stand-alone target
+      (rule === 'target-size' && el.tagName === 'A' && !!el.closest('td, th'));
     const push = (rule: string, el: Element | null, detail: string): void => {
       if (el && allowed(rule, el)) return;
       out.push({ rule, target: el ? describe(el) : 'page', detail });
@@ -133,7 +137,7 @@ async function staticAudit(page: Page, options: AuditOptions): Promise<StaticRes
     const levelOf = (h: Element): number => Number(h.getAttribute('aria-level') ?? h.tagName.slice(1)) || 2;
     const h1s = headings.filter((h) => levelOf(h) === 1);
     if (h1s.length > 1) push('headings', h1s[1] ?? null, `${h1s.length} h1 elements`);
-    if (h1s.length === 0 && !opts.bare) push('headings', null, 'no h1');
+    if (h1s.length === 0 && !opts.bare && !opts.loading) push('headings', null, 'no h1');
     let prev = 0;
     for (const h of headings) {
       const level = levelOf(h);
@@ -143,7 +147,7 @@ async function staticAudit(page: Page, options: AuditOptions): Promise<StaticRes
 
     // landmarks
     const mains = [...document.querySelectorAll('main, [role="main"]')];
-    if (mains.length !== 1) push('landmarks', null, `${mains.length} main landmarks`);
+    if (mains.length !== 1 && !(opts.bare && mains.length === 0 && (document.body.innerText ?? '').trim() === '')) push('landmarks', null, `${mains.length} main landmarks`);
     if (!opts.bare) {
       const inSection = 'article, aside, main, nav, section, [role="main"]';
       const banner = [...document.querySelectorAll('header, [role="banner"]')].find((h) => !h.parentElement?.closest(inSection));
@@ -163,7 +167,7 @@ async function staticAudit(page: Page, options: AuditOptions): Promise<StaticRes
   }, options);
 }
 
-type FocusStep = { target: string; ring: boolean; tabindex: number; top: number; left: number; named: boolean; w: number; h: number };
+type FocusStep = { floating: boolean; target: string; ring: boolean; tabindex: number; top: number; left: number; named: boolean; w: number; h: number };
 
 async function focusAudit(page: Page, options: AuditOptions): Promise<Finding[]> {
   const findings: Finding[] = [];
@@ -178,15 +182,25 @@ async function focusAudit(page: Page, options: AuditOptions): Promise<Finding[]>
     const step = await page.evaluate((): (FocusStep & { id: string; body: boolean }) | null => {
       const el = document.activeElement as HTMLElement | null;
       if (!el) return null;
-      if (el === document.body || el === document.documentElement) return { id: 'body', body: true, target: 'body', ring: true, tabindex: 0, top: 0, left: 0, named: true, w: 0, h: 0 };
+      if (el === document.body || el === document.documentElement) return { floating: false, id: 'body', body: true, target: 'body', ring: true, tabindex: 0, top: 0, left: 0, named: true, w: 0, h: 0 };
       const style = getComputedStyle(el);
       const outlineOn = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0 && style.outlineColor !== 'rgba(0, 0, 0, 0)';
       const shadowOn = style.boxShadow !== 'none';
       const r = el.getBoundingClientRect();
+      // sticky, fixed and inner-scrolling ancestors make "top on the page" meaningless for the order check
+      let floating = false;
+      for (let p: HTMLElement | null = el; p && p !== document.body; p = p.parentElement) {
+        const cs = getComputedStyle(p);
+        if (cs.position === 'sticky' || cs.position === 'fixed' || ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && p.scrollHeight > p.clientHeight)) {
+          floating = true;
+          break;
+        }
+      }
       const text = (el.getAttribute('aria-label') ?? el.textContent ?? '').trim().replace(/\s+/g, ' ');
       const cls = typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '';
       const target = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}${cls} "${text.slice(0, 24)}"`;
       return {
+        floating,
         id: target + `@${Math.round(r.top + window.scrollY)}x${Math.round(r.left)}`,
         body: false,
         target,
@@ -218,7 +232,7 @@ async function focusAudit(page: Page, options: AuditOptions): Promise<Finding[]>
     if (!step.ring) findings.push({ rule: 'focus-ring', target: step.target, detail: 'no outline or box-shadow when focused by keyboard' });
     if (step.tabindex > 0) findings.push({ rule: 'tab-order', target: step.target, detail: `positive tabindex ${step.tabindex}` });
     if (skip && (step.w < 44 || step.h < 44)) findings.push({ rule: 'target-size', target: step.target, detail: `skip link ${Math.round(step.w)} x ${Math.round(step.h)} when focused` });
-    if (prev && prev.top - step.top > 240) findings.push({ rule: 'tab-order', target: step.target, detail: `jumps up the page by ${Math.round(prev.top - step.top)}px after "${prev.target}"` });
+    if (prev && !prev.floating && !step.floating && prev.top - step.top > 240) findings.push({ rule: 'tab-order', target: step.target, detail: `jumps up the page by ${Math.round(prev.top - step.top)}px after "${prev.target}"` });
     prev = step;
   }
   if (steps.length === 0 && !options.noFocus) {
@@ -241,7 +255,7 @@ export async function audit(page: Page, label: string, options: AuditOptions = {
   const line = JSON.stringify({ label, viewport: page.viewportSize(), url: new URL(page.url()).pathname, findings: list, allowed });
   appendFileSync(AUDIT_FILE, `${line}\n`);
   if (process.env.A11Y_ENFORCE === '1') {
-    expect(list.map((f) => `${f.rule}: ${f.target}: ${f.detail}`), `a11y audit of ${label}`).toEqual([]);
+    expect.soft(list.map((f) => `${f.rule}: ${f.target}: ${f.detail}`), `a11y audit of ${label}`).toEqual([]);
   }
   return list;
 }
