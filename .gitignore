@@ -19,3 +19,7 @@ test-results/
 # Python bytecode from the bundled design skill
 __pycache__/
 *.pyc
+
+# The skill's handoff writes a root DESIGN.md; brand/DESIGN.md is the only
+# design source of truth, so the generated one is never tracked.
+/DESIGN.md
