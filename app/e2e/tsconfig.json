@@ -4,6 +4,9 @@
     "composite": true,
     "noEmit": true,
     "rootDir": "../..",
+    // page.evaluate / locator.evaluate callbacks are serialised and run inside
+    // the browser, so specs legitimately reference DOM globals.
+    "lib": ["ES2022", "DOM"],
     "types": ["node"]
   },
   "include": ["./**/*.ts", "../../playwright.config.ts"]
