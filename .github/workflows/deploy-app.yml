@@ -54,10 +54,16 @@ jobs:
       - name: Build and deploy
         run: npm run deploy
 
-      - name: Health check
+      - name: Verify the live deploy
         run: |
-          for i in 1 2 3 4 5; do
-            if curl -fsS https://app.modscrim.dualmindlab.tech/api/health; then exit 0; fi
-            sleep 10
+          base=https://app.modscrim.dualmindlab.tech
+          for path in /api/health / /console; do
+            ok=0
+            for i in 1 2 3 4 5 6; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$base$path" || true)
+              echo "$path -> $code (attempt $i)"
+              if [ "$code" = 200 ]; then ok=1; break; fi
+              sleep 10
+            done
+            [ "$ok" = 1 ] || { echo "::error::$base$path did not return 200 after deploy"; exit 1; }
           done
-          exit 1
