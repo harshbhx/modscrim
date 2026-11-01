@@ -15,20 +15,20 @@
 <h3 align="center">Raid drills for your mod team.</h3>
 
 <p align="center">
+  <b>Your mods have never practised a raid. Now they can, without anyone getting hurt.</b><br>
   ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters.<br>
   Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live<br>
   when you approve them, with one-click undo.
 </p>
 
 <p align="center">
-  <a href="https://app.modscrim.dualmindlab.tech/demo"><b>Try the live demo</b></a> (no Twitch account needed)
-  &nbsp;|&nbsp;
-  <a href="https://modscrim.dualmindlab.tech">Website</a>
-  &nbsp;|&nbsp;
-  <a href="docs/README.md">Documentation</a>
-  &nbsp;|&nbsp;
-  <a href="https://twitchcon-codex.devpost.com">Hackathon</a>
+  <a href="https://app.modscrim.dualmindlab.tech/demo"><img src="https://img.shields.io/badge/%E2%96%B6%20Try%20the%20live%20demo-FF6A1F?style=for-the-badge&amp;labelColor=123D2E" alt="Try the live demo, no Twitch account needed"></a>
+  <a href="https://modscrim.dualmindlab.tech"><img src="https://img.shields.io/badge/Website-1E5A40?style=for-the-badge&amp;labelColor=123D2E" alt="Website"></a>
+  <a href="docs/README.md"><img src="https://img.shields.io/badge/Documentation-1E5A40?style=for-the-badge&amp;labelColor=123D2E" alt="Documentation"></a>
+  <a href="https://twitchcon-codex.devpost.com"><img src="https://img.shields.io/badge/Devpost-1E5A40?style=for-the-badge&amp;labelColor=123D2E" alt="Hackathon page on Devpost"></a>
 </p>
+
+<p align="center"><sub>The demo needs no Twitch account and sends nothing to Twitch.</sub></p>
 
 <p align="center">
   <img src="docs/assets/gifs/hero.gif" alt="A demo drill: spam fills the practice chat, a moderator clears it line by line, and the scoreboard counts what was caught, what slipped and any fouls." width="860">
@@ -44,22 +44,21 @@
 
 ## Contents
 
-- [What it does](#what-it-does)
-- [How it works](#how-it-works)
-- [Screenshots](#screenshots)
-- [Features](#features)
-- [How it stays safe](#how-it-stays-safe)
-- [Architecture](#architecture)
-- [Tech stack](#tech-stack)
-- [Repository structure](#repository-structure)
-- [Quick start](#quick-start)
-- [Testing and CI](#testing-and-ci)
-- [Deployment](#deployment)
-- [Documentation](#documentation)
-- [Built with Codex](#built-with-codex)
-- [Roadmap and known limits](#roadmap-and-known-limits)
-- [Licence](#licence)
-- [Credits](#credits)
+[Why it exists](#why-it-exists) · [Try it in 60 seconds](#try-it-in-60-seconds) · [What it does](#what-it-does) · [How it works](#how-it-works) · [Screenshots](#screenshots) · [Features](#features) · [Design principles and safety](#how-it-stays-safe) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Repository structure](#repository-structure) · [Quick start](#quick-start) · [Testing and CI](#testing-and-ci) · [Deployment](#deployment) · [Documentation](#documentation) · [Research and references](#research-and-references) · [Built with Codex](#built-with-codex) · [Known limits](#roadmap-and-known-limits) · [Team](#credits)
+
+## Why it exists
+
+Twitch mod teams are volunteers, and the only practice most of them get is a real raid, with real harm and an audience. Streamers also tune their filters by guesswork: adding a blocked term risks banning regulars, and nobody can see that risk before the term goes live.
+
+ModScrim gives them a safe rehearsal and a feedback loop. The drill is fake and contained. The grading, the proposed rules and the false-ban check use the channel's real filters. The evidence behind this is in the PRD (§3.2) and collected on [Research and references](docs/references.md): a survey of Twitch moderators, an audit of AutoMod, a study of hate raids and reporting on spam bots in 2026.
+
+## Try it in 60 seconds
+
+1. Open the [live demo](https://app.modscrim.dualmindlab.tech/demo). No account is needed.
+2. Start a drill. Spam fills the practice chat next to harmless banter, and Kai, a simulated co-mod, plays along.
+3. Clear lines with the buttons or the keyboard: **D** deletes, **T** times out, **B** bans the focused line. A line nobody touches within the slip window slips through.
+4. Follow the console through the grade (labelled "local estimate" in demo rooms), the proposed blocked terms and the fresh-wave proof.
+5. Approve the terms, then undo them. Open the overlay view to see what viewers would see: blurred bars, never readable attacks.
 
 ## What it does
 
@@ -104,7 +103,13 @@ Read more in [How it works](docs/how-it-works.md).
 | **OBS overlay** | **After-action report** |
 | ![The redacted OBS overlay: alarm bar, scoreboard and a practice chat drawn as blurred bars.](docs/assets/screenshots/overlay.png) | ![The numbers-only after-action report.](docs/assets/screenshots/report.png) |
 
-Screenshots of the console, mod view, OBS overlay and report are coming. Until then, the [live demo](https://app.modscrim.dualmindlab.tech/demo) shows all of them, and CI uploads light and dark screenshots of every surface at 375, 768 and 1440 px as the `screenshots-<run id>` artifact of the [End-to-end workflow](.github/workflows/e2e.yml).
+<p align="center">
+  <img src="docs/assets/gifs/mod-view.gif" alt="The mod view: lines arrive and the moderator clears them with the delete, timeout and ban keys." width="420">
+  &nbsp;
+  <img src="docs/assets/gifs/overlay.gif" alt="The redacted OBS overlay: an alarm bar, a scoreboard and chat drawn as blurred bars." width="420">
+</p>
+
+CI also uploads light and dark screenshots of every surface at 375, 768 and 1440 px as the `screenshots-<run id>` artifact of the [End-to-end workflow](.github/workflows/e2e.yml).
 
 ## Features
 
@@ -125,6 +130,14 @@ Screenshots of the console, mod view, OBS overlay and report are coming. Until t
 </p>
 
 ## How it stays safe
+
+**Design principles**
+
+- **Safe by design.** The drill runs in a practice chat. Attack lines are never sent to Twitch chat.
+- **Obviously fake.** Every generated link ends in `.invalid`, and slurs exist only as the placeholders `slurx` and `slury`, drawn as blocks.
+- **Viewers see nothing readable.** The OBS overlay gets redacted payloads only.
+- **The streamer decides.** No blocked term reaches Twitch without approval, and every push can be undone.
+- **Honest numbers.** Every grade names its engine, and the limits below are stated up front.
 
 Each rule below is enforced in code and covered by tests; the full list is in [Safety](docs/safety.md).
 
@@ -288,7 +301,23 @@ Secrets (`PUBLIC_BASE_URL`, `TWITCH_CLIENT_SECRET`, `EVENTSUB_SECRET`, `SESSION_
 | [Testing](docs/testing.md) | Suites, Playwright projects and the CI gates |
 | [Design system](docs/design-system.md) | Tokens, contrast gate and brand kit |
 | [Troubleshooting](docs/troubleshooting.md), [FAQ](docs/faq.md), [Glossary](docs/glossary.md), [Contributing](docs/contributing.md) | Help and reference |
+| [Research and references](docs/references.md) | The sources behind the project |
 | [Specs for agents](docs/for-agents/INDEX.md) | The PRD, the SRS and their digests |
+
+## Research and references
+
+The problem evidence and the platform references the project was built against, each checked and with a one-line note on why it matters, are on [Research and references](docs/references.md). The short list:
+
+| Type | Source |
+|---|---|
+| Paper | [Who Moderates on Twitch and What Do They Do?](https://joseph.seering.org/papers/Seering_and_Kairam_2023_Who_Moderates_Twitch_What_Do_They_Do.pdf), a survey of 1,053 Twitch moderators |
+| Paper | [Auditing the Moderation of Hate Speech on Twitch](https://arxiv.org/abs/2506.07667), an audit of AutoMod |
+| Paper | [Hate Raids on Twitch](https://arxiv.org/abs/2305.16248), a study of r/Twitch discussions |
+| Article | [GamingHQ on spam bots and fake views, May 2026](https://gaminghq.eu/2026/05/09/twitch-communities-struggle-with-spam-bots-and-fake-view-activity/) |
+| Twitch docs | [Moderation guide](https://dev.twitch.tv/docs/api/moderation) and [API reference](https://dev.twitch.tv/docs/api/reference) (Check AutoMod Status, blocked terms, AutoMod settings) |
+| Twitch docs | [EventSub webhooks](https://dev.twitch.tv/docs/eventsub/handling-webhook-events) |
+| Cloudflare docs | [Durable Objects alarms](https://developers.cloudflare.com/durable-objects/api/alarms/) and [WebSockets](https://developers.cloudflare.com/durable-objects/best-practices/websockets/) |
+| Prior art | [Twitch Mod Simulator](https://adamziadi.itch.io/twitch-mod-simulator), a satirical game |
 
 ## Built with Codex
 
@@ -298,9 +327,10 @@ The project is an entry in the Codex x TwitchCon hackathon, which requires the w
 - **Tickets, tests first.** Work is split into numbered tickets on the project board. Agents write the tests the SRS names, watch them fail, then implement; `npm test` and `npm run typecheck` must pass.
 - **Humans review and decide.** The PRD describes the builder as Codex writing most of the code from SRS tickets, with humans reviewing, testing and deciding. Commits are authored by the human builders.
 - **A written trail.** [`docs/LOG.md`](docs/LOG.md) records decisions, day-0 results and a note per working session.
-- **Claude Code for the design and documentation pass.** The brand kit's colour tokens were generated with a Claude Code skill checked in under [`.claude/skills/artistic-color-palettes/`](.claude/skills/artistic-color-palettes/), and the UI v2 and documentation work was done with Claude Code agents under the owner's direction. The runtime uses no AI service by default.
+- **What is recorded so far.** [`docs/LOG.md`](docs/LOG.md) lists one Codex session (core and worker, 30 October 2026, tickets T-01, T-02, T-37 and T-38) and dated session notes with their test evidence.
+- **No AI at runtime.** The attack engine, rule finder and scoring are deterministic code, and no paid AI call is made when the app runs.
 
-The Codex session ID for the submission is provided in the Devpost entry.
+Codex session IDs are recorded in `docs/LOG.md` and provided in the Devpost entry.
 
 ## Roadmap and known limits
 
@@ -322,7 +352,9 @@ MIT. See [`LICENSE`](LICENSE). ModScrim is an independent project and is not aff
 
 ## Credits
 
-- Built by Harsh Bhanushali and Dhairya Patel for the Codex x TwitchCon hackathon, 2026.
+- **Harsh Bhanushali** ([@harshbhx](https://github.com/harshbhx)): everything on Cloudflare (Worker, Durable Objects, D1, cron, Queues, R2, deploy) and the landing page.
+- **Dhairya Patel**: the core engine, the Twitch integration, the web app, all testing, CI and the launch.
+- Built for the Codex x TwitchCon hackathon, 2026.
 - Fonts: Big Shoulders (Patric King, Chicago Design System) and Atkinson Hyperlegible Next and Mono (Braille Institute), under the SIL Open Font License; the licence files ship next to the fonts in [`brand/fonts/`](brand/fonts/).
-- Palette data: the colour-token skill uses data from [The Dictionary of Color Combinations](https://colorcombinations.org/) (Caslon Media, CC BY 4.0), with Sanzo Wada's plates digitised by Matt DesLauriers (MIT). The kasane palettes use base colours after Wikipedia's "Traditional colors of Japan" (CC BY-SA 4.0). Full attributions are in [`NOTICE.md`](.claude/skills/artistic-color-palettes/NOTICE.md).
+- Palette data: the colour tokens use data from [The Dictionary of Color Combinations](https://colorcombinations.org/) (Caslon Media, CC BY 4.0), with Sanzo Wada's plates digitised by Matt DesLauriers (MIT). The kasane palettes use base colours after Wikipedia's "Traditional colors of Japan" (CC BY-SA 4.0). The full attributions are kept with the colour-token tooling in the repository.
 - Design references: hand-turned ballpark scoreboards, coaches' tactics boards, the Acme Thunderer whistle and Braille Institute's Atkinson Hyperlegible family. See [`brand/DESIGN.md`](brand/DESIGN.md).
