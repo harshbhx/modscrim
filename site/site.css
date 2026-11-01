@@ -73,6 +73,7 @@ html{scroll-behavior:smooth;scroll-padding-top:calc(var(--head-h) + 16px);backgr
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--page);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 img,svg{display:block;max-width:100%}
+figure{margin:0}
 a{color:inherit}
 p{margin:0}
 h1,h2,h3,h4{margin:0}
@@ -320,12 +321,14 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 .frame-bar .tag{height:24px;font-size:13px;flex:none}
 .frame .msg{cursor:default}
 .frame .msg:hover{background:transparent}
-.frame .sb{padding:14px 20px;gap:20px}
+.frame .sb{padding:14px 20px;gap:20px 24px}
+.frame .sb-tag{display:none}
+.frame .slot-clock{margin-left:auto}
 .frame .pl{width:34px;height:46px;font-size:34px}
 .frame .pl.sep{width:12px}
 .frame .slot-l,.frame .sb-tag{font-size:17px}
 .mini-steps{list-style:none;margin:0;padding:10px 12px 0;display:flex;gap:4px;overflow:hidden;background:var(--wall);font-size:13px;font-weight:700;color:var(--on-wall-muted)}
-.mini-steps li{display:flex;align-items:center;gap:8px;padding:8px 12px;white-space:nowrap;border-bottom:3px solid transparent}
+.mini-steps li{display:flex;align-items:center;gap:8px;padding:8px 9px;white-space:nowrap;border-bottom:3px solid transparent}
 .mini-steps b{display:grid;place-items:center;width:20px;height:20px;border-radius:4px;background:var(--plate);color:var(--chalk);font-family:var(--display);font-size:14px}
 .mini-steps .done b{background:var(--caught-bg);color:var(--caught-text)}
 .mini-steps .on{color:var(--chalk);background:var(--dugout);border-radius:6px 6px 0 0;border-bottom-color:var(--palette-whistle-orange)}
@@ -356,7 +359,9 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 .frame-body{padding:20px}
 
 /* overlay mock: a 16:9 stream frame sized with container units */
-.ovm{container-type:inline-size;position:relative;aspect-ratio:16/9;background:var(--neutral-dark-900);overflow:hidden}
+.ovm{container-type:inline-size;position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--neutral-dark-800),var(--neutral-dark-900));overflow:hidden}
+.ovm::before{content:"";position:absolute;left:18%;top:20%;width:30%;aspect-ratio:1;border-radius:50%;border:.3cqw solid color-mix(in oklab,var(--chalk) 10%,transparent)}
+.ovm-ground{position:absolute;left:0;right:34%;top:44%;text-align:center;font-family:var(--display);font-weight:800;font-size:4cqw;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in oklab,var(--chalk) 14%,transparent)}
 .ovm-bar{position:absolute;left:3.3%;right:3.3%;top:4%;height:9%;display:flex;align-items:center;gap:1.6cqw;padding:0 2cqw;background:var(--yellow);color:var(--dugout);border-radius:.4cqw}
 .ovm-bar b{font-family:var(--display);font-weight:800;font-size:3cqw;white-space:nowrap}
 .ovm-bar span{font-size:1.5cqw;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -466,7 +471,9 @@ footer.foot{border-top:1px solid var(--wall-rule);padding-block:48px 40px;font-s
 @media (max-width:640px){
   .hero{padding-block:32px 56px}
   .hero-grid{gap:36px}
-  .mini-steps li:nth-child(n+4){display:none}
+  .mini-steps li:not(.on) span{display:none}
+  .mini-steps li{padding:8px 10px}
+  .frame .slot-clock{grid-column:1/-1;grid-row:1;justify-self:end}
   .frame .sb{padding:12px 14px}
   .frame-url{font-size:12px}
   .frame-bar .tag{display:none}
