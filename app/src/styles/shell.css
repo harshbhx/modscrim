@@ -19,6 +19,46 @@
  * from brand/DESIGN.md (scoreboard rail, number plates).
  */
 
+/*
+ * Ground for the pages in this file and /demo. design/tokens.css aliases --bg
+ * and --surface onto the generated neutral ramp (dark: near-black, light: a
+ * tinted card), which is neither the wall green the bands sit on nor Paper.
+ * Restating them here puts these pages on the brand grounds: chalk with Paper
+ * cards, and wall green with dugout cards in dark.
+ */
+.page-inner,
+.demo-page {
+  --surface: var(--color-surface); /* Paper, the one #fff DESIGN.md defines */
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .page-inner,
+  :root:not([data-theme='light']) .demo-page {
+    --bg: var(--green-700);
+    --surface: var(--green-850);
+    --sunken: var(--green-900);
+    --line: var(--green-500);
+  }
+}
+
+:root[data-theme='dark'] .page-inner,
+:root[data-theme='dark'] .demo-page {
+  --bg: var(--green-700);
+  --surface: var(--green-850);
+  --sunken: var(--green-900);
+  --line: var(--green-500);
+}
+
+.site-main:has(> .legal) {
+  display: flex;
+  flex-direction: column;
+}
+
+.page.legal {
+  flex: 1;
+}
+
 /* ---- header band ---- */
 .site-header.on-green {
   border-bottom: 3px solid var(--green-950); /* scoreboard-rail */
@@ -130,7 +170,7 @@
 }
 
 /* ---- privacy ---- */
-.legal-body {
+.legal .legal-body {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   align-items: start;
@@ -238,7 +278,7 @@
 
 /* ---- widths ---- */
 @media (max-width: 900px) {
-  .legal-body {
+  .legal .legal-body {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-8);
     padding-top: var(--space-10);
