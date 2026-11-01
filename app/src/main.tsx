@@ -10,6 +10,7 @@ import './styles/tokens.css';
 import '../../design/tokens.css';
 import '../../design/tokens.override.css';
 import './styles/base.css';
+import './styles/animations.css';
 
 const root = document.getElementById('root');
 
