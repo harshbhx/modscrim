@@ -1,0 +1,13 @@
+/* Motion primitives. All disabled under prefers-reduced-motion: reduce. */
+
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.anim-fade-in { animation: fade-in 150ms ease both; }
+.anim-slide-up { animation: slide-up 150ms ease both; }
+.anim-pulse { animation: pulse 1.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-in, .anim-slide-up, .anim-pulse { animation: none; }
+}
