@@ -1,6 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { SHOTS, WIDTHS } from './lib/shots';
 
 /**
  * Landing page (/). Checks the things a screenshot cannot: the copy is the
@@ -11,23 +10,11 @@ import { resolve } from 'node:path';
  * Screenshots are written as CI artifacts, light and dark, at three widths.
  */
 
-// Exactly the strings in app/src/copy.ts. If the copy deck moves, this fails.
 const TITLE = 'Raid drills for your mod team.';
 const PITCH =
   "ModScrim floods a practice chat that only your team can see with spam built to slip past your channel's own filters. Your mods race to clear it. Then Twitch grades your filters, and the blocked terms that close the gaps go live when you approve them, with one-click undo.";
 const SIGN_IN = 'Sign in with Twitch';
 const DEMO = 'Try the demo';
-
-const WIDTHS = [
-  { name: '375', width: 375, height: 812 },
-  { name: '768', width: 768, height: 1024 },
-  { name: '1440', width: 1440, height: 900 }
-] as const;
-
-// Not under app/e2e/report: the HTML reporter clears that folder when it
-// writes the report at the end of the run, which deletes anything we put there.
-const SHOTS = resolve('app/e2e/screenshots');
-mkdirSync(SHOTS, { recursive: true });
 
 /** The computed border width of the primary action, in px. */
 async function primaryBorderWidth(page: Page): Promise<number> {
