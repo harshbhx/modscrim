@@ -5,6 +5,7 @@ import { TacticZ, type DrillSnapshot, type ReportCard, type ServerMsg, type Tact
 import { t } from '../copy.js';
 import { apiFetch } from '../lib/api.js';
 import { ChannelInfoZ, ReportCardZ } from '../lib/contracts.js';
+import { percentOf } from '../lib/percent.js';
 import { useRoom } from '../lib/useRoom.js';
 import '../styles/overlay.css';
 
@@ -84,10 +85,18 @@ function AfterAction({ card, onDismiss }: { card: ReportCard; onDismiss: () => v
     <button className="overlay-report-dismiss" type="button" onClick={onDismiss} aria-label="Dismiss after-action report">×</button>
     <p className="overlay-label">After-action report</p>
     <h2>Drill complete</h2>
-    <p>{grade}</p>
-    <p>{card.termsPushed} terms pushed to Twitch</p>
-    {card.fresh && <p>Fresh wave: {card.fresh.before} blocked before, {card.fresh.after} after, out of {card.fresh.total}</p>}
-    <p>{card.slipped} attacks slipped through</p>
+    <p className="overlay-report-grade">{grade}</p>
+    <div className="overlay-report-stats">
+      <p className="overlay-report-stat"><strong>{card.termsPushed}</strong> terms pushed to Twitch</p>
+      <p className="overlay-report-stat overlay-report-stat-slipped"><strong>{card.slipped}</strong> attacks slipped through</p>
+    </div>
+    {card.fresh && <div className="overlay-fresh">
+      <p>Fresh wave: {card.fresh.before} blocked before, {card.fresh.after} after, out of {card.fresh.total}</p>
+      <span className="overlay-fresh-track" aria-hidden="true">
+        <span className="overlay-fresh-after" style={{ width: `${percentOf(card.fresh.after, card.fresh.total)}%` }} />
+        <span className="overlay-fresh-before" style={{ width: `${percentOf(card.fresh.before, card.fresh.total)}%` }} />
+      </span>
+    </div>}
   </aside>;
 }
 

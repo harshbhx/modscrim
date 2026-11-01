@@ -1,3 +1,15 @@
+/*
+ * OBS overlay (/overlay/:channel?key=...). Always dark, always 1920 by 1080, transparent ground.
+ *
+ * Colours come only from the palette primitives in styles/tokens.css. They are used instead of the
+ * scheme-aware roles on purpose: a stream overlay must look the same whatever the OS theme is.
+ * Panels are solid, not translucent, so the text on them reads over any game footage and the file
+ * needs no colour-mix or rgb() alpha (older OBS browser builds lack colour-mix).
+ *
+ * Layout is fixed: the scoreboard, the vote panel and the chat panel have set dimensions and their
+ * cells truncate, so a longer name or a bigger number can never move another element (OBS captures
+ * this live). Motion: one 150 ms slide for a new chat line, nothing else, nothing loops.
+ */
 html:has(.overlay-viewport),
 body:has(.overlay-viewport),
 body:has(.overlay-viewport) #root {
@@ -18,8 +30,9 @@ body:has(.overlay-viewport) {
   inset: 0;
   overflow: hidden;
   background: transparent;
-  color: #fff;
+  color: var(--chalk-100);
   font: 600 24px/1.35 var(--font-body);
+  font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
 
@@ -33,14 +46,16 @@ body:has(.overlay-viewport) {
   transform-origin: center;
 }
 
+/* 64 px safe area on every side. */
 .overlay-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 64px;
-  text-shadow: 0 2px 8px rgb(0 0 0 / 90%);
+  padding: var(--space-16);
+  text-shadow: 0 2px 8px var(--green-950);
 }
 
+/* ---- alarm bar: card yellow, hazard stripes on both ends ---- */
 .overlay-alarm {
   position: relative;
   overflow: hidden;
@@ -48,13 +63,13 @@ body:has(.overlay-viewport) {
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  min-height: 76px;
-  padding: 12px 32px;
-  border: 4px solid #111;
-  background: #ffd23f;
-  color: #111;
+  height: 80px;
+  padding: 0 48px;
+  border: 4px solid var(--green-950);
+  background: var(--yellow-400);
+  color: var(--green-950);
   font: 900 30px/1.1 var(--font-body);
-  letter-spacing: .035em;
+  letter-spacing: 0.035em;
   text-shadow: none;
   text-transform: uppercase;
 }
@@ -64,15 +79,23 @@ body:has(.overlay-viewport) {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 16px;
-  background: repeating-linear-gradient(135deg, #171717 0 8px, #ffd23f 8px 16px);
+  width: 24px;
+  background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
   content: '';
 }
 
 .overlay-alarm::before { left: 0; }
 .overlay-alarm::after { right: 0; }
 
+.overlay-alarm > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .overlay-channel {
+  flex: 0 0 auto;
   max-width: 34%;
   overflow: hidden;
   font-size: 24px;
@@ -80,26 +103,97 @@ body:has(.overlay-viewport) {
   white-space: nowrap;
 }
 
+/* ---- shared panel: a board hung on the wall ---- */
+.overlay-votes,
+.overlay-scoreboard {
+  position: absolute;
+  left: var(--space-16);
+  width: 570px;
+  padding: 22px 26px;
+  overflow: hidden;
+  border: 1px solid var(--green-950);
+  border-radius: var(--radius-lg);
+  background: var(--green-900);
+  box-shadow: 0 24px 48px -24px var(--green-950);
+}
+
+.overlay-label {
+  margin: 0 0 12px;
+  color: var(--yellow-400);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---- chat vote (P2): token swap only, no motion ---- */
+.overlay-votes {
+  top: 170px;
+  height: 270px;
+}
+
+.overlay-vote-row {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 12px;
+  height: 24px;
+  margin: 0 0 14px;
+  font-size: 17px;
+}
+
+.overlay-vote-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-vote-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-700);
+}
+
+.overlay-vote-track span {
+  display: block;
+  height: 100%;
+  background: var(--yellow-400);
+}
+
+.overlay-vote-row strong { text-align: right; }
+
+.overlay-vote-hint {
+  margin: 0;
+  color: var(--green-300);
+  font-size: 14px;
+}
+
+/* ---- live tag and chat column: right side, fixed height ---- */
 .overlay-activity {
   position: absolute;
   top: 170px;
-  right: 64px;
-  display: flex;
+  right: var(--space-16);
   width: 560px;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 20px;
+  height: 758px;
 }
 
+/* The tag sits in its own reserved slot, so showing or hiding it never moves the chat. */
 .overlay-live,
 .overlay-connection {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 48px;
   margin: 0;
-  padding: 12px 18px;
-  border-radius: 4px;
-  background: rgb(8 35 25 / 88%);
+  padding: 0 18px;
+  border-radius: var(--radius-md);
+  background: var(--green-850);
   font-size: 19px;
   font-weight: 800;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
+  line-height: 48px;
   text-transform: uppercase;
 }
 
@@ -109,63 +203,52 @@ body:has(.overlay-viewport) {
   gap: 12px;
 }
 
+/* A fixed ring, not a glow: nothing pulses in OBS. */
 .overlay-live span {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #ff6a1f;
-  box-shadow: 0 0 14px #ff6a1f;
+  background: var(--orange-500);
+  box-shadow: 0 0 0 4px var(--green-700);
 }
 
 .overlay-connection { text-align: center; }
 
-.overlay-votes {
-  position: absolute;
-  top: 170px;
-  left: 64px;
-  width: 570px;
-  padding: 22px 26px;
-  border: 2px solid rgb(255 255 255 / 28%);
-  border-radius: 8px;
-  background: rgb(5 26 18 / 92%);
-}
-
-.overlay-vote-row {
-  display: grid;
-  grid-template-columns: 155px minmax(0, 1fr) 32px;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 0;
-  font-size: 17px;
-}
-.overlay-vote-track { height: 14px; overflow: hidden; border-radius: 999px; background: rgb(255 255 255 / 16%); }
-.overlay-vote-track span { display: block; height: 100%; border-radius: inherit; background: #ffd23f; transition: width 180ms ease; }
-.overlay-vote-row strong { text-align: right; }
-.overlay-vote-hint { margin: 14px 0 0; color: rgb(255 255 255 / 80%); font-size: 14px; }
-
 .overlay-chat {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
-  max-height: 690px;
+  /* 12 rows of 46 px with 11 px gaps: whole rows only, never a cut-off one */
+  height: 673px;
   flex-direction: column;
   justify-content: flex-end;
   gap: 11px;
   overflow: hidden;
 }
 
-.overlay-chat-line {
-  display: grid;
-  grid-template-columns: minmax(130px, 190px) minmax(0, 1fr) 34px;
-  align-items: center;
-  gap: 12px;
-  min-height: 46px;
-  padding: 8px 12px;
-  border-left: 5px solid rgb(255 255 255 / 55%);
-  border-radius: 4px;
-  background: rgb(5 26 18 / 83%);
+/* The one allowed animation: a new line slides in over 150 ms. */
+@keyframes overlay-line-in {
+  from { opacity: 0; transform: translateX(24px); }
 }
 
-.overlay-chat-acted { border-left-color: #8fe0ae; }
-.overlay-chat-slipped { border-left-color: #ff844a; }
+.overlay-chat-line {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 190px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 12px;
+  border-left: 5px solid var(--green-500);
+  border-radius: var(--radius-md);
+  background: var(--green-850);
+  animation: overlay-line-in 150ms ease-out both;
+}
+
+.overlay-chat-acted { border-left-color: var(--mint-300); }
+.overlay-chat-slipped { border-left-color: var(--orange-400); }
 
 .overlay-user {
   overflow: hidden;
@@ -175,6 +258,7 @@ body:has(.overlay-viewport) {
   white-space: nowrap;
 }
 
+/* The hidden message: a censor bar, hatched, never a blurred copy of anything. */
 .overlay-redacted {
   display: flex;
   align-items: center;
@@ -184,11 +268,10 @@ body:has(.overlay-viewport) {
 
 .overlay-redacted-bar {
   display: block;
-  height: 15px;
+  height: 14px;
   min-width: 34px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 74%);
-  filter: blur(5px);
+  border-radius: var(--radius-plate);
+  background: repeating-linear-gradient(135deg, var(--green-500) 0 6px, var(--green-600) 6px 12px);
 }
 
 .overlay-outcome {
@@ -197,39 +280,28 @@ body:has(.overlay-viewport) {
   height: 30px;
   place-items: center;
   border-radius: 50%;
-  background: rgb(255 255 255 / 16%);
+  background: var(--green-800);
   font-size: 20px;
   font-weight: 900;
 }
 
-.overlay-chat-acted .overlay-outcome { color: #8fe0ae; }
-.overlay-chat-slipped .overlay-outcome { color: #ff844a; }
+.overlay-chat-acted .overlay-outcome { color: var(--mint-300); }
+.overlay-chat-slipped .overlay-outcome { color: var(--orange-400); }
 
+/* ---- scoreboard: fixed box, rows are hung plates ---- */
 .overlay-scoreboard {
-  position: absolute;
-  bottom: 64px;
-  left: 64px;
-  width: 570px;
-  padding: 22px 26px;
-  border: 2px solid rgb(255 255 255 / 28%);
-  border-radius: 8px;
-  background: rgb(5 26 18 / 88%);
-}
-
-.overlay-label {
-  margin: 0 0 12px;
-  color: #ffd23f;
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
+  bottom: var(--space-16);
+  display: flex;
+  height: 380px;
+  flex-direction: column;
 }
 
 .overlay-scoreboard ol {
   display: flex;
-  max-height: 300px;
+  min-height: 0;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
   overflow: hidden;
   margin: 0;
   padding: 0;
@@ -237,9 +309,17 @@ body:has(.overlay-viewport) {
 }
 
 .overlay-scoreboard li {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: 14px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -2px 0 var(--green-950);
   font-size: 17px;
 }
 
@@ -251,55 +331,153 @@ body:has(.overlay-viewport) {
 }
 
 .overlay-scoreboard li span:last-child {
-  flex: 0 0 auto;
+  max-width: 330px;
+  overflow: hidden;
   font-size: 15px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Slipped is whistle orange with deep green ink, the same chip as everywhere else. */
 .overlay-slipped {
+  align-self: flex-start;
+  flex: 0 0 auto;
   margin: 14px 0 0;
-  padding-top: 11px;
-  border-top: 1px solid rgb(255 255 255 / 30%);
+  padding: 2px 14px;
+  border-radius: var(--radius-plate);
+  background: var(--orange-500);
+  box-shadow: inset 0 -2px 0 var(--green-950);
+  color: var(--green-850);
   font-weight: 900;
+  text-shadow: none;
 }
 
+/* ---- after-action card: shown for 20 s per report update ---- */
 .overlay-report {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 680px;
-  padding: 42px 48px;
-  border: 3px solid #ffd23f;
-  border-radius: 12px;
-  background: rgb(8 35 25 / 96%);
-  box-shadow: 0 12px 48px rgb(0 0 0 / 55%);
+  width: 640px;
+  min-height: 460px;
+  padding: 44px 48px 40px;
+  overflow: hidden;
+  border: 1px solid var(--green-950);
+  border-radius: var(--radius-lg);
+  background: var(--green-900);
+  box-shadow: 0 24px 48px -24px var(--green-950);
   transform: translate(-50%, -50%);
 }
 
-.overlay-report h2 {
-  margin: 0 0 20px;
-  font: 900 48px/1 var(--font-display);
-  text-transform: uppercase;
+/* Hazard edge ties the card to the alarm bar. */
+.overlay-report::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 12px;
+  background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
+  content: '';
 }
 
-.overlay-report p:not(.overlay-label) {
-  margin: 10px 0 0;
-  font-size: 21px;
+.overlay-report h2 {
+  margin: 0 0 14px;
+  color: var(--chalk-100);
+  font: 800 72px/0.95 var(--font-display);
+  font-variation-settings: 'opsz' 72;
 }
+
+.overlay-report-grade {
+  display: inline-block;
+  margin: 0 0 24px;
+  padding: 4px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--mint-800);
+  color: var(--mint-100);
+  font-size: 20px;
+  text-shadow: none;
+}
+
+.overlay-report-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overlay-report-stat {
+  margin: 0;
+  padding: 16px 20px 18px;
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -2px 0 var(--green-950);
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.overlay-report-stat strong {
+  display: block;
+  color: var(--chalk-100);
+  font: 800 72px/1 var(--font-display);
+  font-variation-settings: 'opsz' 72;
+}
+
+.overlay-report-stat-slipped {
+  background: var(--orange-500);
+  color: var(--green-850);
+  text-shadow: none;
+}
+
+.overlay-report-stat-slipped strong { color: var(--green-850); }
+
+/* Fresh wave, drawn with two widths: the lighter bar is blocked before, the mint bar is blocked after. */
+.overlay-fresh { margin-top: 24px; }
+
+.overlay-fresh p {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.overlay-fresh-track {
+  position: relative;
+  display: block;
+  height: 18px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-700);
+}
+
+.overlay-fresh-after,
+.overlay-fresh-before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+}
+
+.overlay-fresh-after { background: var(--mint-300); }
+.overlay-fresh-before { background: var(--green-300); }
 
 .overlay-report-dismiss {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 22px;
+  right: 14px;
   width: 44px;
   height: 44px;
-  border: 0;
-  background: transparent;
-  color: #fff;
+  border: 2px solid var(--green-500);
+  border-radius: var(--radius-sm);
+  background: var(--green-900);
+  color: var(--chalk-100);
   font: 32px/1 var(--font-body);
+  text-shadow: none;
   pointer-events: auto;
   cursor: pointer;
 }
 
+/* The hover cue is a box-shadow ring, never a border-width change. */
+.overlay-report-dismiss:hover { box-shadow: 0 0 0 2px var(--yellow-400); }
+.overlay-report-dismiss:focus-visible { outline: 3px solid var(--yellow-400); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
-  .overlay-live span { box-shadow: none; }
+  .overlay-chat-line { animation: none; }
 }
