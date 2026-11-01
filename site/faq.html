@@ -32,28 +32,25 @@
 <header class="top on-green">
   <div class="wrap">
     <div class="nav">
-      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="200" height="38"></a>
-      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html" aria-current="page">FAQ</a></nav>
-      <a class="btn btn-orange btn-sm" href="console.html">Sign in with Twitch</a>
-      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html" aria-current="page">FAQ</a><a href="setup.html">Setup guide</a></nav></details>
+      <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="docs/">Docs</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html" aria-current="page">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="how-it-works.html">How it works</a><a href="mods.html">For mods</a><a href="docs/">Docs</a><a href="safety.html">Safety</a><a href="demo.html">Demo</a><a href="faq.html" aria-current="page">FAQ</a></nav></details>
     </div>
   </div>
-</header><main id="main"><section class="top on-green" aria-labelledby="page-title">
-  <div class="wrap phead">
-    <h1 id="page-title" class="d1" style="font-size:clamp(56px,7vw,104px)">Questions</h1>
+</header><main id="main"><section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="index.html">Home</a> / FAQ</p>
+    <h1 id="page-title">Frequently asked questions</h1>
     <p class="lead">Short answers about what ModScrim does, what it never does, and what happens to your data.</p>
   </div>
 </section>
 <section class="page"><div class="wrap"><div class="faq-group"><h2>For streamers</h2><div class="faq"><details><summary>Does ModScrim post anything to my chat?</summary><div class="ans"><p>No. Attacks only exist in the practice chat. The one optional exception is a single fixed line when a drill starts: &ldquo;ModScrim practice drill starting. Practice chat only, nothing here is real.&rdquo; It&rsquo;s off unless you turn it on.</p></div></details><details><summary>Is the grading real?</summary><div class="ans"><p>On a real channel, yes. Twitch&rsquo;s Check AutoMod Status grades every line it can within your channel&rsquo;s hourly limit. Anything graded by ModScrim&rsquo;s own matcher is labelled &ldquo;local estimate&rdquo;, and demo rooms always use the local estimate.</p></div></details><details><summary>Can ModScrim change my AutoMod settings?</summary><div class="ans"><p>No. It reads them. Twitch&rsquo;s update call replaces every setting at once, so ModScrim never uses it. The only thing it can change is your blocked terms, and only after you press Approve and push.</p></div></details><details><summary>What if a new term bans a regular?</summary><div class="ans"><p>ModScrim rejects any term that matches your last 7 days of chat, and push is disabled unless real-chat matches are zero. If one still causes trouble later, Undo this push removes it, or you can remove it in your Twitch dashboard.</p></div></details><details><summary>How long does a drill take?</summary><div class="ans"><p>The drill itself runs 30 seconds to 3 minutes. From the first whistle to the report is usually under six minutes.</p></div></details><details><summary>Do I need to install anything?</summary><div class="ans"><p>No. You, your mods and OBS all use links.</p></div></details><details><summary>How much does it cost?</summary><div class="ans"><p>ModScrim is a free, open-source hackathon project. It runs on Cloudflare&rsquo;s free tier and makes no paid AI calls.</p></div></details></div></div><div class="faq-group"><h2>For mods</h2><div class="faq"><details><summary>Do my actions affect real viewers?</summary><div class="ans"><p>No. Delete, time out and ban in the practice chat only score the drill.</p></div></details><details><summary>Can I use a phone?</summary><div class="ans"><p>Yes. The mod view works from 360 pixels wide, and on a phone every button is at least 44 pixels tall. On a keyboard, D, T and B act on the focused line.</p></div></details><details><summary>Will my name show on stream?</summary><div class="ans"><p>Your display name appears on the overlay scoreboard unless your streamer turns on Hide mod names, which shows Mod 1, Mod 2 and so on.</p></div></details></div></div><div class="faq-group"><h2>Data and safety</h2><div class="faq"><details><summary>What happens to my chat data?</summary><div class="ans"><p>It stays in your channel&rsquo;s own storage for 7 days, is used only for the false-ban check, and is deleted when you ask, sign out or revoke the app. The <a href="privacy.html">privacy policy</a> has the details.</p></div></details><details><summary>Why not use an AI model to write attacks?</summary><div class="ans"><p>Templates and tricks are safer, free and repeatable: the same seed always gives the same wave, so a drill can be replayed exactly and tested.</p></div></details><details><summary>What can&rsquo;t blocked terms catch?</summary><div class="ans"><p>Spaced or dotted letters, zero-width characters, emoji inside a word and look-alike letters. ModScrim labels those &ldquo;needs a bot rule&rdquo;.</p></div></details><details><summary>Can viewers learn tricks from the overlay?</summary><div class="ans"><p>No. The overlay never receives attack text, only the length of each line, drawn as a blurred bar.</p></div></details></div></div><div class="faq-group"><h2>About the project</h2><div class="faq"><details><summary>Is ModScrim made by Twitch?</summary><div class="ans"><p>No. It&rsquo;s an independent project that signs in with Twitch and uses Twitch&rsquo;s public API. It isn&rsquo;t affiliated with or endorsed by Twitch.</p></div></details><details><summary>Where is the code?</summary><div class="ans"><p>In the <a href="https://github.com/harshbhx/modscrim">public repository</a>. It was built with OpenAI Codex for the Codex x TwitchCon hackathon.</p></div></details></div></div></div></section>
-</main><section class="close on-green" aria-labelledby="close-title">
+</main><section class="endcta" aria-labelledby="close-title">
   <div class="wrap">
-    <div class="close-in" style="grid-template-columns:minmax(0,3fr) minmax(0,9fr)">
-      <img class="mark" src="img/modscrim-mark-reverse.svg" alt="" width="260" height="186" style="max-width:240px">
-      <div class="close-copy">
-        <h2 id="close-title" class="d2">Ready when your team is.</h2>
-        <p class="lead">Sign in with Twitch to read your filters and set up your first drill. Or try the whole loop in a demo room first, no account needed.</p>
-        <div class="ctas"><a class="btn btn-orange" href="console.html">Start a drill</a><a class="btn btn-line" href="demo.html">Open a demo room</a></div>
-      </div>
+    <div class="endcta-in">
+      <div><h2 id="close-title">Ready when your team is.</h2><p>Sign in with Twitch to read your filters and set up your first drill. Or try the whole loop in a demo room first, no account needed.</p></div>
+      <div class="ctas"><a class="btn btn-orange" href="https://app.modscrim.dualmindlab.tech/console">Start a drill</a><a class="btn btn-line" href="demo.html">Open a demo room</a></div>
     </div>
   </div>
 </section><div class="foot-band">
@@ -65,9 +62,10 @@
           <p>Raid drills for your mod team.</p>
           <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
         </div>
-        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="setup.html">Setup guide</a></li><li><a href="overlay.html">OBS overlay</a></li></ul></nav>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="how-it-works.html">How it works</a></li><li><a href="mods.html">For mods</a></li><li><a href="demo.html">Demo room</a></li><li><a href="overlay.html">OBS overlay</a></li><li><a href="console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="docs/">All docs</a></li><li><a href="docs/streamer/">Streamer docs</a></li><li><a href="docs/mods/">Mod docs</a></li><li><a href="docs/dev/">Developer docs</a></li><li><a href="docs/glossary.html">Glossary</a></li></ul></nav>
         <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="safety.html">Safety</a></li><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul></nav>
-        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
       </div>
       <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
     </footer>
