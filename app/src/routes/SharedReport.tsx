@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { pages, t } from '../copy';
+import { percentOf } from '../lib/percent';
+import '../styles/report.css';
 
 /**
  * `/r/:reportId` (FR-27 P1, PRD F-20): the read-only report card a streamer chose to share. Numbers only
@@ -112,91 +114,109 @@ export function SharedReport() {
   const caught = card.mods.reduce((sum, m) => sum + m.caught, 0);
 
   return (
-    <section className="page report" aria-labelledby="report-title">
+    <section className="page share" aria-labelledby="report-title">
       <div className="wrap">
-        <header className="report-head">
-          <p className="eyebrow">{r.eyebrow}</p>
-          <h1 id="report-title">{report.channel.displayName}</h1>
-          <p className="muted">
-            <time dateTime={new Date(report.createdAt).toISOString()}>{dateFormat.format(report.createdAt)}</time>
-          </p>
-        </header>
+        <article className="share-card">
+          <header className="share-head on-green">
+            <p className="eyebrow">{r.eyebrow}</p>
+            <h1 id="report-title">{report.channel.displayName}</h1>
+            <p className="share-date">
+              <time dateTime={new Date(report.createdAt).toISOString()}>{dateFormat.format(report.createdAt)}</time>
+            </p>
+          </header>
 
-        <dl className="report-stats">
-          <div className="report-stat">
-            <dt>{r.attacksShown}</dt>
-            <dd>{card.attacksShown}</dd>
-          </div>
-          <div className="report-stat report-stat-caught">
-            <dt>{r.caught}</dt>
-            <dd>{caught}</dd>
-          </div>
-          <div className="report-stat report-stat-slipped">
-            <dt>{r.slipped}</dt>
-            <dd>{card.slipped}</dd>
-          </div>
-          <div className="report-stat">
-            <dt>{r.termsPushed}</dt>
-            <dd>{card.termsPushed}</dd>
-          </div>
-        </dl>
+          <dl className="share-stats">
+            <div className="share-stat">
+              <dt>{r.attacksShown}</dt>
+              <dd>{card.attacksShown}</dd>
+            </div>
+            <div className="share-stat share-stat-caught">
+              <dt>{r.caught}</dt>
+              <dd>{caught}</dd>
+            </div>
+            <div className="share-stat share-stat-slipped">
+              <dt>{r.slipped}</dt>
+              <dd>{card.slipped}</dd>
+            </div>
+            <div className="share-stat">
+              <dt>{r.termsPushed}</dt>
+              <dd>{card.termsPushed}</dd>
+            </div>
+          </dl>
 
-        <div className="report-grid">
-          <section className="report-panel" aria-labelledby="report-filters">
-            <h2 id="report-filters">{r.filters}</h2>
-            {card.grade ? (
-              <p>
-                {t('grade.headline', { n: card.grade.passed, total: card.grade.total })}{' '}
-                <span className="report-engine">{engineLabel(card.grade.engine)}</span>
-              </p>
-            ) : (
-              <p className="muted">{r.notGraded}</p>
-            )}
-            <h3>{r.fresh}</h3>
-            {card.fresh ? (
-              <p>{t2(r.freshLine, card.fresh)}</p>
-            ) : (
-              <p className="muted">{r.notProven}</p>
-            )}
-          </section>
+          <div className="share-body">
+            <section className="share-section" aria-labelledby="report-filters">
+              <h2 id="report-filters">{r.filters}</h2>
+              {card.grade ? (
+                <div className="share-grade">
+                  <span className="share-score" aria-hidden="true">
+                    <b>{card.grade.passed}</b>
+                    <i>{card.grade.total}</i>
+                  </span>
+                  <p>
+                    {t('grade.headline', { n: card.grade.passed, total: card.grade.total })}{' '}
+                    <span className="share-engine">{engineLabel(card.grade.engine)}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="muted">{r.notGraded}</p>
+              )}
+              <h3>{r.fresh}</h3>
+              {card.fresh ? (
+                <div className="share-fresh">
+                  <div className="share-bars" aria-hidden="true">
+                    <span className="share-bar share-bar-before" style={{ width: `${percentOf(card.fresh.before, card.fresh.total)}%` }}>
+                      {card.fresh.before}
+                    </span>
+                    <span className="share-bar share-bar-after" style={{ width: `${percentOf(card.fresh.after, card.fresh.total)}%` }}>
+                      {card.fresh.after}
+                    </span>
+                  </div>
+                  <p>{t2(r.freshLine, card.fresh)}</p>
+                </div>
+              ) : (
+                <p className="muted">{r.notProven}</p>
+              )}
+            </section>
 
-          <section className="report-panel" aria-labelledby="report-mods">
-            <h2 id="report-mods">{r.mods}</h2>
-            {card.mods.length === 0 ? (
-              <p className="muted">{r.noMods}</p>
-            ) : (
-              <div className="report-table-wrap">
-                <table className="report-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">{r.mod}</th>
-                      <th scope="col">{r.caught}</th>
-                      <th scope="col">{r.falseBans}</th>
-                      <th scope="col">{r.reaction}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {card.mods.map((m) => (
-                      <tr key={m.name}>
-                        <th scope="row">{m.name}</th>
-                        <td>{m.caught}</td>
-                        <td>{m.falseBans}</td>
-                        <td>{m.avgReactionMs === null ? '–' : t2(r.seconds, { s: (m.avgReactionMs / 1000).toFixed(1) })}</td>
+            <section className="share-section" aria-labelledby="report-mods">
+              <h2 id="report-mods">{r.mods}</h2>
+              {card.mods.length === 0 ? (
+                <p className="muted">{r.noMods}</p>
+              ) : (
+                <div className="share-table-wrap">
+                  <table className="share-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">{r.mod}</th>
+                        <th scope="col">{r.caught}</th>
+                        <th scope="col">{r.falseBans}</th>
+                        <th scope="col">{r.reaction}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </div>
+                    </thead>
+                    <tbody>
+                      {card.mods.map((m) => (
+                        <tr key={m.name}>
+                          <th scope="row">{m.name}</th>
+                          <td>{m.caught}</td>
+                          <td>{m.falseBans}</td>
+                          <td>{m.avgReactionMs === null ? '–' : t2(r.seconds, { s: (m.avgReactionMs / 1000).toFixed(1) })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </div>
 
-        <p className="muted report-note">{r.note}</p>
-        <div className="actions">
-          <Link className="btn btn-orange" to="/">
-            {r.cta}
-          </Link>
-        </div>
+          <footer className="share-foot">
+            <p className="muted">{r.note}</p>
+            <Link className="btn btn-orange" to="/">
+              {r.cta}
+            </Link>
+          </footer>
+        </article>
       </div>
     </section>
   );
