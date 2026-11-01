@@ -40,10 +40,28 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] }
     },
     {
-      // No demo room needed: the landing page is the SPA's own entry screen,
-      // so this project does not depend on setup and can run on its own.
       name: 'landing',
       testMatch: /landing\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'console-surface',
+      testMatch: /console-surface\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'report-surface',
+      testMatch: /report-surface\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'mod-surface',
+      testMatch: /mod-surface\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'overlay-surface',
+      testMatch: /overlay-surface\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
