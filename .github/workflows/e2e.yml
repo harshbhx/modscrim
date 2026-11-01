@@ -40,6 +40,26 @@ jobs:
           else
             npx playwright install-deps chromium
           fi
+      # Surface specs assert this branch's markup, which the deployed Worker is
+      # not serving yet, so they run against a build of the branch instead.
+      - name: Build the SPA for the surface specs
+        run: npm run build -w app
+
+      - name: Run surface projects against this branch's build
+        env:
+          # Both are set so the config's isLocal check is false and it does not
+          # also try to boot `npm run dev`, which needs secrets CI does not have.
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_SURFACE_BASE_URL: http://127.0.0.1:4173
+        run: |
+          node scripts/serve-static.mjs app/dist/client 4173 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:4173/ >/dev/null || { echo 'static server never came up'; exit 1; }
+          npx playwright test --project=landing --reporter=list
+
       - name: Run Playwright projects
         env:
           PLAYWRIGHT_BASE_URL: https://app.modscrim.dualmindlab.tech
@@ -50,6 +70,17 @@ jobs:
       - name: Add per-project results to the job summary
         if: always()
         run: node scripts/e2e-summary.mjs
+
+      # Uploaded even when green: these are how a surface's light and dark
+      # rendering gets reviewed at each width without running the app locally.
+      - name: Upload surface screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_id }}
+          path: app/e2e/screenshots
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload Playwright failure artifacts
         if: failure()
         uses: actions/upload-artifact@v4

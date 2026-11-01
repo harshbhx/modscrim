@@ -1,0 +1,247 @@
+/*
+ * Landing page (/). Colour comes from design/tokens.css + tokens.override.css;
+ * spacing, type and radius come from styles/tokens.css. No literal colours.
+ *
+ * The hero is a wall-green band in both themes, so the dark role values apply
+ * inside it whatever the page theme is. Measured on #123D2E:
+ *   text        #eef3f1  10.81:1   body
+ *   text-muted  #b9c4bf   6.76:1   body
+ *   accent fill #ff6a1f   4.23:1   non-text (passes here unexempted)
+ *   chalk rule  #eef1e8  10.61:1   outline
+ *   card yellow #ffd23f   8.39:1   focus ring (brand/DESIGN.md focus-on-green)
+ * border-strong is NOT usable on this band: it measures 2.14:1.
+ */
+.landing {
+  --color-bg: var(--palette-wall-green);
+  --color-text: var(--neutral-dark-50);
+  --color-text-muted: var(--neutral-dark-200);
+  --color-accent: var(--palette-whistle-orange);
+  --color-accent-hover: var(--accent-hover-on-dark);
+  --color-on-accent: var(--palette-dugout);
+  /*
+   * The --color-action-* aliases must be restated, not inherited. In
+   * design/tokens.css they are declared as `--color-action: var(--color-accent)`
+   * on :root, so they are computed there and inherit down already resolved;
+   * redefining --color-accent here would never reach them.
+   */
+  --color-action: var(--palette-whistle-orange);
+  --color-action-hover: var(--accent-hover-on-dark);
+  --color-on-action: var(--palette-dugout);
+  /* chalk, because the dark border-strong fails on this ground */
+  --color-action-border: var(--palette-chalk);
+  /* restated for the same reason: it references --color-action-border */
+  --shadow-action-hover: 0 0 0 1px var(--palette-chalk);
+  --color-focus: var(--palette-card-yellow);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* fallback for browsers without :has(); the band still reaches the footer on
+     a normal viewport, and the flex rule below takes over where it is supported */
+  min-height: calc(100vh - 190px);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/*
+ * The landing page is a single entry screen, so its green band fills whatever
+ * the header and footer leave rather than stopping short and showing a strip
+ * of the chalk page beneath it. Scoped with :has() so no other route's layout
+ * changes: this only applies on the one page that contains .landing.
+ */
+.site-main:has(> .landing) {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-main:has(> .landing) .landing {
+  flex: 1;
+}
+
+/*
+ * Pitch markings: a halfway line and a centre circle, as the brand kit
+ * describes. Decorative only and never the sole carrier of meaning, so it is
+ * hidden from assistive tech and kept far below text contrast on purpose.
+ */
+.landing::before,
+.landing::after {
+  position: absolute;
+  z-index: 0;
+  border: 2px solid var(--color-text);
+  opacity: 0.07;
+  content: '';
+  pointer-events: none;
+}
+
+.landing::before {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  border-width: 0 0 0 2px;
+}
+
+.landing::after {
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.landing-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: var(--space-16) 0;
+}
+
+.landing-title {
+  max-width: 13ch;
+  margin: 0 0 var(--space-6);
+  color: var(--color-text);
+}
+
+.landing-pitch {
+  max-width: var(--measure);
+  margin: 0;
+  font: var(--t-lead);
+  color: var(--color-text-muted);
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-10);
+}
+
+/* ---- actions ---- */
+.landing-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  font: var(--t-button);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+/*
+ * Primary. The orange fill never identifies this control on its own: the
+ * border carries it, which is what the contrast exemption in
+ * design/tokens.override.css rests on. scripts/lint-action-border.mjs fails
+ * the build if this border is ever dropped.
+ */
+.landing-action-primary {
+  background: var(--color-action);
+  color: var(--color-on-action);
+  border: 2px solid var(--color-action-border);
+}
+
+.landing-action-primary:hover {
+  background: var(--color-action-hover);
+  /* the hover cue is a shadow, never a wider border: a border-width change
+     would reflow this button and the one beside it */
+  box-shadow: var(--shadow-action-hover);
+}
+
+.landing-action-primary:active {
+  background: var(--color-action);
+  box-shadow: none;
+}
+
+/* Secondary. Outline only, so the pair never reads as two equal actions. */
+.landing-action-secondary {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-action-border);
+}
+
+.landing-action-secondary:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.landing-action-secondary:active {
+  box-shadow: none;
+}
+
+.landing-action:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* No action here is ever disabled or pending: both are plain navigations, one
+   to the Worker's /auth/login redirect and one to the in-app demo route. The
+   rules below exist so that stays true if either ever becomes a button. */
+.landing-action[aria-disabled='true'],
+.landing-action:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* ---- widths ---- */
+@media (max-width: 768px) {
+  .landing-inner {
+    padding: var(--space-16) 0;
+  }
+
+  .landing::after {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-inner {
+    padding: var(--space-14) 0;
+  }
+
+  .landing-title {
+    max-width: none;
+  }
+
+  .landing-actions {
+    margin-top: var(--space-8);
+  }
+
+  .landing-action {
+    width: 100%;
+  }
+
+  /* the centre circle crowds the headline at phone width */
+  .landing::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-action {
+    transition: none;
+  }
+}
+
+/* Windows high-contrast: keep the outline when system colours take over. */
+@media (forced-colors: active) {
+  .landing-action {
+    border: 2px solid ButtonBorder;
+  }
+
+  .landing-action:focus-visible {
+    outline: 3px solid Highlight;
+  }
+}
