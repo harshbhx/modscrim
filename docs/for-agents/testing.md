@@ -29,6 +29,10 @@ npm test -w packages/core -- --coverage                # coverage report
 npm run typecheck
 ```
 
+
+## 2.1 Playwright projects
+
+Run one browser project with `npx playwright test --project=<name>` (for example, `npx playwright test --project=smoke`). The Playwright config starts `npm run dev` and waits for `/api/health` when `PLAYWRIGHT_BASE_URL` is unset or points to `http://localhost:5173`. Set `PLAYWRIGHT_BASE_URL` to the deployed app URL to run against that Worker without starting a local server.
 ## 3. Required tests (SRS §13.2)
 
 | File | Asserts | Covers | Ticket |
