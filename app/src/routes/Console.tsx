@@ -9,6 +9,7 @@ import type { GradeLine, GradesView, ProofResult, PushResult, ReportView, RuleRe
 import { CopyField } from '../components/CopyField';
 import { DemoJoinQr } from '../components/DemoJoinQr';
 import { StatusStrip, StatusViewZ, type StatusView } from '../components/StatusStrip';
+import { ChatLogZ, FiltersZ } from '../lib/contracts';
 import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
 import { t } from '../copy';
@@ -28,18 +29,6 @@ const MeZ = z.object({
   subscriptionStatus: z.string(),
   overlayUrl: z.string().url(),
   modUrl: z.string().url()
-});
-const FiltersZ = z.object({
-  terms: z.array(z.object({ id: z.string(), text: z.string() })),
-  automod: z.record(z.string(), z.number().int().min(0).max(4).nullable()).nullable(),
-  fetchedAt: z.number().nullable()
-});
-const ChatLogZ = z.object({
-  count: z.number().int().nonnegative(),
-  oldest: z.number().nullable(),
-  newest: z.number().nullable(),
-  logging: z.boolean(),
-  samples: z.array(z.object({ login: z.string(), text: z.string() })).max(6)
 });
 const DrillViewZ = z.object({
   drillId: z.string().min(1),
