@@ -421,7 +421,7 @@
 .console-delete-confirm span { width: 100%; font: 600 14px/1.4 var(--font-body); }
 
 /* step 2 */
-.console-config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.console-config-grid { align-items: start; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
 .console-config-options,
 .console-config-values { display: grid; align-content: start; gap: var(--space-4); }
 .console-config-options h3,
@@ -451,14 +451,16 @@
 .console-check-row input,
 .console-radio-row input { width: 20px; height: 20px; flex: 0 0 auto; margin: 0; accent-color: var(--text); }
 .console-warning[role='note'] { margin: 0; }
-.console-input-row { display: grid; grid-template-columns: minmax(0, 1fr) 168px; align-items: center; gap: var(--space-1) var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); font: 600 15px/1.4 var(--font-body); }
+.console-input-row { display: grid; grid-template-columns: minmax(0, 1fr) 168px; align-items: center; gap: 0 var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); font: 600 15px/1.4 var(--font-body); }
 .console-input-row input,
 .console-input-row select { width: 100%; min-height: 44px; padding: 0 var(--space-3); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font: 500 15px/1.4 var(--font-body); font-variant-numeric: tabular-nums; }
 .console-input-row input[type='number'] { text-align: right; }
-.console-input-row > span { grid-column: 1 / -1; color: var(--text-muted); font: 400 13px/1.4 var(--font-body); }
+.console-input-row > input,
+.console-input-row > select { grid-column: 2; grid-row: 1 / span 2; }
+.console-input-row > span { grid-column: 1; grid-row: 2; color: var(--text-muted); font: 400 13px/1.4 var(--font-body); }
 .console-toggles { display: grid; gap: var(--space-2); }
 .console-kai-toggle { font-weight: 700; }
-.console-config-lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); margin-top: var(--space-6); }
+.console-config-lower { align-items: start; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); margin-top: var(--space-6); }
 .console-config-lower > :only-child { grid-column: 1 / -1; }
 .console-share-grid { display: grid; gap: var(--space-4); }
 .console-share-grid > .console-button { justify-self: start; }
@@ -662,6 +664,8 @@
 /* ---- responsive ------------------------------------------------------------- */
 
 @media (max-width: 1100px) {
+  .console-stepper li.is-current { flex: 0 0 auto; }
+  .console-stepper li:not(:last-child):not(.is-current) { flex: 1 1 0; }
   .console-stepper li:not(.is-current) .console-step-label { display: none; }
   .console-stepper button { padding: var(--space-1); }
   .console-status-details,
@@ -690,25 +694,16 @@
   .console-log-panel { padding: var(--space-4); }
   .console-status-panel { padding: var(--space-3) var(--space-4) var(--space-4); }
   .console-stepper ol { padding: var(--space-1) var(--space-3); }
+  .console-stepper li:not(:last-child)::after { min-width: 4px; margin: 0 var(--space-1); }
   .console-step-title { flex-direction: column; }
   .console-step-title > .console-button { width: 100%; }
   .console-automod-list { grid-template-columns: minmax(0, 1fr); }
   .console-tactics,
   .console-primary-tactic { grid-template-columns: minmax(0, 1fr); }
-  .console-input-row { grid-template-columns: minmax(0, 1fr) 120px; }
+  .console-input-row { grid-template-columns: minmax(0, 1fr) 144px; }
   .demo-join-card { grid-template-columns: minmax(0, 1fr); padding: var(--space-4); }
   .demo-join-qr { grid-row: 1; margin: 0 auto; }
-  .console-step-footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 5;
-    margin: var(--space-6) calc(var(--gutter) * -1) calc(var(--space-16) * -1);
-    padding: var(--space-3) var(--gutter);
-    border-top: 1px solid var(--line-strong);
-    background: var(--surface);
-    box-shadow: 0 -4px 12px color-mix(in srgb, var(--text) 10%, transparent);
-  }
-  .console-step-footer > .console-button { flex: 1; }
+  .console-step-footer { flex-direction: column-reverse; align-items: stretch; }
   .console-grade-actions,
   .console-push-actions { flex-direction: column; width: 100%; }
   .console-push-bar { align-items: stretch; flex-direction: column; }

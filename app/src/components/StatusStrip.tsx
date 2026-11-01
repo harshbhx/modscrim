@@ -64,7 +64,7 @@ export function StatusStrip({ status, loading, error, repairing, onRepair }: Pro
       <div className="console-status-item"><dt>Chat subscription</dt><dd>{subscriptionHealthy
         ? <Chip tone="ok" icon="check">{status.subscription.status === 'enabled' ? consoleCopy.status.subscriptionOk : consoleCopy.status.subscriptionPending}</Chip>
         : <Chip tone="warn" icon="alert">{consoleCopy.status.subscriptionBad}</Chip>}</dd></div>
-      <div className="console-status-item"><dt>Chat log</dt><dd><span className="console-num">{status.chatLog.count}</span> messages</dd></div>
+      <div className="console-status-item"><dt>Chat log</dt><dd><span><span className="console-num">{status.chatLog.count}</span> messages</span></dd></div>
       <div className="console-status-item"><dt>Last chat message</dt><dd>{dateText(status.chatLog.lastMessageAt)}</dd></div>
       <Quota label={consoleCopy.status.quotaMinute} used={status.quota.minute.used} limit={status.quota.minute.limit} />
       <Quota label={consoleCopy.status.quotaHour} used={status.quota.hour.used} limit={status.quota.hour.limit} />
