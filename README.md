@@ -30,11 +30,9 @@
   <a href="https://twitchcon-codex.devpost.com">Hackathon</a>
 </p>
 
-<!-- GIF hero: delete this comment wrapper when docs/assets/gifs/hero.gif exists.
 <p align="center">
   <img src="docs/assets/gifs/hero.gif" alt="A demo drill: spam fills the practice chat, a moderator clears it line by line, and the scoreboard counts what was caught, what slipped and any fouls." width="860">
 </p>
--->
 
 **The three actions**
 
@@ -79,11 +77,9 @@ A drill has seven steps:
 
 > The website's [How it works](https://modscrim.dualmindlab.tech/how-it-works.html) page describes the same seven steps. The streamer console groups them into six screens: Read filters, Configure, Run the drill, Twitch grades, Fix the rules, and Fresh wave and push.
 
-<!-- GIF how-it-works: delete this comment wrapper when docs/assets/gifs/how-it-works.gif exists.
 <p align="center">
   <img src="docs/assets/gifs/how-it-works.gif" alt="The streamer console stepping through a drill: set up, run, Twitch grades, proposed rules, fresh-wave proof, push." width="860">
 </p>
--->
 
 ## How it works
 
@@ -102,13 +98,11 @@ Read more in [How it works](docs/how-it-works.md).
 
 ## Screenshots
 
-<!-- Screenshots: add each image under docs/assets/screenshots/ and delete the comment wrapper.
 | Streamer console | Mod view |
 |---|---|
 | ![Streamer console on a demo room, showing the six steps and the status strip.](docs/assets/screenshots/console.png) | ![Mod view on a phone-width screen with the practice chat and keyboard hints.](docs/assets/screenshots/mod-view.png) |
 | **OBS overlay** | **After-action report** |
 | ![The redacted OBS overlay: alarm bar, scoreboard and a practice chat drawn as blurred bars.](docs/assets/screenshots/overlay.png) | ![The numbers-only after-action report.](docs/assets/screenshots/report.png) |
--->
 
 Screenshots of the console, mod view, OBS overlay and report are coming. Until then, the [live demo](https://app.modscrim.dualmindlab.tech/demo) shows all of them, and CI uploads light and dark screenshots of every surface at 375, 768 and 1440 px as the `screenshots-<run id>` artifact of the [End-to-end workflow](.github/workflows/e2e.yml).
 
@@ -126,11 +120,9 @@ Screenshots of the console, mod view, OBS overlay and report are coming. Until t
 - **After-action report.** Per-mod scores, grades, proposed, rejected and pushed terms, and the fresh-wave result, with numbers-only share links.
 - **Deterministic.** The same seed gives the same wave, so a drill can be replayed and tested.
 
-<!-- GIF end: delete this comment wrapper when docs/assets/gifs/end.gif exists.
 <p align="center">
   <img src="docs/assets/gifs/end.gif" alt="The end of a drill: the fresh-wave proof, Approve and push, the after-action report, then Undo." width="860">
 </p>
--->
 
 ## How it stays safe
 
@@ -147,11 +139,9 @@ Each rule below is enforced in code and covered by tests; the full list is in [S
 | **Demo rooms stay local.** | Demo rooms never call Twitch, D1, R2 or the report queue, and delete themselves after two idle hours. |
 | **Data is minimal.** | Public chat is kept for 7 days for the false-ban check, can be paused or deleted, and is removed on sign-out. Reports carry counts, not attack text or chat text. |
 
-<!-- GIF safety: delete this comment wrapper when docs/assets/gifs/safety.gif exists.
 <p align="center">
   <img src="docs/assets/gifs/safety.gif" alt="The practice tag and the line 'Nothing here is posted to Twitch', then the overlay showing the same chat as blurred bars." width="860">
 </p>
--->
 
 ## Architecture
 
