@@ -100,6 +100,9 @@ a:hover {
 
 /* Skip link: hidden until focused. */
 .skip-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   position: absolute;
   left: var(--space-2);
   top: -6rem;

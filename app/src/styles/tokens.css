@@ -93,12 +93,16 @@
   --slipped-text: var(--green-850);
 }
 
-/* Green ground (dark), when the OS asks for dark. */
+/*
+ * Dark ground (one for every surface, T-137): dugout page, wall-green cards,
+ * deep-green wells. --bg and --surface come from the semantic tier in
+ * design/tokens.override.css (--color-bg, --color-surface, aliased by
+ * design/tokens.css, which loads after this file), so only the names that have
+ * no semantic twin are set here. Follows the OS unless data-theme says otherwise.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: var(--green-700);
-    --surface: var(--green-850);
-    --sunken: var(--green-900);
+  :root:not([data-theme='light']) {
+    --sunken: var(--palette-deep-green);
     --line: var(--green-500);
     --line-strong: var(--chalk-100);
     --text: var(--chalk-100);
@@ -107,6 +111,17 @@
     --focus: var(--yellow-400);
     --shadow-card: 0 0 0 1px var(--green-500);
   }
+}
+
+:root[data-theme='dark'] {
+  --sunken: var(--palette-deep-green);
+  --line: var(--green-500);
+  --line-strong: var(--chalk-100);
+  --text: var(--chalk-100);
+  --text-muted: var(--green-300);
+  --accent-text: var(--orange-400);
+  --focus: var(--yellow-400);
+  --shadow-card: 0 0 0 1px var(--green-500);
 }
 
 /* Green bands (header, hero, footer) in both themes. */

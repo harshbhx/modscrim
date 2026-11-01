@@ -45,6 +45,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
+      name: 'shell-surface',
+      testMatch: /shell-surface\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
       name: 'console-surface',
       testMatch: /console-surface\.spec\.ts$/,
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
@@ -65,6 +70,21 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
     },
     {
+      name: 'shared-states',
+      testMatch: /(shared-states|states-gallery)\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'a11y',
+      testMatch: /a11y\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: surfaceBaseURL }
+    },
+    {
+      name: 'site',
+      testMatch: /site-.*\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], baseURL: process.env.PLAYWRIGHT_SITE_BASE_URL ?? 'http://127.0.0.1:4174' }
+    },
+    {
       name: 'smoke',
       testMatch: /smoke\.spec\.ts$/,
       dependencies: ['setup'],
@@ -72,21 +92,36 @@ export default defineConfig({
     },
     {
       name: 'safety',
-      testMatch: /safety\.spec\.ts$/,
+      testMatch: /safety\.[\w-]+\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
     },
     {
       name: 'console',
-      testMatch: /console\.spec\.ts$/,
+      testMatch: /console\.(steps|grade)\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
+    },
+    {
+      name: 'mod',
+      testMatch: /mod\.keyboard\.spec\.ts$/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] }
     },
     {
       name: 'demo',
       testMatch: /demo\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
-    }
+    },
+    // README GIF capture: only exists when GIFS=1, which only .github/workflows/gifs.yml sets, so a bare
+    // `playwright test` never records anything. No retries: a retry would create another demo room, and
+    // POST /api/demo allows 5 per minute.
+    ...(process.env.GIFS === '1' ? [{
+      name: 'gifs',
+      testMatch: /gifs\/[\w-]+\.gif\.ts$/,
+      retries: 0,
+      use: { ...devices['Desktop Chrome'], video: 'off' as const, screenshot: 'off' as const, trace: 'off' as const }
+    }] : [])
   ]
 });

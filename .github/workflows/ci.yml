@@ -38,6 +38,14 @@ jobs:
       - name: Fail if an action fill ships without its border
         run: node scripts/lint-action-border.mjs
 
+      # site/ is published on its own (Pages destination_dir = site), so it
+      # carries copies of the design tokens. They must match design/.
+      - name: Fail if site/css/tokens*.css drifted from design/
+        run: node scripts/sync-site-tokens.mjs --check
+
+      - name: Fail if site/ uses a colour that is not a token or in DESIGN.md
+        run: node scripts/check-site-colours.mjs
+
   verify:
     name: Typecheck, tests, security, and build
     runs-on: ubuntu-latest

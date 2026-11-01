@@ -1,0 +1,268 @@
+{
+  "$comment": "Each GIF is a list of segments cut from a recorded video (src) between two timeline marks (from, to), optionally sped up. Marks are written by the flows in app/e2e/gifs/*.gif.ts. A segment whose mark is missing (a step was skipped) is dropped with a warning. If a GIF is longer than maxSeconds the converter speeds every segment up evenly to fit.",
+  "gifs": {
+    "hero": {
+      "title": "Intro, landing page and starting a drill",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 16,
+      "segments": [
+        {
+          "src": "cards",
+          "from": "intro_start",
+          "to": "intro_end",
+          "speed": 1,
+          "fixed": true
+        },
+        {
+          "src": "main",
+          "from": "landing_start",
+          "to": "landing_scrolled",
+          "speed": 1.4
+        },
+        {
+          "src": "main",
+          "from": "landing_scrolled",
+          "to": "demo_page",
+          "speed": 1.2
+        },
+        {
+          "src": "main",
+          "from": "demo_page",
+          "to": "console_step1",
+          "speed": 2
+        },
+        {
+          "src": "main",
+          "from": "configure",
+          "to": "tactics_picked",
+          "speed": 2.2
+        },
+        {
+          "src": "main",
+          "from": "drill_start",
+          "to": "safety_link",
+          "speed": 3
+        }
+      ]
+    },
+    "how-it-works": {
+      "title": "Console loop: tactics, drill, grades, rules, fresh wave, push and undo",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 20,
+      "segments": [
+        {
+          "src": "main",
+          "from": "configure",
+          "to": "tactics_picked",
+          "speed": 2.5
+        },
+        {
+          "src": "main",
+          "from": "drill_start",
+          "to": "chat_filled",
+          "speed": 7
+        },
+        {
+          "src": "main",
+          "from": "drill_end",
+          "to": "grade_start",
+          "speed": 2
+        },
+        {
+          "src": "main",
+          "from": "grade_start",
+          "to": "graded",
+          "speed": 2.5
+        },
+        {
+          "src": "main",
+          "from": "graded",
+          "to": "rules",
+          "speed": 2.5
+        },
+        {
+          "src": "main",
+          "from": "rules",
+          "to": "fresh",
+          "speed": 2.5
+        },
+        {
+          "src": "main",
+          "from": "fresh",
+          "to": "pushed",
+          "speed": 2.5
+        },
+        {
+          "src": "main",
+          "from": "pushed",
+          "to": "undone",
+          "speed": 2.5
+        }
+      ]
+    },
+    "mod-view": {
+      "title": "Mod phone view: join, play the drill with D, T and B",
+      "width": 390,
+      "fps": 15,
+      "maxSeconds": 15,
+      "mp4Width": 390,
+      "segments": [
+        {
+          "src": "mod",
+          "from": "mod_join_card",
+          "to": "mod_waiting",
+          "speed": 1.6
+        },
+        {
+          "src": "mod",
+          "from": "mod_drill_start",
+          "to": "mod_acted",
+          "speed": 2.2
+        },
+        {
+          "src": "mod",
+          "from": "mod_end",
+          "to": "mod_result",
+          "speed": 1.5
+        }
+      ]
+    },
+    "overlay": {
+      "title": "OBS overlay: alarm, redacted chat, scoreboard, after-action card (1920x1080, fixture frames)",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 15,
+      "segments": [
+        {
+          "src": "overlay",
+          "from": "overlay_alarm",
+          "to": "overlay_end",
+          "speed": 1.45
+        }
+      ]
+    },
+    "safety": {
+      "title": "Safety: practice chat only, .invalid links, redacted overlay",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 12,
+      "segments": [
+        {
+          "src": "main",
+          "from": "drill_start",
+          "to": "safety_link",
+          "speed": 2.5
+        },
+        {
+          "src": "overlay",
+          "from": "overlay_redacted",
+          "to": "overlay_scoreboard",
+          "speed": 2.2
+        }
+      ]
+    },
+    "share-card": {
+      "title": "Share card (numbers only)",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 12,
+      "segments": [
+        {
+          "src": "share",
+          "from": "share_start",
+          "to": "share_end",
+          "speed": 1.1
+        }
+      ]
+    },
+    "end": {
+      "title": "Report card, call to action and outro",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 16,
+      "segments": [
+        {
+          "src": "main",
+          "from": "undone",
+          "to": "report",
+          "speed": 1.4
+        },
+        {
+          "src": "main",
+          "from": "cta_start",
+          "to": "cta_end",
+          "speed": 1
+        },
+        {
+          "src": "cards",
+          "from": "outro_reading_start",
+          "to": "outro_reading_end",
+          "speed": 1,
+          "fixed": true
+        }
+      ]
+    },
+    "intro": {
+      "title": "Branded intro (1920x1080 source)",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 4,
+      "segments": [
+        {
+          "src": "cards",
+          "from": "intro_start",
+          "to": "intro_end",
+          "speed": 1,
+          "fixed": true
+        }
+      ]
+    },
+    "outro": {
+      "title": "Branded outro, README variant: Thanks for reading",
+      "width": 960,
+      "fps": 15,
+      "maxSeconds": 5,
+      "segments": [
+        {
+          "src": "cards",
+          "from": "outro_reading_start",
+          "to": "outro_reading_end",
+          "speed": 1,
+          "fixed": true
+        }
+      ]
+    },
+    "intro-1080p": {
+      "title": "Intro for the video, 1920x1080, no audio",
+      "mp4Only": true,
+      "mp4Width": 1920,
+      "crf": 16,
+      "segments": [
+        {
+          "src": "cards",
+          "from": "intro_start",
+          "to": "intro_end",
+          "speed": 1,
+          "fixed": true
+        }
+      ]
+    },
+    "outro-1080p": {
+      "title": "Outro for the video, 1920x1080, no audio: Thanks for watching",
+      "mp4Only": true,
+      "mp4Width": 1920,
+      "crf": 16,
+      "segments": [
+        {
+          "src": "cards",
+          "from": "outro_watching_start",
+          "to": "outro_watching_end",
+          "speed": 1,
+          "fixed": true
+        }
+      ]
+    }
+  }
+}

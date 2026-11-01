@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Testing and CI | Developer docs | ModScrim</title>
+<meta name="description" content="Unit and Worker tests run with Vitest, browser tests run with Playwright, and a handful of small scripts gate the design tokens. This page is the map. The test inventory, matcher cases and reference n">
+<meta name="theme-color" content="#123D2E">
+<meta property="og:title" content="Testing and CI | ModScrim docs">
+<meta property="og:description" content="Unit and Worker tests run with Vitest, browser tests run with Playwright, and a handful of small scripts gate the design tokens. This page is the map. The test inventory, matcher cases and reference n">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ModScrim">
+<meta property="og:url" content="https://modscrim.dualmindlab.tech/docs/dev/testing">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://modscrim.dualmindlab.tech/docs/dev/testing">
+<link rel="icon" href="../../favicon.ico" sizes="32x32">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/tokens.css">
+<link rel="stylesheet" href="../../css/tokens.override.css">
+<link rel="stylesheet" href="../../css/surfaces.css">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top on-green">
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../../index.html" aria-label="ModScrim home"><img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="168" height="34"></a>
+      <nav class="nav-links" aria-label="Main"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav>
+      <a class="btn btn-orange btn-sm" href="https://app.modscrim.dualmindlab.tech/console">Sign in with Twitch</a>
+      <details class="menu"><summary>Menu</summary><nav aria-label="Main, small screens"><a href="../../how-it-works.html">How it works</a><a href="../../mods.html">For mods</a><a href="../../docs/" aria-current="page">Docs</a><a href="../../safety.html">Safety</a><a href="../../demo.html">Demo</a><a href="../../faq.html">FAQ</a></nav></details>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="pagehead" aria-labelledby="page-title">
+  <div class="wrap">
+    <p class="crumb"><a href="../../index.html">Home</a> / <a href="../../docs/">Docs</a> / <a href="../../docs/dev/">Developer docs</a> / Testing and CI</p>
+    <h1 id="page-title">Testing and CI</h1>
+    <p class="lead">Unit and Worker tests run with Vitest, browser tests run with Playwright, and a handful of small scripts gate the design tokens. This page is the map. The test inventory, matcher cases and reference numbers are in <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/testing.md"><code>for-agents/testing.md</code></a>, which is the source of truth for them and is not repeated here.</p>
+  </div>
+</section>
+<section class="page"><div class="wrap"><div class="docs">
+<nav class="docnav" aria-label="Developer docs"><div><h2>Developer docs</h2><ul><li><a href="../../docs/dev/">Developer docs overview</a></li><li><a href="../../docs/dev/architecture.html">Architecture</a></li><li><a href="../../docs/dev/run-locally.html">Run it locally</a></li><li><a href="../../docs/dev/project-structure.html">Project structure</a></li><li><a href="../../docs/dev/contracts.html">API and WebSocket contracts</a></li><li><a href="../../docs/dev/deployment.html">Deployment</a></li><li><a href="../../docs/dev/testing.html" aria-current="page">Testing and CI</a></li><li><a href="../../docs/dev/design-system.html">Design system and tokens</a></li><li><a href="../../docs/dev/contributing.html">Contributing</a></li><li><a href="../../docs/dev/built-with-codex.html">How it was built with Codex</a></li></ul></div><div><h2>Docs</h2><ul><li><a href="../../docs/">Which docs are for me?</a></li></ul></div><div><h2>Reference</h2><ul><li><a href="../../docs/glossary.html">Glossary</a></li><li><a href="../../faq.html">FAQ</a></li></ul></div></nav>
+<div class="docs-main">
+<p class="fine docs-track">Developer docs. You want to read, run, deploy or change the code. Not what you came for? <a href="../../docs/">Find the right docs</a>.</p>
+<div class="prose">
+<nav class="toc" aria-label="On this page"><h2>On this page</h2><ul><li><a href="#the-layers">The layers</a></li><li><a href="#commands">Commands</a></li><li><a href="#playwright-projects">Playwright projects</a></li><li><a href="#what-ci-enforces">What CI enforces</a></li><li><a href="#running-heavy-checks">Running heavy checks</a></li><li><a href="#not-yet-verified">Not yet verified</a></li></ul></nav>
+<h2 id="the-layers">The layers</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Layer</th><th>Tool</th><th>Covers</th></tr></thead><tbody><tr><td>Unit</td><td>Vitest in Node (<code>packages/core</code>)</td><td>The pure engine: matcher, tricks, waves, rule finder, scoring, proof, pacing</td></tr><tr><td>Worker integration</td><td>Vitest with the Cloudflare plugin, in <code>workerd</code> (<code>app/test</code>)</td><td>Routes, webhook verification, <code>ChannelRoom</code> behaviour with Durable Object alarms, deletion, report export, overlay redaction</td></tr><tr><td>End to end</td><td>Playwright (<code>app/e2e</code>)</td><td>The surfaces, the demo loop, safety checks, the console and the mod view</td></tr><tr><td>Design gates</td><td>Node scripts in <code>scripts/</code></td><td>Contrast, action borders, site token sync, site colours</td></tr></tbody></table></div>
+<p>Core tests must also pass in the Worker pool, because the core runs unchanged in Node and <code>workerd</code>.</p>
+<h2 id="commands">Commands</h2>
+<pre data-lang="sh"><code>npm test                                   # core (Node) + Worker (workerd)
+npm test -w packages/core                  # core only
+npm test -w app                            # Worker tests only
+npm test -w packages/core -- matcher       # one core file by name
+npm run typecheck                          # tsc -b
+
+npm run e2e                                # Playwright, local dev server starts automatically
+npm run e2e:ui                             # Playwright's UI mode
+npm run e2e:report                         # open the HTML report
+npx playwright test --project=smoke        # one project
+
+npm run contrast:check                     # colour gate
+npm run lint:tokens                        # action-border lint
+npm run site:tokens:check                  # site tokens match design/
+npm run site:colours                       # site uses only known colours</code></pre>
+<p>When <code>PLAYWRIGHT_BASE_URL</code> is unset or points at <code>http://localhost:5173</code>, the Playwright config starts <code>npm run dev</code> and waits for <code>/api/health</code>. Set it to a deployed URL to run against that Worker instead. Each run creates one shared demo room for all projects.</p>
+<h2 id="playwright-projects">Playwright projects</h2>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Project</th><th>Runs against</th><th>Checks</th></tr></thead><tbody><tr><td><code>setup</code></td><td>App URL</td><td>Health check, creates the shared demo room and saved browser state</td></tr><tr><td><code>smoke</code>, <code>safety</code>, <code>console</code>, <code>demo</code></td><td>App URL (depend on <code>setup</code>)</td><td>The smoke path; <code>.invalid</code> links, slur placeholders and token shapes; the six console steps and the local-estimate grade table; the full demo loop</td></tr><tr><td><code>mod</code></td><td>App URL</td><td>Keyboard control of the mod view</td></tr><tr><td><code>landing</code>, <code>shell-surface</code>, <code>console-surface</code>, <code>report-surface</code>, <code>mod-surface</code>, <code>overlay-surface</code></td><td>Branch build served statically</td><td>One screen each, with mocked API and WebSocket data, light and dark at 375, 768 and 1440 px</td></tr><tr><td><code>shared-states</code></td><td>Branch build</td><td>Hover, focus, disabled, loading, empty and error states, reduced motion</td></tr><tr><td><code>site</code></td><td><code>site/</code> served statically</td><td>The marketing pages</td></tr></tbody></table></div>
+<p>Surface specs build every fixture with the same zod schemas the app parses with, and keep to the safety rules: links end in <code>.invalid</code>, slurs are placeholders only, overlay frames are redacted. To add one, follow &quot;Add a surface spec&quot; in <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/testing.md"><code>for-agents/testing.md</code></a>.</p>
+<h2 id="what-ci-enforces">What CI enforces</h2>
+<p><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/ci.yml"><code>ci.yml</code></a> runs two jobs on every pull request and push to <code>main</code>.</p>
+<p><strong>Design token contrast and action-border lint</strong></p>
+<ul><li><code>node scripts/contrast-check.mjs</code> validates <code>design/tokens.json</code> with the bundled palette skill's <code>validate.py</code> with no exemptions, then checks that the shipped palette (tokens plus <a href="https://github.com/harshbhx/modscrim/blob/main/design/tokens.override.css"><code>design/tokens.override.css</code></a>) fails on exactly the documented pairs, no more and no fewer. The single accepted exemption is whistle orange as a fill on chalk and on white. See <a href="../../docs/dev/design-system.html">Design system</a>.</li><li><code>node scripts/lint-action-border.mjs</code> fails if a rule fills itself with the action colour without also declaring an approved border.</li><li><code>node scripts/sync-site-tokens.mjs --check</code> fails if <code>site/css/tokens*.css</code> drifted from <code>design/</code>.</li><li><code>node scripts/check-site-colours.mjs</code> fails if <code>site/</code> uses a colour that is not a token or listed in <code>brand/DESIGN.md</code>.</li></ul>
+<p><strong>Typecheck, tests, security and build</strong></p>
+<ul><li>Scan tracked files for a tracked <code>.dev.vars</code> and for token-like strings.</li><li><code>npm run typecheck</code>, core tests with line coverage, Worker tests, and the app build.</li><li>Fail if the initial JavaScript exceeds 250 KiB gzipped.</li></ul>
+<p><a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/e2e.yml"><code>e2e.yml</code></a> builds the SPA, serves it on port 4173 and runs the surface projects against it, then runs <code>setup</code>, <code>smoke</code>, <code>safety</code>, <code>console</code> and <code>mod</code> against the deployed app. It uploads the light and dark screenshots as the <code>screenshots-&lt;run id&gt;</code> artifact on every run and the report and traces when it fails. <a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/site.yml"><code>site.yml</code></a> does the same for the website. <a href="https://github.com/harshbhx/modscrim/blob/main/.github/workflows/demo-e2e.yml"><code>demo-e2e.yml</code></a> runs the <code>setup</code> and <code>demo</code> projects against production every night.</p>
+<h2 id="running-heavy-checks">Running heavy checks</h2>
+<p>Browser suites and builds are meant to run in GitHub Actions: push a branch, watch the run with <code>gh run watch</code>, read failures with <code>gh run view --log-failed</code> and fetch screenshots with <code>gh run download</code>.</p>
+<h2 id="not-yet-verified">Not yet verified</h2>
+<p>The live Twitch path (the real grading quota, batch size and matching behaviour) is checked by a manual checklist on a test channel. Its results are not recorded yet; see the day-0 section of <a href="https://github.com/harshbhx/modscrim/blob/main/docs/LOG.md"><code>LOG.md</code></a> and <a href="https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/open-questions.md"><code>for-agents/open-questions.md</code></a>.</p>
+</div>
+<nav class="pn" aria-label="Previous and next"><a class="pn-link" href="../../docs/dev/deployment.html"><span>Previous</span><b>Deployment</b></a><a class="pn-link" href="../../docs/dev/design-system.html"><span>Next</span><b>Design system and tokens</b></a></nav>
+</div>
+</div></div></section>
+</main>
+<div class="foot-band">
+  <div class="wrap">
+    <footer class="foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="../../img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30">
+          <p>Raid drills for your mod team.</p>
+          <p style="margin-top:8px">Made for the Codex x TwitchCon hackathon, 2026.</p>
+        </div>
+        <nav aria-label="Product"><h2>Product</h2><ul><li><a href="../../how-it-works.html">How it works</a></li><li><a href="../../mods.html">For mods</a></li><li><a href="../../demo.html">Demo room</a></li><li><a href="../../overlay.html">OBS overlay</a></li><li><a href="../../console.html">Console preview</a></li></ul></nav>
+        <nav aria-label="Docs"><h2>Docs</h2><ul><li><a href="../../docs/">All docs</a></li><li><a href="../../docs/streamer/">Streamer docs</a></li><li><a href="../../docs/mods/">Mod docs</a></li><li><a href="../../docs/dev/">Developer docs</a></li><li><a href="../../docs/glossary.html">Glossary</a></li></ul></nav>
+        <nav aria-label="Trust"><h2>Trust</h2><ul><li><a href="../../safety.html">Safety</a></li><li><a href="../../privacy.html">Privacy policy</a></li><li><a href="../../terms.html">Terms of use</a></li></ul></nav>
+        <nav aria-label="More"><h2>More</h2><ul><li><a href="../../faq.html">FAQ</a></li><li><a href="https://github.com/harshbhx/modscrim">Source code</a></li><li><a href="https://github.com/harshbhx/modscrim/blob/main/LICENSE">MIT licence</a></li><li><a href="https://github.com/harshbhx/modscrim/issues">Report a problem</a></li></ul></nav>
+      </div>
+      <div class="foot-legal"><p>ModScrim is not affiliated with or endorsed by Twitch.</p><p>&copy; 2026 Harsh Bhanushali and Dhairya Patel</p></div>
+    </footer>
+  </div>
+</div>
+<script src="../../site.js"></script>
+</body>
+</html>

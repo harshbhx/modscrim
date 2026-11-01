@@ -15,7 +15,7 @@ concurrency:
 jobs:
   playwright:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,6 +51,7 @@ jobs:
           # also try to boot `npm run dev`, which needs secrets CI does not have.
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173
           PLAYWRIGHT_SURFACE_BASE_URL: http://127.0.0.1:4173
+          A11Y_ENFORCE: '1'
         run: |
           node scripts/serve-static.mjs app/dist/client 4173 &
           for i in $(seq 1 30); do
@@ -58,7 +59,7 @@ jobs:
             sleep 1
           done
           curl -sf http://127.0.0.1:4173/ >/dev/null || { echo 'static server never came up'; exit 1; }
-          npx playwright test --project=landing --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --reporter=list
+          npx playwright test --project=landing --project=shell-surface --project=console-surface --project=report-surface --project=mod-surface --project=overlay-surface --project=shared-states --project=a11y --reporter=list
 
       - name: Run Playwright projects
         env:
@@ -66,7 +67,7 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/e2e-results.json
         run: |
           mkdir -p test-results
-          npx playwright test --project=setup --project=smoke --project=safety --project=console --pass-with-no-tests --reporter=list,html,json
+          npx playwright test --project=setup --project=smoke --project=safety --project=console --project=mod --pass-with-no-tests --reporter=list,html,json
       - name: Add per-project results to the job summary
         if: always()
         run: node scripts/e2e-summary.mjs

@@ -22,6 +22,9 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/tokens.override.css">
+<link rel="stylesheet" href="css/surfaces.css">
 <link rel="stylesheet" href="site.css">
 </head>
 <body class="app-body">
@@ -31,11 +34,11 @@
     <a class="brand" href="index.html" aria-label="ModScrim home"><img src="img/modscrim-horizontal-reverse.svg" alt="ModScrim" width="158" height="30"></a>
     <span class="micro" style="margin-left:auto;color:var(--on-green-muted)">Shared report, numbers only</span>
   </div>
-</header>
+</header><div class="banner" role="note"><div class="wrap"><span class="tag tag-sample">Sample data</span><span>This report is a sample run with example numbers from the demo channel. The 9 of 14 grade is an example of a Twitch grade; the fresh-wave result is a local estimate. A real report shows your own drill.</span></div></div>
 <div class="app">
 <main id="main" class="wrap" style="padding-block:48px 96px">
   <div class="report">
-    <div class="panel-head"><div><p class="micro muted">pixelpanda_tv, Fri 30 Oct 2026, 21:14</p><h1>After-action report</h1><p>One drill: 14 attack lines and 8 banter lines, a line every 1.5 seconds, 9-second slip window.</p></div></div>
+    <div class="panel-head"><div><p class="micro muted">pixelpanda_tv demo channel</p><h1>After-action report</h1><p>One drill: 14 attack lines and 8 banter lines, a line every 1.5 seconds, 9-second slip window.</p></div></div>
     <div style="border-radius:10px;overflow:hidden;margin-bottom:24px">
       <div class="sb"><span class="sb-tag">Final</span>
         <div class="slot slot-mods"><span class="slot-l">Caught</span><span class="plates"><span class="pl">1</span><span class="pl">2</span></span></div>
@@ -46,8 +49,8 @@
     </div>
     <div class="rep-grid">
       <div class="rep-cell"><p class="big-n num">9 of 14</p><p>attack lines got past the filters before the drill <span class="engine" style="margin-top:6px">graded by Twitch</span></p></div>
-      <div class="rep-cell"><p class="big-n num">4</p><p>blocked terms pushed, 0 real-chat matches</p></div>
-      <div class="rep-cell"><p class="big-n num">10 &rarr; 19</p><p>of 30 fresh-wave attacks blocked, before and after</p></div>
+      <div class="rep-cell"><p class="big-n num">3</p><p>blocked terms pushed, 0 real-chat matches</p></div>
+      <div class="rep-cell"><p class="big-n num">4 &rarr; 17</p><p>of 30 fresh-wave attacks blocked, before and after <span class="engine local" style="margin-top:6px">local estimate</span></p></div>
     </div>
     <div class="grid-2" style="margin-top:24px">
       <div class="card"><h2>Mods</h2><div style="overflow-x:auto"><table class="dtable" style="min-width:0"><thead><tr><th>Mod</th><th>Caught</th><th>False bans</th><th>Avg reaction</th></tr></thead><tbody>

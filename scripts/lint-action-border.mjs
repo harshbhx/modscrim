@@ -15,7 +15,7 @@ import { globSync, readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 
 const ROOTS = ['app/src/**/*.css', 'site/**/*.css'];
-const SKIP = /design[\\/]tokens(\.override)?\.css$/;
+const SKIP = /(?:design|site[\\/]css)[\\/]tokens(\.override)?\.css$/;
 
 /** A rule paints itself with the action colour. */
 const FILL = /(?:^|[\s;{])(?:background|background-color)\s*:\s*[^;}]*(?:var\(\s*--color-(?:action|accent)\b[^)]*\)|#ff6a1f)/i;

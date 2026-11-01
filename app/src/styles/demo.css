@@ -1,67 +1,212 @@
-.demo-page {
-  min-height: calc(100vh - 144px);
-  background:
-    radial-gradient(ellipse at 78% 32%, rgb(255 210 63 / 18%), transparent 32%),
-    var(--bg);
+/*
+ * Demo start page (/demo) and the join-on-phone QR. Colour comes from the
+ * .on-green role values in styles/tokens.css and design/tokens*.css; no literal
+ * colours. The page is a chalk ground; the card is a dugout object on it, with a
+ * card-yellow rail because everything on it is practice (brand/DESIGN.md).
+ *
+ * Every rule is scoped under .demo-page because the route imports this file
+ * before base.css and tokens.css.
+ *
+ * Studied, rebuilt in our own CSS, nothing pasted: the dotted "route" list is
+ * the play-diagram notation from DESIGN.md (cf. a step timeline in Origin UI /
+ * shadcn/ui), the card is a raised object like Aceternity's spotlight card but
+ * with no glow, and the page fills the viewport the way Linear's empty states do.
+ */
+.site-main:has(> .demo-page) {
+  display: flex;
+  flex-direction: column;
 }
 
-.demo-wrap {
+.demo-page {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  background: var(--bg);
+}
+
+.demo-page .demo-wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
   align-items: center;
   gap: clamp(40px, 8vw, 128px);
-  max-width: 1240px;
 }
 
-.demo-intro { max-width: 680px; }
-.demo-eyebrow, .demo-card-kicker {
-  margin: 0 0 var(--space-4);
+.demo-page .demo-intro {
+  max-width: 680px;
+}
+
+/* "Private practice room" is a practice label, so it is a card-yellow tag */
+.demo-page .demo-eyebrow {
+  margin: 0 0 var(--space-6);
+  font-weight: 700;
+}
+
+/* two lines at desktop widths; the generous leading and bottom padding keep the
+   descender of "your" clear of the line below it */
+.demo-page .demo-intro h1 {
+  max-width: 18ch;
+  margin-bottom: var(--space-6);
+  padding-bottom: 0.08em;
+  font-size: clamp(44px, 4.8vw, 68px);
+  line-height: 1.04;
+}
+
+.demo-page .demo-lead {
+  max-width: 34em;
+  font: var(--t-lead);
+}
+
+/* the three promises as a dotted route with a marker at each stop */
+.demo-page .demo-points {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.demo-page .demo-points::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 8px;
+  border-left: 2px dotted var(--line-strong);
+  content: '';
+}
+
+.demo-page .demo-points li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  font-weight: 700;
+}
+
+.demo-page .demo-points li::before {
+  z-index: 1;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg);
+  content: '';
+}
+
+.demo-page .demo-start {
+  min-width: 240px;
+}
+
+.demo-page .demo-start:disabled {
+  cursor: progress;
+}
+
+/* error: a bordered note, never colour alone (the text says what went wrong) */
+.demo-page .demo-error {
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--line-strong);
+  border-left-width: 6px;
+  border-radius: var(--radius-md);
+  background: var(--sunken);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* the card: a dugout board hung on the page */
+.demo-page .demo-card {
+  padding: clamp(28px, 4vw, 48px);
+  border: 1px solid var(--green-950);
+  border-top: 3px solid var(--palette-card-yellow);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 24px 48px -24px color-mix(in srgb, var(--green-950) 70%, transparent);
+  color: var(--text);
+}
+
+.demo-page .demo-card-mark {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  margin-bottom: var(--space-8);
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--palette-wall-green);
+}
+
+.demo-page .demo-card-mark img {
+  display: block;
+}
+
+.demo-page .demo-card-kicker {
+  margin: 0 0 var(--space-3);
   color: var(--accent-text);
   font: var(--t-caption);
-  font-weight: 900;
-  letter-spacing: .12em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.demo-intro h1 {
-  max-width: 10ch;
-  margin-bottom: var(--space-6);
-  font-size: clamp(52px, 7vw, 88px);
+.demo-page .demo-card h2 {
+  margin-bottom: var(--space-4);
+  font-size: 40px;
 }
 
-.demo-lead { max-width: 37em; font: var(--t-lead); }
-.demo-points { display: grid; gap: var(--space-3); margin: var(--space-8) 0; padding: 0; list-style: none; }
-.demo-points li { display: flex; align-items: center; gap: var(--space-3); font-weight: 700; }
-.demo-points li::before { width: 12px; height: 12px; border-radius: 50%; background: var(--action); content: ''; }
-.demo-start { min-width: 240px; }
-.demo-error { margin: var(--space-4) 0; color: var(--accent-text); font-weight: 800; }
-
-.demo-card {
-  padding: clamp(28px, 5vw, 52px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
+.demo-page .demo-card p:not(.demo-card-kicker) {
+  font: var(--t-body-s);
 }
 
-.demo-card-mark {
-  display: grid;
-  width: 64px;
-  height: 64px;
-  margin-bottom: var(--space-8);
-  place-items: center;
-  border-radius: 50%;
-  background: var(--practice-bg);
-  color: var(--practice-text);
-  font: var(--t-display-m);
+.demo-page .demo-card .demo-card-time {
+  margin: var(--space-8) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
 }
 
-.demo-card h2 { margin-bottom: var(--space-4); font-size: 38px; }
-.demo-card p:not(.demo-card-kicker) { font: var(--t-body-s); }
-.demo-card-time { margin-top: var(--space-8); padding-top: var(--space-4); border-top: 1px solid var(--line); color: var(--text-muted); }
+/* QR on the join card (console): same colours as before, now by class */
+.demo-join-qr-ground {
+  fill: var(--white);
+}
+
+.demo-join-qr-ink {
+  fill: var(--green-900);
+}
 
 @media (max-width: 760px) {
-  .demo-wrap { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
-  .demo-intro h1 { font-size: clamp(48px, 14vw, 72px); }
-  .demo-card { max-width: 560px; }
+  .demo-page .demo-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-10);
+  }
+
+  .demo-page .demo-intro h1 {
+    font-size: clamp(44px, 11vw, 64px);
+  }
+
+  .demo-page .demo-start {
+    width: 100%;
+  }
+
+  .demo-page .demo-card {
+    max-width: 560px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-page .demo-start {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .demo-page .demo-card {
+    border: 1px solid CanvasText;
+  }
+
+  .demo-page .demo-points li::before {
+    border-color: CanvasText;
+  }
 }

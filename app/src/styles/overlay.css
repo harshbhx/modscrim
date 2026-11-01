@@ -1,3 +1,20 @@
+/*
+ * OBS overlay (/overlay/:channel?key=...). Always dark, always a 1920 by 1080 stage scaled to the
+ * browser source, transparent ground.
+ *
+ * Layout: one alarm bar across the top of the 64 px safe area, and one dock in the bottom-left corner
+ * (practice chat strip stacked directly on the scoreboard, same width). The dock is bottom-anchored
+ * and sized by its content, so the scoreboard never moves when lines arrive and there is no dead
+ * area inside any panel. The after-action poster appears in the middle for 20 s. Everything else on
+ * the stage is left clear for the game.
+ *
+ * Colours come only from the palette primitives in styles/tokens.css, used instead of the
+ * scheme-aware roles on purpose: a stream overlay must look the same whatever the OS theme is.
+ * Panels are solid, so text on them reads over any footage and this file needs no colour-mix or
+ * alpha colours (older OBS browser builds lack colour-mix). A 1 px lighter edge keeps each panel
+ * visible on a dark backdrop; the dark panel itself carries it on a bright one.
+ * Motion: one 150 ms slide for a new chat line, nothing else, nothing loops.
+ */
 html:has(.overlay-viewport),
 body:has(.overlay-viewport),
 body:has(.overlay-viewport) #root {
@@ -18,8 +35,9 @@ body:has(.overlay-viewport) {
   inset: 0;
   overflow: hidden;
   background: transparent;
-  color: #fff;
-  font: 600 24px/1.35 var(--font-body);
+  color: var(--chalk-100);
+  font: 600 22px/1.35 var(--font-body);
+  font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
 
@@ -33,30 +51,23 @@ body:has(.overlay-viewport) {
   transform-origin: center;
 }
 
-.overlay-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 64px;
-  text-shadow: 0 2px 8px rgb(0 0 0 / 90%);
-}
-
+/* ---- alarm bar: card yellow, hazard stripes on both ends (the part that already worked) ---- */
 .overlay-alarm {
-  position: relative;
-  overflow: hidden;
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+  left: var(--space-16);
   display: flex;
+  overflow: hidden;
+  height: 80px;
   align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  min-height: 76px;
-  padding: 12px 32px;
-  border: 4px solid #111;
-  background: #ffd23f;
-  color: #111;
-  font: 900 30px/1.1 var(--font-body);
-  letter-spacing: .035em;
-  text-shadow: none;
-  text-transform: uppercase;
+  gap: 20px;
+  padding: 0 52px;
+  border: 4px solid var(--green-950);
+  border-radius: var(--radius-md);
+  background: var(--yellow-400);
+  color: var(--green-950);
+  box-shadow: 0 16px 32px -16px var(--green-950);
 }
 
 .overlay-alarm::before,
@@ -64,131 +75,222 @@ body:has(.overlay-viewport) {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 16px;
-  background: repeating-linear-gradient(135deg, #171717 0 8px, #ffd23f 8px 16px);
+  width: 24px;
+  background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
   content: '';
 }
 
 .overlay-alarm::before { left: 0; }
 .overlay-alarm::after { right: 0; }
 
-.overlay-channel {
-  max-width: 34%;
+.overlay-alarm-mark { flex: 0 0 auto; }
+
+.overlay-alarm-text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: 18px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.overlay-alarm-text strong {
+  font: 800 44px/1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.overlay-alarm-text span {
   overflow: hidden;
   font-size: 24px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+}
+
+.overlay-channel {
+  min-width: 0;
+  max-width: 360px;
+  flex: 0 1 auto;
+  overflow: hidden;
+  padding: 4px 16px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--green-950);
+  color: var(--chalk-100);
+  font: 800 26px/1.2 var(--font-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.overlay-activity {
+.overlay-alarm-word { flex: 0 0 auto; width: 150px; height: auto; }
+
+/* ---- the dock: bottom-left, stacked, content-sized ---- */
+.overlay-dock {
   position: absolute;
-  top: 170px;
-  right: 64px;
+  bottom: var(--space-16);
+  left: var(--space-16);
   display: flex;
-  width: 560px;
+  width: 600px;
+  /* never reach up into the alarm bar: stage - 2 safe areas - bar - gap */
+  max-height: calc(1080px - 64px - 64px - 80px - 16px);
   flex-direction: column;
-  align-items: stretch;
-  gap: 20px;
+  justify-content: flex-end;
+  gap: 12px;
+  overflow: hidden;
 }
 
-.overlay-live,
-.overlay-connection {
+.overlay-panel {
+  display: flex;
+  min-height: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-lg);
+  background: var(--green-900);
+  box-shadow: 0 16px 32px -16px var(--green-950);
+}
+
+.overlay-panel-head {
+  display: flex;
+  height: 56px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+  background: var(--green-800);
+}
+
+.overlay-panel-head h2 {
+  min-width: 0;
+  flex: 1 1 auto;
   margin: 0;
-  padding: 12px 18px;
-  border-radius: 4px;
-  background: rgb(8 35 25 / 88%);
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: .08em;
+  overflow: hidden;
+  color: var(--chalk-100);
+  font: 800 34px/1 var(--font-display);
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-chip {
+  flex: 0 0 auto;
+  padding: 3px 10px 2px;
+  border-radius: var(--radius-plate);
+  background: var(--yellow-400);
+  color: var(--green-850);
+  font: 800 20px/1.2 var(--font-display);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
+.overlay-chip-quiet {
+  display: inline-block;
+  margin-left: 12px;
+  background: var(--mint-800);
+  color: var(--mint-100);
+  font: 700 18px/1.3 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: middle;
+}
+
+.overlay-label {
+  margin: 0 0 4px;
+  color: var(--yellow-400);
+  font: 800 18px/1 var(--font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---- chat strip ---- */
 .overlay-live {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  color: var(--orange-400);
+  font: 800 17px/1 var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.overlay-live span {
-  width: 14px;
-  height: 14px;
+/* A fixed ring, not a glow: nothing pulses in OBS. */
+.overlay-live i {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: #ff6a1f;
-  box-shadow: 0 0 14px #ff6a1f;
+  background: var(--orange-500);
+  box-shadow: 0 0 0 3px var(--green-700);
 }
 
-.overlay-connection { text-align: center; }
-
-.overlay-votes {
-  position: absolute;
-  top: 170px;
-  left: 64px;
-  width: 570px;
-  padding: 22px 26px;
-  border: 2px solid rgb(255 255 255 / 28%);
-  border-radius: 8px;
-  background: rgb(5 26 18 / 92%);
-}
-
-.overlay-vote-row {
-  display: grid;
-  grid-template-columns: 155px minmax(0, 1fr) 32px;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 0;
+.overlay-count {
+  flex: 0 0 auto;
+  color: var(--green-300);
   font-size: 17px;
+  font-weight: 700;
 }
-.overlay-vote-track { height: 14px; overflow: hidden; border-radius: 999px; background: rgb(255 255 255 / 16%); }
-.overlay-vote-track span { display: block; height: 100%; border-radius: inherit; background: #ffd23f; transition: width 180ms ease; }
-.overlay-vote-row strong { text-align: right; }
-.overlay-vote-hint { margin: 14px 0 0; color: rgb(255 255 255 / 80%); font-size: 14px; }
 
-.overlay-chat {
+.overlay-empty {
+  margin: 0;
+  padding: 16px 20px;
+  color: var(--green-300);
+  font-size: 19px;
+}
+
+.overlay-chat-list {
   display: flex;
-  max-height: 690px;
+  min-height: 0;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 11px;
+  gap: 8px;
   overflow: hidden;
+  padding: 12px 14px 14px;
+}
+
+/* The one allowed animation: a new line slides in over 150 ms. */
+@keyframes overlay-line-in {
+  from { opacity: 0; transform: translateX(-16px); }
 }
 
 .overlay-chat-line {
   display: grid;
-  grid-template-columns: minmax(130px, 190px) minmax(0, 1fr) 34px;
+  flex: 0 0 auto;
+  grid-template-columns: 190px minmax(0, 1fr) 32px;
   align-items: center;
   gap: 12px;
-  min-height: 46px;
-  padding: 8px 12px;
-  border-left: 5px solid rgb(255 255 255 / 55%);
-  border-radius: 4px;
-  background: rgb(5 26 18 / 83%);
+  height: 44px;
+  padding: 0 10px 0 14px;
+  border-left: 5px solid var(--green-500);
+  border-radius: var(--radius-md);
+  background: var(--green-850);
+  animation: overlay-line-in 150ms ease-out both;
 }
 
-.overlay-chat-acted { border-left-color: #8fe0ae; }
-.overlay-chat-slipped { border-left-color: #ff844a; }
+.overlay-chat-acted { border-left-color: var(--mint-300); }
+.overlay-chat-slipped { border-left-color: var(--orange-400); }
 
 .overlay-user {
   overflow: hidden;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* The hidden message: a censor bar, hatched, never a blurred copy of anything. */
 .overlay-redacted {
   display: flex;
-  align-items: center;
   height: 28px;
+  align-items: center;
   overflow: hidden;
 }
 
 .overlay-redacted-bar {
   display: block;
-  height: 15px;
+  height: 14px;
   min-width: 34px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 74%);
-  filter: blur(5px);
+  border-radius: var(--radius-plate);
+  background: repeating-linear-gradient(135deg, var(--green-500) 0 6px, var(--green-600) 6px 12px);
 }
 
 .overlay-outcome {
@@ -197,109 +299,382 @@ body:has(.overlay-viewport) {
   height: 30px;
   place-items: center;
   border-radius: 50%;
-  background: rgb(255 255 255 / 16%);
+  background: var(--green-800);
   font-size: 20px;
   font-weight: 900;
 }
 
-.overlay-chat-acted .overlay-outcome { color: #8fe0ae; }
-.overlay-chat-slipped .overlay-outcome { color: #ff844a; }
+.overlay-chat-acted .overlay-outcome { background: var(--mint-800); color: var(--mint-100); }
+.overlay-chat-slipped .overlay-outcome { background: var(--orange-500); color: var(--green-850); }
 
-.overlay-scoreboard {
-  position: absolute;
-  bottom: 64px;
-  left: 64px;
-  width: 570px;
-  padding: 22px 26px;
-  border: 2px solid rgb(255 255 255 / 28%);
-  border-radius: 8px;
-  background: rgb(5 26 18 / 88%);
-}
-
-.overlay-label {
-  margin: 0 0 12px;
-  color: #ffd23f;
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: .12em;
+.overlay-connection {
+  align-self: flex-start;
+  margin: 0;
+  padding: 10px 18px;
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-md);
+  background: var(--green-900);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.overlay-scoreboard ol {
-  display: flex;
-  max-height: 300px;
-  flex-direction: column;
-  gap: 7px;
+/* ---- scoreboard: three number plates, then one row per mod ---- */
+.overlay-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px 16px 0;
+}
+
+.overlay-stat {
+  position: relative;
+  min-width: 0;
+  padding: 12px 14px 8px;
   overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-850);
+  box-shadow: inset 0 -3px 0 var(--green-950);
+}
+
+/* Two hanger holes, like the tin numbers on a ballpark board. */
+.overlay-stat::before,
+.overlay-stat::after {
+  position: absolute;
+  top: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green-950);
+  content: '';
+}
+
+.overlay-stat::before { left: 6px; }
+.overlay-stat::after { right: 6px; }
+
+.overlay-stat-label {
+  display: block;
+  overflow: hidden;
+  padding-top: 4px;
+  color: var(--green-300);
+  font: 800 19px/1 var(--font-display);
+  letter-spacing: 0.07em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.overlay-stat-plate {
+  display: block;
+  margin-top: 4px;
+  font: 800 72px/0.95 var(--font-display);
+  font-variation-settings: 'opsz' 72;
+}
+
+.overlay-stat[data-long='true'] .overlay-stat-plate { font-size: 46px; line-height: 1.4; }
+
+.overlay-stat-plain .overlay-stat-plate { color: var(--chalk-100); }
+.overlay-stat-caught .overlay-stat-plate { color: var(--mint-300); }
+.overlay-stat-foul .overlay-stat-plate { color: var(--yellow-400); }
+.overlay-stat-slipped .overlay-stat-plate { color: var(--orange-400); }
+
+.overlay-mods { padding: 14px 16px 16px; }
+
+.overlay-mods-head,
+.overlay-mods li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 70px 112px 84px;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-mods-head {
+  margin: 0 0 6px;
+  padding: 0 12px;
+  color: var(--green-300);
+  font: 800 14px/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.overlay-mods-head span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.overlay-mods ol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.overlay-scoreboard li {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  font-size: 17px;
+.overlay-mods li {
+  height: 42px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -2px 0 var(--green-950);
 }
 
-.overlay-scoreboard li span:first-child {
+.overlay-mod-name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
   overflow: hidden;
+  font-size: 21px;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.overlay-mod-name em {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border: 1px solid var(--green-300);
+  border-radius: var(--radius-plate);
+  color: var(--green-300);
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.overlay-mod-num {
+  overflow: hidden;
+  font: 800 28px/1 var(--font-display);
+  text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.overlay-scoreboard li span:last-child {
-  flex: 0 0 auto;
-  font-size: 15px;
+.overlay-mod-caught { color: var(--mint-300); }
+.overlay-mod-time { font: 700 19px/1 var(--font-body); }
+
+.overlay-more {
+  margin: 8px 0 0;
+  color: var(--green-300);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right;
 }
 
-.overlay-slipped {
-  margin: 14px 0 0;
-  padding-top: 11px;
-  border-top: 1px solid rgb(255 255 255 / 30%);
-  font-weight: 900;
+/* ---- chat vote (P2): token swap only, no motion ---- */
+.overlay-vote-row {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 14px;
+  height: 26px;
+  margin: 14px 20px 0;
+  font-size: 20px;
 }
 
+.overlay-vote-row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-vote-track {
+  height: 16px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-700);
+}
+
+.overlay-vote-track span {
+  display: block;
+  height: 100%;
+  background: var(--yellow-400);
+}
+
+.overlay-vote-row strong { text-align: right; }
+
+.overlay-vote-hint {
+  margin: 16px 20px 18px;
+  color: var(--green-300);
+  font-size: 16px;
+}
+
+/* ---- after-action poster: shown for 20 s per report update ---- */
 .overlay-report {
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: 680px;
-  padding: 42px 48px;
-  border: 3px solid #ffd23f;
-  border-radius: 12px;
-  background: rgb(8 35 25 / 96%);
-  box-shadow: 0 12px 48px rgb(0 0 0 / 55%);
-  transform: translate(-50%, -50%);
+  /* centred in the free area right of the dock: (1856 - 728 - 780) / 2 + 728 */
+  left: 902px;
+  width: 780px;
+  padding: 44px 40px 40px;
+  overflow: hidden;
+  border: 1px solid var(--green-500);
+  border-radius: var(--radius-lg);
+  background: var(--green-900);
+  box-shadow: 0 32px 64px -24px var(--green-950);
+  transform: translateY(-50%);
 }
 
+/* Hazard edge ties the poster to the alarm bar. */
+.overlay-report::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 14px;
+  background: repeating-linear-gradient(135deg, var(--green-950) 0 8px, var(--yellow-400) 8px 16px);
+  content: '';
+}
+
+.overlay-report-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-right: 56px;
+}
+
+.overlay-report-head img { flex: 0 0 auto; }
+
 .overlay-report h2 {
-  margin: 0 0 20px;
-  font: 900 48px/1 var(--font-display);
+  margin: 0;
+  color: var(--chalk-100);
+  font: 800 76px/0.95 var(--font-display);
+  font-variation-settings: 'opsz' 72;
   text-transform: uppercase;
 }
 
-.overlay-report p:not(.overlay-label) {
-  margin: 10px 0 0;
-  font-size: 21px;
+/* The grade is the hero: the big number is how many attack lines would still get past. */
+.overlay-report-hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 26px 0;
+  padding: 18px 28px;
+  border-radius: var(--radius-lg);
+  background: var(--green-950);
 }
+
+.overlay-hero-score {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.overlay-hero-score b {
+  color: var(--orange-400);
+  font-size: 176px;
+  font-variation-settings: 'opsz' 72;
+  font-weight: 800;
+}
+
+.overlay-hero-score i {
+  color: var(--green-300);
+  font-size: 60px;
+  font-style: normal;
+}
+
+.overlay-hero-text {
+  min-width: 0;
+  margin: 0;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.overlay-report-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overlay-report-stat {
+  margin: 0;
+  padding: 14px 20px 16px;
+  border-radius: var(--radius-plate);
+  background: var(--green-800);
+  box-shadow: inset 0 -3px 0 var(--green-950);
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.overlay-report-stat strong {
+  display: block;
+  color: var(--chalk-100);
+  font: 800 84px/1 var(--font-display);
+  font-variation-settings: 'opsz' 72;
+}
+
+.overlay-report-stat-slipped {
+  background: var(--orange-500);
+  color: var(--green-850);
+}
+
+.overlay-report-stat-slipped strong { color: var(--green-850); }
+
+/* Fresh wave, two bars on one scale: blocked before the new terms, blocked after. */
+.overlay-fresh { margin-top: 26px; }
+
+.overlay-fresh-title {
+  margin: 0 0 10px;
+  color: var(--yellow-400);
+  font: 800 18px/1 var(--font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.overlay-fresh-row {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 100px;
+  align-items: center;
+  gap: 16px;
+  height: 34px;
+  font-size: 20px;
+}
+
+.overlay-fresh-row + .overlay-fresh-row { margin-top: 8px; }
+.overlay-fresh-row strong { text-align: right; }
+
+.overlay-fresh-track {
+  display: block;
+  height: 20px;
+  overflow: hidden;
+  border-radius: var(--radius-plate);
+  background: var(--green-700);
+}
+
+.overlay-fresh-after,
+.overlay-fresh-before {
+  display: block;
+  height: 100%;
+}
+
+.overlay-fresh-after { background: var(--mint-300); }
+.overlay-fresh-before { background: var(--green-300); }
 
 .overlay-report-dismiss {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 32px;
+  right: 20px;
   width: 44px;
   height: 44px;
-  border: 0;
-  background: transparent;
-  color: #fff;
+  border: 2px solid var(--green-500);
+  border-radius: var(--radius-sm);
+  background: var(--green-900);
+  color: var(--chalk-100);
   font: 32px/1 var(--font-body);
   pointer-events: auto;
   cursor: pointer;
 }
 
+/* The hover cue is a box-shadow ring, never a border-width change. */
+.overlay-report-dismiss:hover { box-shadow: 0 0 0 2px var(--yellow-400); }
+.overlay-report-dismiss:focus-visible { outline: 3px solid var(--yellow-400); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
-  .overlay-live span { box-shadow: none; }
+  .overlay-chat-line { animation: none; }
 }
