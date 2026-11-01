@@ -16,6 +16,17 @@
  * large text 3:1, meaningful non-text 3:1.
  */
 
+/* ---- named primitives this layer adds ---- */
+:root {
+  /*
+   * Hover fills, one per ground. Both are steps on the whistle-orange hue
+   * (H 42.5) and both were measured; they live here so no component has to
+   * repeat a hex. See the hover note in the light block for why they differ.
+   */
+  --accent-hover-on-light: #f05c00;  /* darker step; label 4.57:1 */
+  --accent-hover-on-dark: #ff9970;   /* lighter step; label 7.36:1 */
+}
+
 /* ---- light: the chalk ground ---- */
 :root,
 [data-theme="light"] {
@@ -59,7 +70,7 @@
    * which draws outside the border box and costs no layout.
    * #f05c00: dL 0.0417, label 4.57:1.
    */
-  --color-accent-hover: #f05c00;               /* was #e25d1b */
+  --color-accent-hover: var(--accent-hover-on-light);  /* was #e25d1b */
   /* the no-layout-shift hover cue; apply as box-shadow, not border-width */
   --shadow-action-hover: 0 0 0 1px var(--color-action-border);
 
@@ -82,7 +93,7 @@
     /* generated hover was #d8b9ad, a pink-beige hue jump rather than a state.
        Replaced with a lighter step of the same hue: dL 0.0786 (clears
        state_sibling), label 7.36:1. */
-    --color-accent-hover: #ff9970;             /* was accent-dark-200 #d8b9ad */
+    --color-accent-hover: var(--accent-hover-on-dark);   /* was accent-dark-200 #d8b9ad */
     --color-card-edge: var(--color-border);
     --color-action-border: var(--color-border-strong);
     --shadow-action-hover: 0 0 0 1px var(--color-action-border);
@@ -92,7 +103,7 @@
 /* ---- dark: explicit opt-in ---- */
 [data-theme="dark"] {
   --color-on-accent: var(--palette-dugout);
-  --color-accent-hover: #ff9970;
+  --color-accent-hover: var(--accent-hover-on-dark);
   --color-card-edge: var(--color-border);
   --color-action-border: var(--color-border-strong);
   --shadow-action-hover: 0 0 0 1px var(--color-action-border);
