@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { validateTerm } from '@mfd/core';
 import { consoleCopy, t } from '../copy';
 import type { GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../lib/consoleContracts';
+import { displayName } from '../lib/names';
 import { Chip, Icon } from './ConsoleIcons';
 
 export type GradeLine = { id: string; text: string; tactic?: string; trick?: string; tags: string[] };
@@ -162,13 +163,13 @@ export function ReportCard({ report }: { report: ReportView }) {
     </div>
     <div className="console-report-grid">
       <div>
-        <h4>Moderator scores</h4>{report.score.mods.length === 0 ? <p className="console-empty">No mods took part.</p> : <ul className="console-score-list">{report.score.mods.map((mod) => <li key={mod.participantId}><strong>{mod.name}{mod.isSim ? ' (sim)' : ''}</strong><span><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans · {reaction(mod.avgReactionMs)}</span></li>)}</ul>}
+        <h4>Moderator scores</h4>{report.score.mods.length === 0 ? <p className="console-empty">No mods took part.</p> : <ul className="console-score-list">{report.score.mods.map((mod) => <li key={mod.participantId}><strong>{displayName(mod)}</strong><span><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans · {reaction(mod.avgReactionMs)}</span></li>)}</ul>}
         {report.modHistory && report.modHistory.length > 0 && <><h4>Moderator history across drills</h4><ul className="console-score-list">{report.modHistory.map((mod) => <li key={mod.name}><strong>{mod.name}</strong><span className="console-history">{mod.drills.map((item, index) => <span key={item.drillId}>{`Drill ${index + 1}: ${item.caught} caught · ${item.falseBans} false bans · ${reaction(item.avgReactionMs)}`}</span>)}</span></li>)}</ul></>}
       </div>
       <div>
         {report.rules && <>
           <h4>Proposed terms · local estimate</h4>{report.rules.accepted.length ? <ul className="console-chip-list">{report.rules.accepted.map((item) => <li key={item.term}><Chip tone="ok" icon="check">{item.term}</Chip></li>)}</ul> : <p className="console-muted">No safe terms proposed.</p>}
-          <h4>Rejected terms · local estimate</h4>{report.rules.rejected.length ? <ul className="console-chip-list">{report.rules.rejected.map((item) => <li key={item.term}><Chip tone="warn" icon="x">{item.term}</Chip></li>)}</ul> : <p className="console-muted">None.</p>}
+          <h4>Rejected terms · local estimate</h4>{report.rules.rejected.length ? <ul className="console-term-rows">{report.rules.rejected.map((item) => <li key={item.term}><Chip tone="warn" icon="x"><span className="console-term">{item.term}</span></Chip><span className="console-rejected-why">{consoleCopy.rejectedWhy.replace('{n}', String(item.fp))}</span></li>)}</ul> : <p className="console-muted">None.</p>}
           <h4>Needs a bot rule · local estimate</h4>{report.rules.needsBotRule.length ? <ul className="console-chip-list">{report.rules.needsBotRule.map((item) => <li key={item.tag}><Chip tone="info">{`${item.tag} (${item.count})`}</Chip></li>)}</ul> : <p className="console-muted">None.</p>}
         </>}
         <h4>Pushed terms</h4>{report.pushes.length === 0 ? <p className="console-muted">No terms were pushed.</p> : <ul className="console-push-results">{report.pushes.map((item, index) => <li key={`${item.term}-${index}`}><strong>{item.term}</strong><span><Chip tone={item.status === 'added' ? 'ok' : item.status === 'failed' ? 'warn' : 'neutral'}>{`${item.status}${item.error ? ` · ${item.error}` : ''}`}</Chip></span></li>)}</ul>}
