@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { SHOTS, WIDTHS } from './lib/shots';
 import { mockModDemo } from './lib/mock-api';
+import { mockModRoom, type ModScenario } from './lib/mock-mod-room';
 
 const ROOM = 'surface-test';
 
@@ -36,4 +37,104 @@ test.describe('mod view surface (demo join card)', () => {
       });
     }
   }
+});
+
+const SCENARIOS: ModScenario[] = ['waiting', 'practice', 'ended'];
+
+test.describe('mod view surface (joined screens, mocked room)', () => {
+  for (const scenario of SCENARIOS) {
+    for (const scheme of ['light', 'dark'] as const) {
+      for (const size of WIDTHS) {
+        test(`${scenario} at ${size.name}px in ${scheme}`, async ({ browser }) => {
+          const context = await browser.newContext({ colorScheme: scheme, viewport: { width: size.width, height: size.height } });
+          const page = await context.newPage();
+          await mockModRoom(page, ROOM, scenario);
+          await page.goto(`/demo/${ROOM}/mod`);
+          await expect(page.getByRole('heading', { name: 'Practice room' })).toBeVisible();
+          if (scenario === 'waiting') await expect(page.getByRole('heading', { name: /You're in/ })).toBeVisible();
+          if (scenario === 'practice') {
+            await expect(page.locator('.mod-line')).toHaveCount(6);
+            await expect(page.getByText('Banned by you')).toBeVisible();
+            await expect(page.getByText('False ban: that was a regular')).toBeVisible();
+            await expect(page.getByText('Slipped through').first()).toBeVisible();
+            await expect(page.getByText('Kai got it first')).toBeVisible();
+          }
+          if (scenario === 'ended') await expect(page.getByRole('heading', { name: 'What came through' })).toBeVisible();
+          // let the 150 ms line entrance finish before the camera does
+          await page.waitForTimeout(400);
+          await page.screenshot({ path: `${SHOTS}/mod-${scenario}-${size.name}-${scheme}.png`, fullPage: true });
+          await context.close();
+        });
+      }
+    }
+  }
+
+  test('practice: every enabled action button is at least 44 px tall at 375 px', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+    const page = await context.newPage();
+    await mockModRoom(page, ROOM, 'practice');
+    await page.goto(`/demo/${ROOM}/mod`);
+    const buttons = page.locator('button[data-line-id]:not([disabled])');
+    await expect(buttons).toHaveCount(6);
+    for (const button of await buttons.all()) {
+      const box = await button.boundingBox();
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    }
+    await context.close();
+  });
+
+  test('practice: no horizontal scroll at 375 px', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+    const page = await context.newPage();
+    await mockModRoom(page, ROOM, 'practice');
+    await page.goto(`/demo/${ROOM}/mod`);
+    await expect(page.locator('.mod-line')).toHaveCount(6);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    await context.close();
+  });
+
+  test('practice: arrows move line focus, D T B act on it, focus ring is visible', async ({ page }) => {
+    const sent = await mockModRoom(page, ROOM, 'practice');
+    await page.goto(`/demo/${ROOM}/mod`);
+    const first = page.locator('button[data-line-id="l5"]').first();
+    await expect(first).toBeVisible();
+    await first.focus();
+    await expect(page.locator('.mod-line:focus-within')).toHaveCount(1);
+    const ring = await page.locator('.mod-line:focus-within').evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(ring).not.toBe('none');
+    const outline = await first.evaluate((el) => getComputedStyle(el).outlineStyle);
+    expect(outline).not.toBe('none');
+
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('data-line-id'))).toBe('l6');
+    await page.keyboard.press('ArrowUp');
+    await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('data-line-id'))).toBe('l5');
+
+    for (const [key, action] of [['d', 'delete'], ['t', 'timeout'], ['b', 'ban']] as const) {
+      await page.locator('button[data-line-id="l5"]').first().focus();
+      await page.keyboard.press(key);
+      await expect.poll(() => sent.some((m) => JSON.stringify(m) === JSON.stringify({ type: 'mod.action', data: { lineId: 'l5', action } }))).toBe(true);
+    }
+  });
+
+  test('practice: outcome is shown as text, not colour alone', async ({ page }) => {
+    await mockModRoom(page, ROOM, 'practice');
+    await page.goto(`/demo/${ROOM}/mod`);
+    for (const selector of ['.mod-feedback-caught', '.mod-feedback-false', '.mod-feedback-slipped', '.mod-feedback-taken']) {
+      const label = (await page.locator(selector).first().innerText()).trim();
+      expect(label.length).toBeGreaterThan(3);
+    }
+  });
+
+  test('practice: attack fixtures carry no real link and slurs are blocks', async ({ page }) => {
+    await mockModRoom(page, ROOM, 'practice');
+    await page.goto(`/demo/${ROOM}/mod`);
+    await expect(page.locator('.mod-line')).toHaveCount(6);
+    const links = await page.locator('.mod-link-segment').allInnerTexts();
+    for (const link of links) expect(link).toMatch(/\.invalid(\/.*)?$/);
+    await expect(page.locator('.mod-slur-segment').first()).toHaveText(/^▇+$/);
+    await expect(page.locator('.mod-chat-list')).not.toContainText('slurx');
+  });
 });
