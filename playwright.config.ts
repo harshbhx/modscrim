@@ -88,9 +88,15 @@ export default defineConfig({
     },
     {
       name: 'console',
-      testMatch: /console\.spec\.ts$/,
+      testMatch: /console\.(steps|grade)\.spec\.ts$/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState }
+    },
+    {
+      name: 'mod',
+      testMatch: /mod\.keyboard\.spec\.ts$/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] }
     },
     {
       name: 'demo',
