@@ -1,67 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { DEFAULT_CONFIG, DrillConfigInputZ, TacticZ } from '@mfd/core';
+import { DEFAULT_CONFIG, DrillConfigInputZ } from '@mfd/core';
 import type { DrillConfig, DrillSnapshot, Reveal, Segment, Tactic } from '@mfd/core';
 import { ConsoleStepper, type ConsoleStep } from '../components/ConsoleStepper';
-import { GradeTable, GradesViewZ, ProofBars, ProofResultZ, PushResultsZ, ReportCard, ReportViewZ, RuleList, RuleResultZ } from '../components/ConsoleReview';
-import type { GradeLine, GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../components/ConsoleReview';
+import { GradeTable, ProofBars, ReportCard, RuleList } from '../components/ConsoleReview';
+import type { GradeLine } from '../components/ConsoleReview';
 import { CopyField } from '../components/CopyField';
 import { DemoJoinQr } from '../components/DemoJoinQr';
-import { StatusStrip, StatusViewZ, type StatusView } from '../components/StatusStrip';
+import { StatusStrip } from '../components/StatusStrip';
 import { ChatLogZ, FiltersZ } from '../lib/contracts';
+import {
+  DeleteResponseZ, DraftResponseZ, DrillViewZ, GradeLocalZ, GradeQueuedZ, GradesViewZ, LoggingResponseZ, MeZ, ProofResultZ,
+  PushResultsZ, ReportViewZ, RotateResponseZ, RuleResultZ, StartResponseZ, StatusViewZ, StopResponseZ
+} from '../lib/consoleContracts';
+import type { GradesView, ProofResult, PushResult, ReportView, RuleResult, StatusView } from '../lib/consoleContracts';
 import { useRoom } from '../lib/useRoom';
 import { apiFetch, ApiError } from '../lib/api';
-import { t } from '../copy';
+import { consoleCopy, fill, t } from '../copy';
+import { Chip, Icon } from '../components/ConsoleIcons';
 import '../styles/console.css';
 
-const ChannelZ = z.object({
-  id: z.string(),
-  login: z.string(),
-  displayName: z.string(),
-  avatarUrl: z.string().url().nullable(),
-  broadcasterType: z.enum(['', 'affiliate', 'partner'])
-});
-const MeZ = z.object({
-  user: ChannelZ,
-  channel: ChannelZ,
-  tokenStatus: z.string(),
-  subscriptionStatus: z.string(),
-  overlayUrl: z.string().url(),
-  modUrl: z.string().url()
-});
-const DrillViewZ = z.object({
-  drillId: z.string().min(1),
-  status: z.enum(['draft', 'voting', 'running', 'ended', 'cancelled']),
-  config: z.object({
-    tactics: z.array(TacticZ),
-    primaryTactic: TacticZ,
-    attackCount: z.number().int(),
-    banterCount: z.number().int(),
-    intervalMs: z.number().int(),
-    slipWindowMs: z.number().int(),
-    seed: z.number().int(),
-    simMod: z.boolean(),
-    chatVote: z.boolean(),
-    announce: z.boolean()
-  }),
-  joinCode: z.string().regex(/^\d{6}$/),
-  participants: z.array(z.object({ id: z.string(), name: z.string(), isSim: z.boolean() })),
-  score: z.object({
-    mods: z.array(z.object({ participantId: z.string(), name: z.string(), isSim: z.boolean(), caught: z.number(), falseBans: z.number(), avgReactionMs: z.number().nullable() })),
-    slipped: z.number(),
-    attacksShown: z.number()
-  }),
-  lines: z.array(z.object({ id: z.string(), text: z.string(), tactic: TacticZ.optional(), trick: z.string().optional(), tags: z.array(z.string()) }))
-});
-const DraftResponseZ = z.object({ drillId: z.string().min(1), joinCode: z.string().regex(/^\d{6}$/), modUrl: z.string().url() });
-const RotateResponseZ = z.object({ overlayUrl: z.string().url() });
-const LoggingResponseZ = z.object({ logging: z.boolean() });
-const DeleteResponseZ = z.object({ deleted: z.number().int().nonnegative() });
-const StartResponseZ = z.object({ startedAt: z.number() });
-const StopResponseZ = z.object({ endedAt: z.number() });
-const GradeQueuedZ = z.object({ queued: z.number().int().nonnegative() });
-const GradeLocalZ = z.object({ passed: z.number().int().nonnegative(), total: z.number().int().nonnegative(), engine: z.literal('local') });
 const AutoModLabels: Record<string, string> = {
   overall_level: 'Overall',
   disability: 'Disability',
@@ -130,7 +89,7 @@ function ReadOnlyLine({ line, reveal }: { line: ConsoleLine; reveal?: Reveal }) 
   const text = 'segments' in publicLine ? segmentContent(publicLine.segments) : '▇'.repeat(publicLine.len);
   return <li className={`console-chat-line console-chat-line-${line.state}`}>
     <div className="console-chat-line-top"><strong>{publicLine.user}</strong>
-      {reveal && <span className="console-line-status">{reveal.kind === 'attack' ? 'Attack' : 'Regular'}</span>}
+      {reveal && <span className={`console-line-status is-${reveal.kind}`}>{reveal.kind === 'attack' ? 'Attack' : 'Regular'}</span>}
       {line.state === 'slipped' && <span className="console-line-status is-slipped">Slipped through</span>}
       {line.state === 'acted' && <span className="console-line-status">{line.actedByName ? `${line.action === 'ban' ? 'Banned' : line.action === 'timeout' ? 'Timed out' : 'Deleted'} by ${line.actedByName}` : 'Handled'}</span>}
     </div>
@@ -784,25 +743,40 @@ export function Console() {
   const configValid = DrillConfigInputZ.safeParse(config).success;
   const elapsedMs = currentDrill?.startedAt === null || currentDrill?.startedAt === undefined ? 0 : Math.max(0, now - currentDrill.startedAt);
 
-  if (loading) return <section className="console-page"><div className="console-shell" role="status">Loading your channel console…</div></section>;
+  const stepEyebrow = (step: number): string => fill(consoleCopy.stepEyebrow, { n: step });
+  const humanCount = participants.filter((person) => !person.isSim).length;
+
+  if (loading) return <section className="console-page"><div className="console-shell" role="status">
+    <p className="console-muted">Loading your channel console…</p>
+    <div className="console-loading" aria-hidden="true">
+      <span className="skeleton console-loading-head" />
+      <span className="skeleton console-loading-stepper" />
+      <span className="skeleton console-loading-panel" />
+    </div>
+  </div></section>;
   if (!me) return <section className="console-page"><div className="console-shell console-auth-card">
+    <span className="console-auth-icon"><Icon name="lock" size={22} /></span>
     <h1>Open your channel console</h1>
     <p>{error ?? 'Sign in with Twitch to read your channel filters and run a practice drill.'}</p>
-    <a className="console-button console-button-primary" href="/auth/login">Sign in with Twitch</a>
-    <Link to="/">Back to the start</Link>
+    <div className="console-auth-actions">
+      <a className="console-button console-button-primary" href="/auth/login">Sign in with Twitch</a>
+      <Link className="console-link" to="/">Back to the start</Link>
+    </div>
   </div></section>;
 
   return <section className="console-page">
     <div className="console-shell">
       <header className="console-heading">
         <div className="console-channel-title">
-          {me.channel.avatarUrl && <img src={me.channel.avatarUrl} alt="" width="56" height="56" />}
+          {me.channel.avatarUrl
+            ? <img src={me.channel.avatarUrl} alt="" width="48" height="48" />
+            : <span className="console-avatar" aria-hidden="true">{me.channel.displayName.slice(0, 1).toUpperCase()}</span>}
           <div><p className="console-context">Channel console</p><h1>{me.channel.displayName}</h1></div>
         </div>
         <div className="console-status-strip" aria-label="Channel status">
           {isDemo
-            ? <><span><i className="is-good" />Private demo room</span><span><i className="is-good" />Local estimate</span><span><i className="is-good" />{chatLog?.count ?? 0} fixture messages</span></>
-            : <span><i className="is-good" />Signed in as {me.channel.login}</span>}
+            ? <><Chip tone="info" icon="shield">Private demo room</Chip><Chip tone="ok" icon="check">Local estimate</Chip><Chip icon="users">{fill(consoleCopy.filters.demoMessages, { n: chatLog?.count ?? 0 })}</Chip></>
+            : <Chip tone="ok" icon="check">Signed in as {me.channel.login}</Chip>}
         </div>
       </header>
 
@@ -811,11 +785,12 @@ export function Console() {
       {isDemo && demoModUrl && <DemoJoinQr url={demoModUrl} />}
 
       <ConsoleStepper current={activeStep} unlockedThrough={unlockedThrough} onSelect={(step) => void selectStep(step)} />
-      {error && <p className="console-alert" role="alert">{error}</p>}
+      {error && <p className="console-alert" role="alert"><Icon name="alert" /><span>{error}</span></p>}
 
       {activeStep === 1 && <section className="console-step-panel" aria-labelledby="filters-title">
         <div className="console-step-title">
-          <div><p className="console-context">Step 1</p><h2 id="filters-title">Read filters</h2></div>
+          <div><p className="console-context">{stepEyebrow(1)}</p><h2 id="filters-title">Read filters</h2>
+            <p className="console-muted console-step-intro">{consoleCopy.filters.intro}</p></div>
           {!isDemo && <button type="button" className="console-button console-button-primary" disabled={busy} onClick={() => void refreshFilters()}>
             {busy ? 'Refreshing…' : 'Refresh from Twitch'}
           </button>}
@@ -824,18 +799,21 @@ export function Console() {
           <div className="console-filter-main">
             <section className="console-section" aria-labelledby="blocked-terms-title">
               <div className="console-section-heading"><h3 id="blocked-terms-title">Public blocked terms</h3><span>{filters?.terms.length ?? 0}</span></div>
-              {!filtersLoaded ? <p className="console-muted">Loading channel filters…</p> : !filters
+              {!filtersLoaded ? <div role="status"><p className="console-muted">Loading channel filters…</p>
+                <div className="console-skeleton-chips" aria-hidden="true"><span className="skeleton" /><span className="skeleton" /><span className="skeleton" /><span className="skeleton" /></div></div> : !filters
                 ? <p className="console-muted">Filters are unavailable. Refresh from Twitch to try again.</p>
                 : filters.terms.length === 0
                   ? <p className="console-empty">Your channel has no public blocked terms yet. The drill will show what that lets through.</p>
                   : <ul className="console-term-list">{filters.terms.map((term) => <li key={term.id}>{term.text}</li>)}</ul>}
-              <p className="console-muted">{isDemo ? 'These are sample filters for the demo channel.' : 'Private terms are not visible to apps.'}</p>
+              <p className="console-muted">{isDemo ? 'These are sample filters for the demo channel.' : consoleCopy.filters.privateTerms}</p>
             </section>
             <section className="console-section" aria-labelledby="automod-title">
               <div className="console-section-heading"><h3 id="automod-title">AutoMod levels</h3></div>
               {!filters?.automod ? <p className="console-muted">AutoMod settings are not available right now.</p> :
                 <dl className="console-automod-list">{Object.entries(filters.automod).map(([key, value]) => <div key={key}>
-                  <dt>{AutoModLabels[key] ?? humanStatus(key)}</dt><dd>{value === null ? 'Not set' : `Level ${value}`}</dd>
+                  <dt>{AutoModLabels[key] ?? humanStatus(key)}</dt>
+                  <dd><span>{value === null ? 'Not set' : `Level ${value}`}</span>
+                    {value !== null && <span className="console-level" aria-hidden="true">{[1, 2, 3, 4].map((tick) => <i key={tick} className={tick <= value ? 'is-on' : undefined} />)}</span>}</dd>
                 </div>)}</dl>}
               {filters?.fetchedAt !== null && filters?.fetchedAt !== undefined && <p className="console-muted">Updated {formattedDate(filters.fetchedAt)}</p>}
             </section>
@@ -843,22 +821,23 @@ export function Console() {
 
           <aside className="console-log-panel" aria-labelledby="chat-log-title">
             <div className="console-section-heading"><h3 id="chat-log-title">Chat log</h3><span>{chatLog?.count ?? 0} messages</span></div>
-            <p className="console-log-date">{isDemo ? 'Curated demo fixture' : chatLog?.oldest === null || chatLog?.oldest === undefined ? 'Collecting since now' : `Collecting since ${formattedDate(chatLog.oldest)}`}</p>
+            <p className="console-log-date"><Icon name="clock" size={14} />{isDemo ? consoleCopy.filters.demoLogDate : chatLog?.oldest === null || chatLog?.oldest === undefined ? consoleCopy.filters.collectingSince : `Collecting since ${formattedDate(chatLog.oldest)}`}</p>
             <p className="console-muted">{isDemo ? 'Sample messages are used only to check whether suggested rules could match regular chat.' : t('privacy.short')}</p>
-            {!chatLogLoaded ? <p className="console-muted">Loading chat log…</p> : !chatLog
+            {!chatLogLoaded ? <div role="status"><p className="console-muted">Loading chat log…</p>
+              <div className="console-skeleton-rows" aria-hidden="true"><span className="skeleton" /><span className="skeleton" /><span className="skeleton" /></div></div> : !chatLog
               ? <p className="console-muted">Chat log details are unavailable. Try again in a moment.</p>
               : isDemo
                 ? <p className="console-empty">The demo uses 71 curated sample messages. No live chat is connected.</p>
                 : chatLog.count === 0
                 ? <p className="console-empty">Collecting chat. The false-ban check gets better as your chat log grows; the banter pool is used meanwhile.</p>
-                : <ul className="console-samples" aria-label="Six latest chat messages">{chatLog.samples.map((sample, index) =>
+                : <><ul className="console-samples" aria-label="Six latest chat messages">{chatLog.samples.map((sample, index) =>
                 <li key={`${sample.login}-${index}`}>
                   <span className="console-sample-login">{sample.login}</span>
                   <button type="button" className="console-blurred-sample" aria-label={`${sample.login}: ${sample.text}`}>
                     <span>{sample.text}</span>
                   </button>
                 </li>
-              )}</ul>}
+              )}</ul><p className="console-hint"><Icon name="eye" size={14} />{consoleCopy.filters.revealHint}</p></>}
             {!isDemo && <div className="console-log-actions">
               <button type="button" className="console-button console-button-quiet" disabled={busy || !chatLog} onClick={() => void toggleLogging()}>
                 {chatLog?.logging ? 'Pause logging' : 'Resume logging'}
@@ -880,9 +859,9 @@ export function Console() {
 
       {activeStep === 2 && <section className="console-step-panel" aria-labelledby="configure-title">
         <div className="console-step-title">
-          <div><p className="console-context">Step 2</p><h2 id="configure-title">Configure</h2>
-            <p className="console-muted">The draft is ready, so your mod team can join while you tune the drill.</p></div>
-          <span className="console-draft-status">{draft ? 'Draft ready' : 'Preparing draft…'}</span>
+          <div><p className="console-context">{stepEyebrow(2)}</p><h2 id="configure-title">Configure</h2>
+            <p className="console-muted console-step-intro">The draft is ready, so your mod team can join while you tune the drill.</p></div>
+          <span className={`console-draft-status${draft ? ' is-ready' : ''}`}>{draft ? <Icon name="check" size={14} /> : null}{draft ? 'Draft ready' : 'Preparing draft…'}</span>
         </div>
         <div className="console-config-grid">
           <section className="console-section console-config-options" aria-labelledby="tactics-title">
@@ -902,7 +881,7 @@ export function Console() {
                 <span>{TACTICS.find((item) => item.id === tactic)?.label ?? tactic}</span>
               </label>)}
             </fieldset>
-            {config.tactics.includes('hateraid') && <p className="console-warning" role="note">{t('hate.warning')}</p>}
+            {config.tactics.includes('hateraid') && <p className="console-warning" role="note"><Icon name="alert" /><span>{t('hate.warning')}</span></p>}
           </section>
           <section className="console-section console-config-values" aria-labelledby="length-title">
             <h3 id="length-title">Shape the drill</h3>
@@ -926,42 +905,49 @@ export function Console() {
               </select>
               <span>5–15 seconds</span>
             </label>
-            <label className="console-check-row console-kai-toggle">
-              <input type="checkbox" checked={config.simMod} onChange={(event) => changeConfig({ simMod: event.currentTarget.checked })} />
-              <span>Kai (sim)</span>
-            </label>
-            <label className="console-check-row">
-              <input type="checkbox" checked={config.chatVote} onChange={(event) => changeConfig({ chatVote: event.currentTarget.checked })} />
-              <span>Let chat vote for the next tactic during a 20-second window</span>
-            </label>
-            {!isDemo && <label className="console-check-row">
-              <input type="checkbox" checked={config.announce} onChange={(event) => changeConfig({ announce: event.currentTarget.checked })} />
-              <span>Post the fixed drill-start announcement in Twitch chat</span>
-            </label>}
+            <div className="console-toggles">
+              <label className="console-check-row console-kai-toggle">
+                <input type="checkbox" checked={config.simMod} onChange={(event) => changeConfig({ simMod: event.currentTarget.checked })} />
+                <span>{consoleCopy.configure.kai}</span>
+              </label>
+              <label className="console-check-row">
+                <input type="checkbox" checked={config.chatVote} onChange={(event) => changeConfig({ chatVote: event.currentTarget.checked })} />
+                <span>Let chat vote for the next tactic during a 20-second window</span>
+              </label>
+              {!isDemo && <label className="console-check-row">
+                <input type="checkbox" checked={config.announce} onChange={(event) => changeConfig({ announce: event.currentTarget.checked })} />
+                <span>Post the fixed drill-start announcement in Twitch chat</span>
+              </label>}
+            </div>
           </section>
         </div>
-        {!configValid && <p className="console-alert" role="alert">Choose a primary tactic, keep each count in range, and keep the total at 40 lines or fewer.</p>}
-        {draft && <div className="console-share-grid">
-          <CopyField label="Join code" value={draft.joinCode} />
-          <CopyField label="Mod link" value={draft.modUrl} />
-          {!isDemo && overlayUrl && <CopyField label="Overlay URL" value={overlayUrl} />}
-          {!isDemo && <button type="button" className="console-button console-button-quiet" disabled={busy} onClick={() => void rotateOverlay()}>Rotate key</button>}
-        </div>}
-        <section className="console-section console-joined" aria-labelledby="joined-title">
-          <div className="console-section-heading"><h3 id="joined-title">Joined mods</h3><span>{participants.filter((person) => !person.isSim).length}</span></div>
-          {participants.length === 0
-            ? <p className="console-empty">No mods yet. Share the mod link, or turn on Kai (sim) to rehearse alone.</p>
-            : <ul className="console-participant-list">{participants.map((person) => <li key={person.id}>
-              <span className={person.online ? 'console-presence is-online' : 'console-presence'} aria-hidden="true" />
-              <span>{person.name}{person.isSim ? ' (sim)' : ''}</span>
-              {!person.online && <span className="console-muted">reconnecting</span>}
-            </li>)}</ul>}
-        </section>
+        {!configValid && <p className="console-alert" role="alert"><Icon name="alert" /><span>Choose a primary tactic, keep each count in range, and keep the total at 40 lines or fewer.</span></p>}
+        <div className="console-config-lower">
+          {draft && <section className="console-section console-share" aria-labelledby="share-title">
+            <div className="console-section-heading"><h3 id="share-title">Invite your mods</h3></div>
+            <div className="console-share-grid">
+              <CopyField label="Join code" value={draft.joinCode} />
+              <CopyField label="Mod link" value={draft.modUrl} />
+              {!isDemo && overlayUrl && <CopyField label="Overlay URL" value={overlayUrl} />}
+              {!isDemo && <button type="button" className="console-button console-button-quiet" disabled={busy} onClick={() => void rotateOverlay()}>Rotate key</button>}
+            </div>
+          </section>}
+          <section className="console-section console-joined" aria-labelledby="joined-title">
+            <div className="console-section-heading"><h3 id="joined-title">Joined mods</h3><span>{humanCount}</span></div>
+            {participants.length === 0
+              ? <p className="console-empty">{consoleCopy.configure.noMods}</p>
+              : <ul className="console-participant-list">{participants.map((person) => <li key={person.id}>
+                <span className={person.online ? 'console-presence is-online' : 'console-presence'} aria-hidden="true" />
+                <span className="console-person">{person.name}{person.isSim ? ' (sim)' : ''}</span>
+                <span className={`console-presence-text${person.online ? ' is-online' : ''}`}>{person.online ? consoleCopy.configure.online : consoleCopy.configure.reconnecting}</span>
+              </li>)}</ul>}
+          </section>
+        </div>
         <div className="console-step-footer">
           <button type="button" className="console-button console-button-quiet" disabled={busy || !draft || !draftIsDirty || !configValid} onClick={() => void saveConfig()}>
             {busy ? 'Saving…' : 'Save settings'}
           </button>
-          <button type="button" className="console-button console-button-primary" disabled={busy || !draft || !configValid || (!config.simMod && participants.filter((person) => !person.isSim).length === 0)} onClick={() => void startDrill()}>
+          <button type="button" className="console-button console-button-primary" disabled={busy || !draft || !configValid || (!config.simMod && humanCount === 0)} onClick={() => void startDrill()}>
             {busy ? 'Starting…' : 'Start drill'}
           </button>
         </div>
@@ -969,13 +955,13 @@ export function Console() {
 
       {activeStep === 3 && <section className="console-step-panel" aria-labelledby="run-title">
         <div className="console-step-title">
-          <div><p className="console-context">Step 3</p><h2 id="run-title">{currentDrill?.status === 'ended' ? 'Drill complete' : 'Run the drill'}</h2></div>
+          <div><p className="console-context">{stepEyebrow(3)}</p><h2 id="run-title">{currentDrill?.status === 'ended' ? 'Drill complete' : 'Run the drill'}</h2></div>
           <div className="console-run-status"><span className={`console-connection console-connection-${room.connection}`} />
             {room.connection === 'open' ? 'Connected' : 'Reconnecting'}
             <strong>{Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')}</strong>
           </div>
         </div>
-        <p className="console-practice-banner">{t('banner.practice')}</p>
+        <p className="console-practice-banner"><Icon name="shield" />{t('banner.practice')}</p>
         <div className="console-live-grid">
           <section className="console-section console-live-chat" aria-labelledby="live-chat-title">
             <div className="console-section-heading"><h3 id="live-chat-title">Practice chat</h3><span>{lineRows.length} lines</span></div>
@@ -991,42 +977,43 @@ export function Console() {
                 <ol className="console-score-list">{score.mods.map((mod, index) => <li key={mod.participantId}>
                   <span className="console-rank">{index + 1}</span>
                   <strong>{mod.name}{mod.isSim ? ' (sim)' : ''}</strong>
-                  <span aria-live="polite" aria-atomic="true">{mod.caught} caught · {mod.falseBans} false bans</span>
+                  <span aria-live="polite" aria-atomic="true"><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans</span>
                 </li>)}</ol>}
             </section>
             <section className="console-section" aria-labelledby="mods-live-title">
-              <div className="console-section-heading"><h3 id="mods-live-title">Mods in the room</h3><span>{participants.filter((person) => !person.isSim).length}</span></div>
+              <div className="console-section-heading"><h3 id="mods-live-title">Mods in the room</h3><span>{humanCount}</span></div>
               <ul className="console-participant-list">{participants.map((person) => <li key={person.id}>
                 <span className={person.online ? 'console-presence is-online' : 'console-presence'} aria-hidden="true" />
-                <span>{person.name}{person.isSim ? ' (sim)' : ''}</span>
-                {!person.online && <span className="console-muted">reconnecting</span>}
+                <span className="console-person">{person.name}{person.isSim ? ' (sim)' : ''}</span>
+                <span className={`console-presence-text${person.online ? ' is-online' : ''}`}>{person.online ? consoleCopy.configure.online : consoleCopy.configure.reconnecting}</span>
               </li>)}</ul>
             </section>
           </aside>
         </div>
+        {currentDrill?.status === 'ended' && <p className="console-complete-summary"><Icon name="check" />{score?.attacksShown ?? 0} attacks shown · {score?.slipped ?? 0} slipped through</p>}
         {currentDrill?.status === 'running' && <div className="console-step-footer">
           <button type="button" className="console-button console-button-danger" disabled={busy} onClick={() => void stopDrill()}>{busy ? 'Stopping…' : 'Stop'}</button>
         </div>}
-        {currentDrill?.status === 'ended' && <p className="console-complete-summary">{score?.attacksShown ?? 0} attacks shown · {score?.slipped ?? 0} slipped through</p>}
         {currentDrill?.status === 'ended' && <div className="console-step-footer"><button type="button" className="console-button console-button-primary" onClick={() => void showGrades()}>{isDemo ? 'Continue to local estimate' : 'Continue to Twitch grades'}</button></div>}
       </section>}
 
       {activeStep === 4 && <section className="console-step-panel" aria-labelledby="grade-step-title">
-        <div className="console-step-title"><div><p className="console-context">Step 4</p><h2 id="grade-step-title">{isDemo ? 'Local filter estimate' : 'Twitch grades'}</h2><p className="console-muted">See which attack lines would get past your current filters.</p></div>{gradePhaseA && <span className="console-draft-status">{gradePhaseA.done} of {gradePhaseA.total} checked</span>}</div>
+        <div className="console-step-title"><div><p className="console-context">{stepEyebrow(4)}</p><h2 id="grade-step-title">{isDemo ? 'Local filter estimate' : 'Twitch grades'}</h2><p className="console-muted console-step-intro">See which attack lines would get past your current filters.</p></div>{gradePhaseA && <span className="console-draft-status">{gradePhaseA.done} of {gradePhaseA.total} checked</span>}</div>
         <GradeTable lines={(drillView?.lines ?? []) as GradeLine[]} grades={grades} phase={gradePhaseA} onGradeTwitch={() => void gradeWithTwitch()} onGradeLocal={() => void gradeLocally()} grading={grading} busy={reviewBusy} localOnly={isDemo} />
         {gradePhaseA && gradePhaseA.done >= gradePhaseA.total && <div className="console-step-footer"><button type="button" className="console-button console-button-primary" disabled={reviewBusy} onClick={() => void showRules()}>Find better rules</button></div>}
       </section>}
 
       {activeStep === 5 && <section className="console-step-panel" aria-labelledby="rules-step-title">
-        <div className="console-step-title"><div><p className="console-context">Step 5</p><h2 id="rules-step-title">Fix the rules</h2><p className="console-muted">Select safe terms or add one of your own. Each choice is checked against your retained chat.</p></div></div>
-        {!rules ? <p className="console-muted" role="status">Finding safe rules…</p> : <RuleList rules={rules} lines={(drillView?.lines ?? []) as GradeLine[]} selected={selectedTerms} onSelectionChange={setSelectedTerms} disabled={reviewBusy} />}
+        <div className="console-step-title"><div><p className="console-context">{stepEyebrow(5)}</p><h2 id="rules-step-title">Fix the rules</h2><p className="console-muted console-step-intro">Select safe terms or add one of your own. Each choice is checked against your retained chat.</p></div></div>
+        {!rules ? <div role="status"><p className="console-muted">Finding safe rules…</p>
+          <div className="console-skeleton-rows" aria-hidden="true"><span className="skeleton" /><span className="skeleton" /><span className="skeleton" /></div></div> : <RuleList rules={rules} lines={(drillView?.lines ?? []) as GradeLine[]} selected={selectedTerms} onSelectionChange={setSelectedTerms} disabled={reviewBusy} />}
         <div className="console-step-footer"><button type="button" className="console-button console-button-primary" disabled={reviewBusy || !proof || selectedTerms.length === 0} onClick={() => setActiveStep(6)}>Test on a fresh wave</button></div>
       </section>}
 
       {activeStep === 6 && <section className="console-step-panel" aria-labelledby="proof-step-title">
-        <div className="console-step-title"><div><p className="console-context">Step 6</p><h2 id="proof-step-title">{isDemo ? 'Fresh wave and simulated push' : 'Fresh wave and push'}</h2><p className="console-muted">{isDemo ? 'Check these rules on a held-out wave, then simulate the push in this private room.' : 'Check these rules on a held-out wave before approving changes to Twitch.'}</p></div></div>
+        <div className="console-step-title"><div><p className="console-context">{stepEyebrow(6)}</p><h2 id="proof-step-title">{isDemo ? 'Fresh wave and simulated push' : 'Fresh wave and push'}</h2><p className="console-muted console-step-intro">{isDemo ? 'Check these rules on a held-out wave, then simulate the push in this private room.' : 'Check these rules on a held-out wave before approving changes to Twitch.'}</p></div></div>
         <ProofBars proof={proof} results={pushResults} selectedTerms={selectedTerms} onPush={() => void pushTerms()} onUndo={() => void undoPush()} busy={reviewBusy} canUndo={pushResults.some((item) => item.status === 'added')} demo={isDemo} />
-        {report ? <ReportCard report={report} /> : <p className="console-muted" role="status">{reportLoading ? 'Loading the after-action report…' : reportError ?? 'The after-action report is not available yet.'}</p>}
+        {report ? <ReportCard report={report} /> : <p className="console-muted console-report-pending" role="status">{reportLoading ? 'Loading the after-action report…' : reportError ?? 'The after-action report is not available yet.'}</p>}
       </section>}
     </div>
   </section>;
