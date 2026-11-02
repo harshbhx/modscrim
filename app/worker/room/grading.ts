@@ -75,7 +75,7 @@ export class GradingEngine {
     const parsed = GradeJobZ.safeParse(job.payload);
     if (!parsed.success) return;
     const { drillId, phase } = parsed.data;
-    log('grade.fallback', { room: this.deps.roomName(), drill: drillId, phase, reason: 'job_dropped' });
+    log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'local', fallback: 'job_dropped' });
     await this.gradeLocally(drillId, phase, 'twitch_limited');
   }
 
@@ -367,7 +367,7 @@ export class GradingEngine {
       log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'twitch', status: 429, units, quotaUnit: unit, retryAt, limited });
       if (limited >= MAX_RATE_LIMIT_RETRIES) {
         // Twitch keeps limiting this channel: show a labelled local estimate instead of waiting forever.
-        log('grade.fallback', { room: this.deps.roomName(), drill: drillId, phase, reason: 'rate_limited', limited });
+        log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'local', fallback: 'rate_limited', limited });
         await this.gradeLocally(drillId, phase, 'twitch_limited');
         return;
       }

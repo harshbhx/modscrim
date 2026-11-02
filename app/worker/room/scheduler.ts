@@ -78,7 +78,7 @@ export class Scheduler {
     try {
       await handler({ kind: job.kind, key: job.key, payload: JSON.parse(job.payload), now });
     } catch {
-      log('job.drop_failed', { room: this.roomName(), kind: job.kind, key: job.key });
+      log('job.failed', { room: this.roomName(), kind: job.kind, key: job.key, onDrop: true });
     }
   }
 
