@@ -7,7 +7,7 @@ import { ConsoleStepper, type ConsoleStep } from '../components/ConsoleStepper';
 import { GradeTable, ProofBars, ReportCard, RuleList } from '../components/ConsoleReview';
 import type { GradeLine } from '../components/ConsoleReview';
 import { CopyField } from '../components/CopyField';
-import { DemoJoinQr } from '../components/DemoJoinQr';
+import { DemoJoinQr, JoinQrCode } from '../components/DemoJoinQr';
 import { StatusStrip } from '../components/StatusStrip';
 import { ChatLogZ, FiltersZ } from '../lib/contracts';
 import {
@@ -929,6 +929,7 @@ export function Console() {
             <div className="console-share-grid">
               <CopyField label="Join code" value={draft.joinCode} />
               <CopyField label="Mod link" value={draft.modUrl} />
+              {!isDemo && <JoinQrCode url={draft.modUrl} label="QR code for the moderator link" />}
               {!isDemo && overlayUrl && <CopyField label="Overlay URL" value={overlayUrl} />}
               {!isDemo && <button type="button" className="console-button console-button-quiet" disabled={busy} onClick={() => void rotateOverlay()}>Rotate key</button>}
             </div>
@@ -1015,6 +1016,7 @@ export function Console() {
         <div className="console-step-title"><div><p className="console-context">{stepEyebrow(6)}</p><h2 id="proof-step-title">{isDemo ? 'Fresh wave and simulated push' : 'Fresh wave and push'}</h2><p className="console-muted console-step-intro">{isDemo ? 'Check these rules on a held-out wave, then simulate the push in this private room.' : 'Check these rules on a held-out wave before approving changes to Twitch.'}</p></div></div>
         <ProofBars proof={proof} results={pushResults} selectedTerms={selectedTerms} onPush={() => void pushTerms()} onUndo={() => void undoPush()} busy={reviewBusy} canUndo={pushResults.some((item) => item.status === 'added')} demo={isDemo} />
         {report ? <ReportCard report={report} /> : <p className="console-muted console-report-pending" role="status">{reportLoading ? 'Loading the after-action report…' : reportError ?? 'The after-action report is not available yet.'}</p>}
+        <div className="console-step-footer"><Link to="/" className="console-button console-button-quiet">Back to home</Link></div>
       </section>}
     </div>
   </section>;

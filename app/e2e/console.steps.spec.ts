@@ -48,6 +48,8 @@ test('walks the six console steps on the demo path', async ({ page, baseURL }) =
   // 2. Configure
   await expect(page.getByRole('heading', { name: 'Configure', exact: true })).toBeVisible();
   await expectStepper(page, 2, 2);
+  // Demo rooms show the join QR once, in the card above the stepper (not again in the config step).
+  await expect(page.getByRole('img', { name: /^QR code/ })).toHaveCount(1);
   await page.getByRole('button', { name: 'Start drill' }).click();
 
   // 3. Run the drill
@@ -92,4 +94,9 @@ test('walks the six console steps on the demo path', async ({ page, baseURL }) =
   await page.getByRole('navigation', { name: 'Drill steps' }).getByRole('button', { name: 'Step 3: Run the drill', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Drill complete', exact: true })).toBeVisible();
   await expectStepper(page, 3, 6);
+
+  // The final step offers a way back to the home page.
+  await page.getByRole('navigation', { name: 'Drill steps' }).getByRole('button', { name: 'Step 6: Fresh wave and push', exact: true }).click();
+  await page.getByRole('link', { name: 'Back to home' }).click();
+  await expect(page).toHaveURL(/\/$/);
 });
