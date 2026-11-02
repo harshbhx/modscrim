@@ -124,9 +124,14 @@ describe('Twitch grading when Twitch limits or fails', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('{}', { status: 429 }));
       await tick(h);
       expect(h.engine.getGrades(h.drillId).phases.A?.limited).toBe(true);
-      const ids = h.state.storage.sql.exec<{ id: string }>("SELECT id FROM wave_lines WHERE drill_id = ? AND wave = 'A' AND kind = 'attack'", h.drillId).toArray();
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(Response.json({ data: ids.map((row) => ({ msg_id: row.id, is_permitted: true })) }));
+      // Twitch answers exactly the lines it was sent; with GRADING_QUOTA_UNIT "line" a batch is a few lines.
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (_input, init) => {
+        const sent = JSON.parse(String(init?.body)) as { data: Array<{ msg_id: string }> };
+        return Response.json({ data: sent.data.map((row) => ({ msg_id: row.msg_id, is_permitted: true })) });
+      });
       await tick(h, { limited: 1 });
+      expect(h.engine.getGrades(h.drillId).phases.A?.limited).toBeUndefined();
+      for (let round = 0; round < h.total() && (h.engine.getGrades(h.drillId).phases.A?.done ?? 0) < h.total(); round += 1) await tick(h);
       const phase = h.engine.getGrades(h.drillId).phases.A;
       expect(phase).toMatchObject({ done: h.total(), engine: 'twitch' });
       expect(phase?.limited).toBeUndefined();
