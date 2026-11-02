@@ -21,6 +21,7 @@ import { consoleCopy, fill, t } from '../copy';
 import { Chip, Icon } from '../components/ConsoleIcons';
 import { displayName } from '../lib/names';
 import '../styles/console.css';
+import { falseBans } from '../lib/modName.js';
 
 const AutoModLabels: Record<string, string> = {
   overall_level: 'Overall',
@@ -979,7 +980,7 @@ export function Console() {
                 <ol className="console-score-list">{score.mods.map((mod, index) => <li key={mod.participantId}>
                   <span className="console-rank">{index + 1}</span>
                   <strong>{displayName(mod)}</strong>
-                  <span aria-live="polite" aria-atomic="true"><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans</span>
+                  <span aria-live="polite" aria-atomic="true"><span className="console-num">{mod.caught}</span> caught · {falseBans(mod.falseBans)}</span>
                 </li>)}</ol>}
             </section>
             <section className="console-section" aria-labelledby="mods-live-title">
