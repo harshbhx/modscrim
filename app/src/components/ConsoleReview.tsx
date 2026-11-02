@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { validateTerm } from '@mfd/core';
-import { consoleCopy, t } from '../copy';
+import { consoleCopy, fill, t } from '../copy';
 import type { GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../lib/consoleContracts';
 import { displayName } from '../lib/names';
 import { Chip, Icon } from './ConsoleIcons';
@@ -21,6 +21,11 @@ export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, 
 }) {
   const rows = new Map((grades?.lines ?? []).filter((grade) => grade.phase === 'A').map((grade) => [grade.lineId, grade]));
   const share = phase && phase.total > 0 ? Math.round((phase.passed / phase.total) * 100) : 0;
+  // A finished phase is never "in progress", whatever the parent still believes.
+  const finished = Boolean(phase && phase.total > 0 && phase.done >= phase.total);
+  const inProgress = grading && !finished;
+  const limited = Boolean(phase?.limited);
+  const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' });
   return <section className="console-section console-grades" aria-labelledby="grade-table-title">
     <div className="console-section-heading"><h3 id="grade-table-title">Attack line grades</h3>{phase && <span>{phase.done} of {phase.total} · {engineName(phase.engine)}</span>}</div>
     {!phase && <p className="console-empty">Grade the ended drill to see which attack lines pass your filters.</p>}
@@ -31,9 +36,10 @@ export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, 
       </div>
       <div className="console-split-bar" aria-hidden="true"><span className="is-through" style={{ width: `${share}%` }} /><span className="is-blocked" /></div>
     </div>}
-    {grading && <p className="console-muted console-grade-status" role="status"><Icon name="clock" size={14} />{localOnly ? 'Local estimate in progress' : 'Twitch grading in progress'}: {phase?.done ?? 0} of {phase?.total ?? lines.filter((line) => line.tactic).length} checked.</p>}
-    {phase?.nextAt && phase.nextAt > Date.now() && <p className="console-warning" role="status"><Icon name="alert" /><span>Twitch's grading limit for this hour is used up. {phase.engine === 'local' || phase.engine === 'mixed' ? 'Showing a local estimate; ' : ''}Twitch grading resumes at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(phase.nextAt)}.</span></p>}
-    <div className="console-grade-actions">{!localOnly && <button type="button" className="console-button console-button-primary" disabled={busy || grading} onClick={onGradeTwitch}>Grade with Twitch</button>}<button type="button" className={`console-button ${localOnly ? 'console-button-primary' : 'console-button-quiet'}`} disabled={busy} onClick={onGradeLocal}>{localOnly ? 'Run local estimate' : 'Use local estimate now'}</button></div>
+    {inProgress && !limited && <p className="console-muted console-grade-status" role="status"><Icon name="clock" size={14} />{localOnly ? 'Local estimate in progress' : 'Twitch grading in progress'}: {phase?.done ?? 0} of {phase?.total ?? lines.filter((line) => line.tactic).length} checked.</p>}
+    {limited && !localOnly && <p className="console-warning" role="status"><Icon name="alert" /><span>{finished || !phase?.nextAt ? consoleCopy.grade.limitedEstimate : fill(consoleCopy.grade.limitedRetry, { time: timeFormat.format(phase.nextAt) })}</span></p>}
+    {!limited && phase?.nextAt && phase.nextAt > Date.now() && <p className="console-warning" role="status"><Icon name="alert" /><span>Twitch's grading limit for this hour is used up. {phase.engine === 'local' || phase.engine === 'mixed' ? 'Showing a local estimate; ' : ''}Twitch grading resumes at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(phase.nextAt)}.</span></p>}
+    <div className="console-grade-actions">{!localOnly && <button type="button" className="console-button console-button-primary" disabled={busy || inProgress} onClick={onGradeTwitch}>Grade with Twitch</button>}<button type="button" className={`console-button ${localOnly ? 'console-button-primary' : 'console-button-quiet'}`} disabled={busy} onClick={onGradeLocal}>{localOnly ? 'Run local estimate' : 'Use local estimate now'}</button></div>
     <div className="console-table-wrap" tabIndex={0} role="region" aria-label="Attack line grades table"><table className="console-grade-table"><thead><tr><th scope="col">Attack line</th><th scope="col">Tactic</th><th scope="col">Trick</th><th scope="col">Result</th><th scope="col">Engine</th></tr></thead>
       <tbody>{lines.filter((line) => line.tactic).map((line) => {
         const grade = rows.get(line.id);

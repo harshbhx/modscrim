@@ -120,6 +120,33 @@ test.describe('console behaviour', () => {
     noFixtureErrors(mock);
   });
 
+  test('shows a plain notice and unlocks Grade with Twitch when Twitch limits the channel', async ({ page, baseURL }) => {
+    test.setTimeout(120_000);
+    const mock = await setup(page, baseURL, { mode: 'live', room: ROOM });
+    await mock.open(page);
+    await page.getByRole('button', { name: 'Continue to configure' }).click();
+    await page.getByRole('button', { name: 'Start drill' }).click();
+    await page.getByRole('button', { name: 'Stop', exact: true }).click();
+    await page.getByRole('button', { name: 'Continue to Twitch grades' }).click();
+    await expect(page.getByText(/Twitch grading in progress/)).toBeVisible();
+
+    // Twitch answers 429: no more "in progress", a plain notice with the retry time, and no second Twitch request from the button.
+    mock.rateLimitTwitchGrading();
+    const notice = page.getByText(/Twitch is limiting grading for this channel right now\. Trying again at/);
+    await expect(notice).toBeVisible();
+    await expect(page.getByText(/Twitch grading in progress/)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Grade with Twitch' })).toBeDisabled();
+
+    // Twitch keeps limiting: the worker fell back to a local estimate, the table fills, and the user can retry later.
+    mock.fallBackToLocalEstimate();
+    await expect(page.getByText('Twitch is limiting grading for this channel right now. Showing a local estimate. You can try Grade with Twitch again later.')).toBeVisible();
+    await expect(page.getByText(/Twitch grading in progress/)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Grade with Twitch' })).toBeEnabled();
+    await expect(page.getByText(/^11 of 14 attack lines would get past your filters/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Find better rules' })).toBeEnabled();
+    noFixtureErrors(mock);
+  });
+
   test('stepper marks the current step and keeps every step reachable by keyboard', async ({ page, baseURL }) => {
     const mock = await setup(page, baseURL, { mode: 'demo', room: ROOM });
     await mock.open(page);

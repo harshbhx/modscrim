@@ -31,7 +31,7 @@ export interface DrillSnapshot {
 
 export interface GradesView {
   phases: Partial<Record<GradePhase, { done: number; total: number; passed: number;
-                                         engine: Engine | 'mixed'; nextAt?: number }>>;
+                                         engine: Engine | 'mixed'; nextAt?: number; limited?: boolean }>>;
   lines: Grade[];
 }
 

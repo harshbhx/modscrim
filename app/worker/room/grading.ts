@@ -7,7 +7,7 @@ import { HelixError } from '../twitch/helix.js';
 import { TwitchOAuthError } from '../twitch/oauth.js';
 
 const GradePhaseZ = z.enum(['A', 'B-before', 'B-after']);
-const GradeJobZ = z.object({ drillId: z.string().min(1), phase: GradePhaseZ });
+const GradeJobZ = z.object({ drillId: z.string().min(1), phase: GradePhaseZ, limited: z.number().int().min(0).optional() });
 const GradeResponseZ = z.object({
   data: z.array(z.object({ msg_id: z.string().min(1), is_permitted: z.boolean() }))
 });
@@ -21,6 +21,8 @@ const GRADE_BATCH_MAX = 100;
 const DEFAULT_GRADING_BATCH_SIZE = 100;
 const DEFAULT_GRADING_QUOTA_UNIT = 'request' as const;
 const RATE_LIMIT_WAIT_MS = 60_000;
+/** After this many 429s in a row for one phase, stop asking Twitch and show a local estimate. */
+const MAX_RATE_LIMIT_RETRIES = 3;
 const HELIX_TIMEOUT_MS = 4_000;
 
 type GradeDeps = {
@@ -63,8 +65,34 @@ export class GradingEngine {
     return this.deps.ctx.storage.sql;
   }
 
-  register(register: (kind: JobKind, handler: JobHandler) => void): void {
+  register(register: (kind: JobKind, handler: JobHandler) => void, onDropped?: (kind: JobKind, handler: JobHandler) => void): void {
     register('grade.tick', (job) => this.tick(job));
+    // A grade job the scheduler gave up on (5 failed attempts) must not leave the phase pending forever.
+    onDropped?.('grade.tick', (job) => this.fallbackAfterDrop(job));
+  }
+
+  private async fallbackAfterDrop(job: QueueJob): Promise<void> {
+    const parsed = GradeJobZ.safeParse(job.payload);
+    if (!parsed.success) return;
+    const { drillId, phase } = parsed.data;
+    log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'local', fallback: 'job_dropped' });
+    await this.gradeLocally(drillId, phase, 'twitch_limited');
+  }
+
+  private limitedKey(drillId: string, phase: GradePhase): string {
+    return `grade_limited:${gradeKey(drillId, phase)}`;
+  }
+
+  private isLimited(drillId: string, phase: GradePhase): boolean {
+    return this.sql.exec<{ value: string }>('SELECT value FROM meta WHERE key = ?', this.limitedKey(drillId, phase)).toArray().length > 0;
+  }
+
+  private setLimited(drillId: string, phase: GradePhase, limited: boolean): void {
+    if (limited) {
+      this.sql.exec("INSERT INTO meta (key, value) VALUES (?, '1') ON CONFLICT(key) DO UPDATE SET value = '1'", this.limitedKey(drillId, phase));
+    } else {
+      this.sql.exec('DELETE FROM meta WHERE key = ?', this.limitedKey(drillId, phase));
+    }
   }
 
   async requestGrading(drillId: string, rawPhase: GradePhase): Promise<{ queued: number }> {
@@ -91,6 +119,7 @@ export class GradingEngine {
         drillId, phase
       ).one().count;
     });
+    this.setLimited(drillId, phase, false);
     if (queued === 0) {
       this.emitProgress(drillId, phase, this.phaseSummary(drillId, phase, 'twitch'));
       return { queued };
@@ -99,7 +128,7 @@ export class GradingEngine {
     return { queued };
   }
 
-  async gradeLocally(drillId: string, rawPhase: GradePhase): Promise<{ passed: number; total: number }> {
+  async gradeLocally(drillId: string, rawPhase: GradePhase, reason?: 'twitch_limited'): Promise<{ passed: number; total: number }> {
     const phase = GradePhaseZ.parse(rawPhase);
     const now = Date.now();
     const terms = this.deps.blockedTerms();
@@ -131,6 +160,7 @@ export class GradingEngine {
       this.sql.exec("UPDATE grade_queue SET status = 'done' WHERE drill_id = ? AND phase = ?", drillId, phase);
       return { passed, total: lines.length };
     });
+    this.setLimited(drillId, phase, reason === 'twitch_limited');
     await this.deps.scheduler.cancel('grade.tick', gradeKey(drillId, phase));
     this.emitProgress(drillId, phase, this.phaseSummary(drillId, phase, 'local'));
     this.emitDone(drillId, phase, 'local');
@@ -194,7 +224,8 @@ export class GradingEngine {
         total,
         passed,
         engine,
-        ...(pending.n > 0 && pending.due_at !== null ? { nextAt: pending.due_at } : {})
+        ...(pending.n > 0 && pending.due_at !== null ? { nextAt: pending.due_at } : {}),
+        ...(this.isLimited(drillId, phase) ? { limited: true } : {})
       };
     }
     if (totalByPhase.has('B-before')) {
@@ -231,12 +262,13 @@ export class GradingEngine {
     const parsed = GradeJobZ.safeParse(job.payload);
     if (!parsed.success) throw new Error('invalid_grade_payload');
     const { drillId, phase } = parsed.data;
+    const limitedPayload = parsed.data.limited ? { limited: parsed.data.limited } : {};
     const active = this.sql.exec<{ due_at: number | null }>(
       `SELECT MIN(s.due_at) AS due_at FROM drills d JOIN schedule s ON s.kind = 'drill.end' AND s.key = d.id
         WHERE d.status = 'running'`
     ).one().due_at;
     if (active !== null) {
-      await this.deps.scheduler.schedule('grade.tick', job.key, Math.max(active, job.now + 1), { drillId, phase });
+      await this.deps.scheduler.schedule('grade.tick', job.key, Math.max(active, job.now + 1), { drillId, phase, ...limitedPayload });
       this.emitProgress(drillId, phase, this.phaseSummary(drillId, phase, 'twitch', Math.max(active, job.now + 1)));
       return;
     }
@@ -288,7 +320,7 @@ export class GradingEngine {
     ).toArray();
     const dueAt = nextAllowedAt(sends, job.now, limits, units);
     if (dueAt > job.now) {
-      await this.deps.scheduler.schedule('grade.tick', job.key, dueAt, { drillId, phase });
+      await this.deps.scheduler.schedule('grade.tick', job.key, dueAt, { drillId, phase, ...limitedPayload });
       this.emitProgress(drillId, phase, this.phaseSummary(drillId, phase, 'twitch', dueAt));
       return;
     }
@@ -331,8 +363,16 @@ export class GradingEngine {
       const remaining = this.headerNumber(response, 'Ratelimit-Remaining');
       const reset = this.headerNumber(response, 'Ratelimit-Reset');
       const retryAt = remaining === 0 && reset !== null ? Math.max(now + 1_000, reset * 1000) : now + RATE_LIMIT_WAIT_MS;
-      await this.deps.scheduler.schedule('grade.tick', job.key, retryAt, { drillId, phase });
-      log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'twitch', status: 429, units, quotaUnit: unit, retryAt });
+      const limited = (parsed.data.limited ?? 0) + 1;
+      log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'twitch', status: 429, units, quotaUnit: unit, retryAt, limited });
+      if (limited >= MAX_RATE_LIMIT_RETRIES) {
+        // Twitch keeps limiting this channel: show a labelled local estimate instead of waiting forever.
+        log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'local', fallback: 'rate_limited', limited });
+        await this.gradeLocally(drillId, phase, 'twitch_limited');
+        return;
+      }
+      this.setLimited(drillId, phase, true);
+      await this.deps.scheduler.schedule('grade.tick', job.key, retryAt, { drillId, phase, limited });
       this.emitProgress(drillId, phase, this.phaseSummary(drillId, phase, 'twitch', retryAt));
       return;
     }
@@ -358,6 +398,7 @@ export class GradingEngine {
         this.sql.exec("UPDATE grade_queue SET status = 'done' WHERE line_id = ? AND phase = ?", line.id, phase);
       }
     });
+    this.setLimited(drillId, phase, false);
     log('grade.send', { room: this.deps.roomName(), drill: drillId, phase, engine: 'twitch', status: response.status, units, quotaUnit: unit, count: batch.length });
     await this.finishIfComplete(drillId, phase, 'twitch', gradedAt);
   }
@@ -396,7 +437,8 @@ export class GradingEngine {
       done: summary.done,
       total: summary.total,
       engine: summary.engine,
-      ...(summary.nextAt === undefined ? {} : { nextAt: summary.nextAt })
+      ...(summary.nextAt === undefined ? {} : { nextAt: summary.nextAt }),
+      ...(this.isLimited(drillId, phase) ? { limited: true } : {})
     } satisfies Extract<import('@mfd/core').ServerMsg, { type: 'grade.progress' }>['data'];
     broadcast(this.deps.ctx, (role) => role === 'console' ? { type: 'grade.progress', data } : null);
   }

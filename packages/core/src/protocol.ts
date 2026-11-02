@@ -19,7 +19,7 @@ export type ServerMsg =
   | { type: 'drill.ended'; data: { score: DrillScore; reveal?: Reveal[] } }
   | { type: 'action.rejected'; data: { lineId: string; reason: 'taken' | 'slipped' | 'not_shown' | 'ended' | 'not_participant'; by?: string } }
   | { type: 'participants'; data: Array<{ id: string; name: string; isSim: boolean; online: boolean }> }
-  | { type: 'grade.progress'; data: { phase: GradePhase; done: number; total: number; engine: Engine | 'mixed'; nextAt?: number } }
+  | { type: 'grade.progress'; data: { phase: GradePhase; done: number; total: number; engine: Engine | 'mixed'; nextAt?: number; limited?: boolean } }
   | { type: 'grade.done'; data: { phase: GradePhase; passed: number; total: number; engine: Engine | 'mixed' } }
   | { type: 'push.result'; data: PushResult }
   | { type: 'report.ready'; data: { drillId: string; card: ReportCard } }

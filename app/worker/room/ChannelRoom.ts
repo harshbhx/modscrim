@@ -142,7 +142,7 @@ export class ChannelRoom extends DurableObject<Env> {
     this.scheduler.register('drill.end', (job) => this.drills.end(job));
     this.scheduler.register('sim.act', (job) => this.drills.simAct(job));
     this.scheduler.register('vote.close', (job) => this.drills.closeVote(job));
-    this.grading.register((kind, handler) => this.scheduler.register(kind, handler));
+    this.grading.register((kind, handler) => this.scheduler.register(kind, handler), (kind, handler) => this.scheduler.registerDropped(kind, handler));
     // Demo rooms delete themselves 2 hours after their last activity (FR-38).
     this.scheduler.register('room.gc', (job) => this.demoGc(job.now));
     // Report export (FR-27, P1): live rooms with the bindings send the latest report to the Queue.
