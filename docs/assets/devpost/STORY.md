@@ -157,7 +157,7 @@ A fire drill should have no fire. Each of these is enforced in code and covered 
 
 ## Challenges
 
-- **Twitch said "slow down" while our counter said "go".** In production, Check AutoMod Status answered 429 for a channel while our quota counter still showed room, and the console sat on "0 of 14 checked". We now count 429s per phase, fall back to a labelled local estimate after three in a row, and tell the streamer that Twitch is limiting grading.
+- **Twitch said "slow down" while our counter said "go".** In production, Check AutoMod Status answered 429 for a channel while our quota counter still showed room, and the console sat on "0 of 14 checked". The cause: we sent a whole phase in one request, and Twitch counts the limit per line. We now pace requests a few lines a minute, count 429s per phase, fall back to a labelled local estimate after three in a row, and tell the streamer what is happening. On our own channel the next drill graded 14 of 14 lines with Twitch.
 - **One alarm per Durable Object.** A drill needs a line clock, grading ticks, report jobs and clean-up. We multiplexed them all through one `schedule` table and made every job safe to run twice.
 - **Redaction had to be structural.** "Do not show attack text on stream" is easy to break by accident, so the overlay message schema is strict and anything readable fails to build.
 - **Proving a rule without overfitting it.** Testing proposed terms on the same lines they were learned from would flatter them, so the proof uses a held-out wave with a different seed and different tricks.
@@ -170,7 +170,8 @@ A fire drill should have no fire. Each of these is enforced in code and covered 
 
 ## Honest scope
 
-- **The live day-0 Twitch validation is not complete.** The run that measures the grading quota and Twitch's matching on a real test channel has not been recorded, so **we make no claim of measured improvement on a real channel.** The only recorded result is a fixture-only dry run.
+- **Twitch grading works on a real channel:** a drill on our own channel was graded 14 of 14 lines by Twitch.
+- **The full day-0 validation is not complete.** The run that measures Twitch's matching against our local engine on a test channel has not been recorded, so **we make no claim of measured improvement on a real channel.** The only recorded improvement numbers come from a fixture-only dry run.
 - **Demo grading is a local estimate**, not a Twitch grade.
 - **Only public blocked terms are visible.** Twitch does not return private terms to apps.
 - **Two engines can disagree.** Twitch also applies AutoMod categories and permitted terms, which the local matcher does not model.
