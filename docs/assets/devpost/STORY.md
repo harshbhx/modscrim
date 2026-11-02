@@ -29,8 +29,6 @@ Twitch mod teams are volunteers, and **the only practice most of them get is a r
 
 ## How it uses Twitch
 
-![The Twitch calls ModScrim makes: read, grade, write with approval, listen](https://raw.githubusercontent.com/harshbhx/modscrim/devpost-media/docs/assets/devpost/twitch.png)
-
 - **Sign in** with Twitch OAuth; tokens are sealed and never leave the server.
 - **Read** blocked terms and AutoMod settings. AutoMod is read-only: we never call its update endpoint.
 - **Grade** with Check AutoMod Status, paced to Twitch's per-channel limits. If Twitch keeps refusing, the rest is graded locally and labelled "local estimate".
@@ -45,13 +43,9 @@ One Worker serves the API and the React app. Each channel gets one **Durable Obj
 
 ## How we built it with OpenAI Codex
 
-![Specs first, rules in AGENTS.md, tickets, tests first, human review, a written log](https://raw.githubusercontent.com/harshbhx/modscrim/devpost-media/docs/assets/devpost/built-with-codex.png)
-
 We treated Codex as a teammate that needs a precise brief, so we wrote the brief first. A PRD and an SRS are the source of truth, and `AGENTS.md` tells Codex which spec wins, which safety rules it must never break, and that it may not add anything the specs do not list. Work was split into numbered tickets; Codex wrote the tests first, watched them fail, then implemented. We reviewed, tested and decided, and `docs/LOG.md` keeps the trail. Today `npm test` runs 119 tests, and Playwright runs the full demo loop and the safety checks against the live app.
 
 ## Safety
-
-![Eight safety promises, each enforced in code](https://raw.githubusercontent.com/harshbhx/modscrim/devpost-media/docs/assets/devpost/safety-promises.png)
 
 A fire drill should have no fire. Attack lines are never posted to Twitch chat. Every generated link ends in `.invalid`, and slurs exist only as placeholders drawn as blocks. Viewers on stream see the practice chat as blurred bars, never readable attacks. Nothing reaches Twitch without the streamer's approval, and every push can be undone.
 
