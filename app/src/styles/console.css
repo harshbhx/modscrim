@@ -466,6 +466,7 @@
 .console-config-lower > :only-child { grid-column: 1 / -1; }
 .console-share-grid { display: grid; gap: var(--space-4); }
 .console-share-grid > .console-button { justify-self: start; }
+.console-share-grid > .demo-join-qr { justify-self: start; }
 .console-copy-field { min-width: 0; }
 .console-copy-field label { display: block; margin-bottom: var(--space-1); color: var(--text-muted); font: 600 13px/1.4 var(--font-body); }
 .console-copy-field > div { display: flex; min-width: 0; gap: var(--space-2); }

@@ -45,6 +45,9 @@ async function walkThrough(page: Page, mock: ConsoleMock, mode: ConsoleMode, sho
   await expect(page.getByRole('heading', { name: 'Configure', exact: true })).toBeVisible();
   await expect(page.getByText('Draft ready')).toBeVisible();
   await expect(page.getByLabel('Join code')).toHaveValue('482915');
+  // One join QR per mode: live channels get it in this step, demo rooms keep the card above the stepper.
+  await expect(page.getByRole('img', { name: 'QR code for the moderator link' })).toHaveCount(demo ? 0 : 1);
+  await expect(page.getByRole('img', { name: 'QR code for the demo moderator link' })).toHaveCount(demo ? 1 : 0);
   await shot('2-configure');
 
   await page.getByRole('button', { name: 'Start drill' }).click();
@@ -86,6 +89,9 @@ async function walkThrough(page: Page, mock: ConsoleMock, mode: ConsoleMode, sho
   await expect(page.getByText(demo ? 'Added to this demo only' : 'Added to Twitch', { exact: true }).first()).toBeVisible();
   await shot('6-pushed');
   noFixtureErrors(mock);
+
+  await page.getByRole('link', { name: 'Back to home' }).click();
+  await expect(page).toHaveURL(/\/$/);
 }
 
 for (const mode of ['live', 'demo'] as const) {
