@@ -6,6 +6,7 @@ import { useRoom } from '../lib/useRoom.js';
 import { copy } from '../copy.js';
 import { displayName } from '../lib/names.js';
 import { PracticeChat, Scoreboard, type DrillActionEvent } from '../components/ModPractice.js';
+import { falseBans } from '../lib/modName.js';
 
 const ChannelInfoZ = z.object({ broadcasterId: z.string(), displayName: z.string(), avatarUrl: z.string().nullable(), drillOpen: z.boolean() });
 const JoinResultZ = z.object({ participantId: z.string(), participantToken: z.string(), ticket: z.string(), wsUrl: z.string() });
@@ -179,11 +180,11 @@ export function Mod() {
         <aside className="mod-side-column" aria-label="Team status">
           <Scoreboard score={drill.score} participantId={session.participantId} />
           <ParticipantList participants={room.snapshot?.participants ?? []} />
-          {drill.status === 'ended' && <section className="mod-own-result"><h2>Your result</h2><p>{ownScore?.caught ?? 0} attacks caught</p><p>{ownScore?.falseBans ?? 0} false bans</p>
+          {drill.status === 'ended' && <section className="mod-own-result"><h2>Your result</h2><p>{ownScore?.caught ?? 0} attacks caught</p><p>{falseBans(ownScore?.falseBans ?? 0)}</p>
             <p>Average reaction: {ownScore?.avgReactionMs == null ? '—' : (ownScore.avgReactionMs / 1000).toFixed(1) + ' s'}</p>
             {ownHistory && <><h3>History across drills</h3><ol>{ownHistory.drills.map((item, index) => <li key={item.drillId}>
               <span>Drill {index + 1}</span>
-              <span>{item.caught} caught · {item.falseBans} false bans · {item.avgReactionMs == null ? '—' : (item.avgReactionMs / 1000).toFixed(1) + ' s average'}</span>
+              <span>{item.caught} caught · {falseBans(item.falseBans)} · {item.avgReactionMs == null ? '—' : (item.avgReactionMs / 1000).toFixed(1) + ' s average'}</span>
             </li>)}</ol></>}</section>}
         </aside>
       </div>}

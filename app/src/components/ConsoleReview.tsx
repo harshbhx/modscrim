@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { validateTerm } from '@mfd/core';
 import { consoleCopy, fill, t } from '../copy';
 import type { GradesView, ProofResult, PushResult, ReportView, RuleResult } from '../lib/consoleContracts';
+import { falseBans } from '../lib/modName.js';
 import { displayName } from '../lib/names';
 import { Chip, Icon } from './ConsoleIcons';
 
@@ -169,8 +170,8 @@ export function ReportCard({ report }: { report: ReportView }) {
     </div>
     <div className="console-report-grid">
       <div>
-        <h4>Moderator scores</h4>{report.score.mods.length === 0 ? <p className="console-empty">No mods took part.</p> : <ul className="console-score-list">{report.score.mods.map((mod) => <li key={mod.participantId}><strong>{displayName(mod)}</strong><span><span className="console-num">{mod.caught}</span> caught · <span className="console-num">{mod.falseBans}</span> false bans · {reaction(mod.avgReactionMs)}</span></li>)}</ul>}
-        {report.modHistory && report.modHistory.length > 0 && <><h4>Moderator history across drills</h4><ul className="console-score-list">{report.modHistory.map((mod) => <li key={mod.name}><strong>{mod.name}</strong><span className="console-history">{mod.drills.map((item, index) => <span key={item.drillId}>{`Drill ${index + 1}: ${item.caught} caught · ${item.falseBans} false bans · ${reaction(item.avgReactionMs)}`}</span>)}</span></li>)}</ul></>}
+        <h4>Moderator scores</h4>{report.score.mods.length === 0 ? <p className="console-empty">No mods took part.</p> : <ul className="console-score-list">{report.score.mods.map((mod) => <li key={mod.participantId}><strong>{displayName(mod)}</strong><span><span className="console-num">{mod.caught}</span> caught · {falseBans(mod.falseBans)} · {reaction(mod.avgReactionMs)}</span></li>)}</ul>}
+        {report.modHistory && report.modHistory.length > 0 && <><h4>Moderator history across drills</h4><ul className="console-score-list">{report.modHistory.map((mod) => <li key={mod.name}><strong>{mod.name}</strong><span className="console-history">{mod.drills.map((item, index) => <span key={item.drillId}>{`Drill ${index + 1}: ${item.caught} caught · ${falseBans(item.falseBans)} · ${reaction(item.avgReactionMs)}`}</span>)}</span></li>)}</ul></>}
       </div>
       <div>
         {report.rules && <>

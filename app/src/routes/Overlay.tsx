@@ -79,7 +79,7 @@ function Scoreboard({ snapshot }: { snapshot: DrillSnapshot | null }) {
       </p>
       <ol>
         {rows.map((mod) => <li key={mod.participantId}>
-          <span className="overlay-mod-name">{mod.name}{mod.isSim && <em>{o.sim}</em>}</span>
+          <span className="overlay-mod-name">{mod.name.replace(/\s*\(sim\)\s*$/i, '')}{mod.isSim && <em>{o.sim}</em>}</span>
           <span className="overlay-mod-num overlay-mod-caught">{mod.caught}</span>
           <span className="overlay-mod-num">{mod.falseBans}</span>
           <span className="overlay-mod-num overlay-mod-time">{formatReaction(mod.avgReactionMs)}</span>
