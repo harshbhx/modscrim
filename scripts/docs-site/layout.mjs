@@ -122,7 +122,7 @@ export function page(p) {
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ModScrim">
 <meta property="og:url" content="https://modscrim.dualmindlab.tech/${rel.replace(/\/index$/, '/')}">
-<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image.png">
+<meta property="og:image" content="https://modscrim.dualmindlab.tech/og-image-v2.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://modscrim.dualmindlab.tech/${rel.replace(/\/index$/, '/')}">
 <link rel="icon" href="${prefix}favicon.ico" sizes="32x32">
