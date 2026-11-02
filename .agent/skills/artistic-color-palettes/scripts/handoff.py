@@ -746,7 +746,7 @@ def path_inside_protected(path: Path) -> bool:
     home = _norm(Path.home())
     if not _within(c, home) or c == home:
         return False
-    first = Path(c[len(home):].lstrip("\/")).parts
+    first = Path(c[len(home):].lstrip("\\/")).parts
     return bool(first) and first[0].startswith(".")
 
 
