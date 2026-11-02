@@ -311,12 +311,12 @@ ModScrim was built in one hackathon sprint by two people who think mod teams des
     <td align="center" width="50%">
       <a href="https://github.com/harshbhx"><img src="https://github.com/harshbhx.png?size=120" width="96" height="96" alt="Harsh Bhanushali's GitHub avatar"><br><b>Harsh Bhanushali</b></a><br>
       <sub>@harshbhx</sub><br><br>
-      Everything on Cloudflare (the Worker, Durable Objects, D1, cron, Queues, R2 and deploy) and the website.
+      The Cloudflare platform and deploy, the website, much of the web app and Worker (including Twitch grading), CI, the docs, and the launch (Devpost, release).
     </td>
     <td align="center" width="50%">
       <a href="https://github.com/DhairyaPatel-Devloper"><img src="https://github.com/DhairyaPatel-Devloper.png?size=120" width="96" height="96" alt="Dhairya Patel's GitHub avatar"><br><b>Dhairya Patel</b></a><br>
       <sub>@DhairyaPatel-Devloper</sub><br><br>
-      The core engine, the Twitch integration, the web app, all testing, CI and the launch.
+      The core engine and the drill, the Twitch integration, web app screens, the test suites, and the launch video.
     </td>
   </tr>
 </table>
