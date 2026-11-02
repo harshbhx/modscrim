@@ -1,0 +1,50 @@
+name: Feature request
+description: Suggest a change or a new capability for ModScrim.
+title: "Idea: "
+labels: ["type: feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Scope is set by the [PRD](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/PRD.md), so start with the problem rather than the solution.
+        ModScrim's safety rules never bend: nothing generated is sent to Twitch chat, links end in `.invalid`, the overlay stays redacted and no term reaches Twitch without the streamer's approval.
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who is this for?
+      options:
+        - Streamers
+        - Moderators
+        - Viewers (overlay)
+        - Developers and contributors
+        - Someone else
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What is hard or impossible today?
+      placeholder: My mod team cannot see how their reaction time changes from drill to drill...
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would you like ModScrim to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched the existing issues and [open questions](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/open-questions.md).
+          required: true
+        - label: The idea keeps every safety rule in [Safety](https://github.com/harshbhx/modscrim/blob/main/docs/safety.md).
+          required: true
