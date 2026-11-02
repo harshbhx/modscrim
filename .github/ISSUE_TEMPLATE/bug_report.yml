@@ -1,0 +1,65 @@
+name: Bug report
+description: Something in ModScrim does not work as documented.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please **do not** report security problems here; follow [SECURITY.md](https://github.com/harshbhx/modscrim/blob/main/SECURITY.md) instead.
+        Never paste a Twitch token, a secret or real chat text into this form.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did it happen?
+      options:
+        - Demo room (/demo)
+        - Streamer console (/console)
+        - Mod view (/mod/:channel)
+        - OBS overlay (/overlay/:channel)
+        - After-action report (/r/:reportId)
+        - Twitch sign-in, grading or push
+        - Website (modscrim.dualmindlab.tech)
+        - Local development or tests
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead.
+      placeholder: After pressing Approve and push, the Undo button stayed disabled...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: A demo room is the easiest way to show it, because it needs no account.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser, device and screen width
+      placeholder: Firefox 133 on Windows 11, 1440 px
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output or screenshots
+      description: Remove anything that looks like a token or real chat text first.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched the existing issues and the [troubleshooting guide](https://github.com/harshbhx/modscrim/blob/main/docs/troubleshooting.md).
+          required: true
+        - label: This report contains no token, secret or real chat text.
+          required: true
