@@ -388,7 +388,7 @@ The project is an entry in the Codex x TwitchCon hackathon, which requires the w
 - **Tickets, tests first.** Work is split into numbered tickets on the project board. Agents write the tests the SRS names, watch them fail, then implement; `npm test` and `npm run typecheck` must pass.
 - **Humans review and decide.** The PRD describes the builder as Codex writing most of the code from SRS tickets, with humans reviewing, testing and deciding. Commits are authored by the human builders.
 - **A written trail.** [`docs/LOG.md`](docs/LOG.md) records decisions, day-0 results and a note per working session.
-- **What is recorded so far.** [`docs/LOG.md`](docs/LOG.md) lists one Codex session (core and worker, 30 October 2026, tickets T-01, T-02, T-37 and T-38) and dated session notes with their test evidence.
+- **What is recorded so far.** [`docs/LOG.md`](docs/LOG.md) lists two Codex sessions (Harsh's core and worker session from 30 October 2026, and Dhairya's main build thread) and dated session notes with their test evidence.
 - **No AI at runtime.** The attack engine, rule finder and scoring are deterministic code, and no paid AI call is made when the app runs.
 
 Codex session IDs are recorded in `docs/LOG.md` and provided in the Devpost entry.
