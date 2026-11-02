@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ModScrim Devpost cards</title>
+<style>
+@font-face { font-family: "Big Shoulders"; src: url("../../../../site/fonts/BigShoulders-Variable.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Atkinson Next"; src: url("../../../../site/fonts/AtkinsonHyperlegibleNext-Variable.woff2") format("woff2"); font-weight: 200 800; }
+@font-face { font-family: "Atkinson Mono"; src: url("../../../../site/fonts/AtkinsonHyperlegibleMono-Variable.woff2") format("woff2"); font-weight: 200 800; }
+:root {
+  --wall: #123d2e; --dugout: #0b2a1f; --deep: #051a12; --chalk: #eef1e8; --cream: #f6f3ea;
+  --paper: #ffffff; --orange: #ff6a1f; --orange-dark: #c94a0c; --yellow: #ffd23f;
+  --ok: #1d8742; --bad: #c9302d; --line: #cfd8cc; --muted: #4a6458;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #888; font-family: "Atkinson Next", sans-serif; color: var(--wall); }
+.card { width: 1200px; height: 675px; position: relative; overflow: hidden; background: var(--cream); margin: 0 0 40px; padding: 56px 64px; }
+.card.tall { height: 800px; }
+.card::before { /* chalk pitch markings */
+  content: ""; position: absolute; inset: 22px; border: 2px solid rgba(18,61,46,.10); border-radius: 18px; pointer-events: none;
+}
+.dark { background: var(--wall); color: var(--chalk); }
+.dark::before { border-color: rgba(238,241,232,.12); }
+.disp { font-family: "Big Shoulders", sans-serif; font-weight: 800; letter-spacing: .005em; line-height: .92; text-transform: none; }
+.mono { font-family: "Atkinson Mono", monospace; }
+.kicker { font-family: "Atkinson Mono", monospace; font-size: 17px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange-dark); }
+.dark .kicker { color: #ff844a; }
+h1.disp { font-size: 74px; }
+h2.disp { font-size: 58px; margin-top: 10px; }
+.or { color: var(--orange); }
+.dark .or { color: #ff844a; }
+.brand { position: absolute; right: 56px; bottom: 44px; display: flex; align-items: center; gap: 10px; font-family: "Big Shoulders"; font-weight: 800; font-size: 26px; }
+.brand img { width: 34px; height: 34px; }
+.foot { position: absolute; left: 64px; bottom: 46px; font-family: "Atkinson Mono"; font-size: 15px; color: var(--muted); }
+.dark .foot { color: #a9bdb2; }
+.pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-family: "Atkinson Mono"; font-size: 14px; font-weight: 700; letter-spacing: .04em; }
+.p-ok { background: #dcefe1; color: #145f2f; border: 1.5px solid #1d8742; }
+.p-bad { background: #f9dedc; color: #9b2220; border: 1.5px solid #c9302d; }
+.p-warn { background: #fff1c4; color: #6b4d00; border: 1.5px solid #c99a00; }
+.p-dark { background: var(--dugout); color: var(--chalk); }
+.p-orange { background: var(--orange); color: var(--dugout); border: 2px solid var(--dugout); }
+
+/* ---------- hero ---------- */
+#hero { background: var(--wall); color: var(--chalk); display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+#hero::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: rgba(238,241,232,.07); }
+#hero .circle { position: absolute; width: 420px; height: 420px; border: 2px solid rgba(238,241,232,.07); border-radius: 50%; left: 390px; top: 128px; }
+#hero h1 { font-size: 96px; color: var(--chalk); }
+#hero h1 .or { color: var(--orange); }
+#hero .sub { font-size: 25px; line-height: 1.38; margin-top: 22px; color: #d5ded7; max-width: 560px; }
+#hero .logo { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; font-family: "Big Shoulders"; font-weight: 800; font-size: 40px; }
+#hero .logo img { width: 54px; }
+.chat { background: var(--dugout); border-radius: 16px; border: 2px solid rgba(238,241,232,.14); padding: 18px; position: relative; z-index: 1; box-shadow: 0 24px 50px rgba(0,0,0,.25); }
+.chat .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.chat .tag { background: var(--yellow); color: var(--dugout); font-family: "Atkinson Mono"; font-weight: 700; font-size: 13px; padding: 4px 10px; border-radius: 6px; letter-spacing: .08em; }
+.chat .clock { font-family: "Atkinson Mono"; font-size: 15px; color: #a9bdb2; }
+.msg { display: flex; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 8px; font-size: 17px; margin-bottom: 6px; background: rgba(238,241,232,.04); }
+.msg .u { font-weight: 700; color: #9fd8b6; white-space: nowrap; }
+.msg .t { flex: 1; color: var(--chalk); font-family: "Atkinson Mono"; font-size: 15.5px; }
+.msg.atk { background: rgba(255,106,31,.13); border-left: 4px solid var(--orange); }
+.msg.atk .u { color: #ffb48a; }
+.msg.done { opacity: .45; text-decoration: line-through; }
+.msg .k { font-family: "Atkinson Mono"; font-size: 12px; padding: 2px 7px; border-radius: 4px; background: var(--chalk); color: var(--dugout); font-weight: 700; }
+.score { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
+.score div { background: var(--deep); border-radius: 8px; text-align: center; padding: 8px 4px; }
+.score b { display: block; font-family: "Big Shoulders"; font-size: 34px; line-height: 1; }
+.score span { font-family: "Atkinson Mono"; font-size: 12px; color: #a9bdb2; letter-spacing: .08em; }
+
+/* ---------- problem ---------- */
+#problem .cols { display: grid; grid-template-columns: 330px 1fr; gap: 34px; margin-top: 30px; }
+.filter { background: var(--wall); color: var(--chalk); border-radius: 16px; padding: 26px; }
+.filter .lbl { font-family: "Atkinson Mono"; font-size: 14px; letter-spacing: .12em; color: #a9bdb2; }
+.filter .term { font-family: "Atkinson Mono"; font-size: 30px; font-weight: 700; margin: 10px 0 18px; background: var(--deep); padding: 12px 14px; border-radius: 10px; border: 2px dashed rgba(255,210,63,.6); color: var(--yellow); }
+.filter p { font-size: 18px; line-height: 1.45; color: #d5ded7; }
+.rows { display: flex; flex-direction: column; gap: 11px; }
+.row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 13px 18px; }
+.row .line { font-family: "Atkinson Mono"; font-size: 17px; }
+.row .trick { font-size: 14.5px; color: var(--muted); margin-top: 3px; }
+.row.slip { border-color: #e6a48f; }
+.stat { display: flex; gap: 28px; margin-top: 22px; }
+.stat > div { flex: 1; font-size: 16px; line-height: 1.4; color: var(--muted); border-left: 4px solid var(--orange); padding-left: 14px; }
+.stat b { color: var(--wall); font-family: "Big Shoulders"; font-size: 30px; display: block; line-height: 1; }
+
+/* ---------- loop ---------- */
+#loop .phases { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; margin-top: 30px; }
+.phase { border-radius: 18px; padding: 24px 24px 20px; background: var(--paper); border: 2px solid var(--line); position: relative; }
+.phase h3 { font-family: "Big Shoulders"; font-size: 50px; font-weight: 800; line-height: 1; }
+.phase .tl { font-size: 17px; color: var(--muted); margin: 6px 0 16px; }
+.phase ol { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.phase li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; font-size: 17px; line-height: 1.32; }
+.phase li .n { width: 34px; height: 34px; border-radius: 50%; background: var(--wall); color: var(--chalk); display: grid; place-items: center; font-family: "Big Shoulders"; font-weight: 800; font-size: 20px; }
+.phase li b { display: block; }
+.phase.p2 { background: var(--wall); color: var(--chalk); border-color: var(--wall); }
+.phase.p2 .tl { color: #b9cbc1; }
+.phase.p2 li .n { background: var(--orange); color: var(--dugout); }
+.phase.p3 { border-color: var(--orange); }
+.phase.p3 li .n { background: var(--orange); color: var(--dugout); }
+.arrow { position: absolute; right: -24px; top: 34px; width: 26px; height: 26px; z-index: 2; color: var(--orange); font-size: 30px; font-weight: 800; line-height: 26px; }
+
+/* ---------- architecture ---------- */
+#arch svg text { font-family: "Atkinson Next"; }
+
+/* ---------- codex ---------- */
+#codex .steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 34px; }
+.st { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 18px 16px; min-height: 300px; position: relative; }
+.st .n { font-family: "Big Shoulders"; font-size: 54px; font-weight: 800; color: var(--orange); line-height: 1; }
+.st h4 { font-family: "Big Shoulders"; font-size: 28px; font-weight: 800; margin: 8px 0 10px; line-height: 1; }
+.st p { font-size: 15.5px; line-height: 1.4; color: #33503f; }
+.st code { font-family: "Atkinson Mono"; font-size: 14px; background: var(--chalk); padding: 1px 5px; border-radius: 4px; }
+.st.hum { background: var(--wall); color: var(--chalk); border-color: var(--wall); }
+.st.hum p { color: #d5ded7; }
+.st.hum code { background: var(--deep); color: var(--chalk); }
+.sess { margin-top: 22px; display: flex; gap: 14px; align-items: center; font-size: 15px; color: var(--muted); }
+.sess .mono { font-size: 14px; background: var(--paper); border: 1.5px solid var(--line); padding: 5px 10px; border-radius: 8px; color: var(--wall); }
+
+/* ---------- safety ---------- */
+#safety .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 30px; }
+.pr { background: var(--dugout); border: 2px solid rgba(238,241,232,.14); border-radius: 16px; padding: 20px 18px; min-height: 200px; }
+.pr .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--orange); color: var(--dugout); display: grid; place-items: center; font-family: "Big Shoulders"; font-weight: 800; font-size: 26px; margin-bottom: 14px; }
+.pr h4 { font-family: "Big Shoulders"; font-size: 29px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+.pr p { font-size: 15.5px; line-height: 1.42; color: #c7d5cc; }
+.pr code { font-family: "Atkinson Mono"; font-size: 14px; color: var(--yellow); }
+.blk { display: inline-block; width: 52px; height: 15px; background: var(--chalk); vertical-align: middle; border-radius: 2px; }
+
+/* ---------- tests ---------- */
+#tests { background: var(--cream); display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+#tests h1 { font-size: 104px; line-height: .9; }
+#tests .lead { font-size: 22px; line-height: 1.45; margin-top: 22px; color: #33503f; max-width: 500px; }
+.big { background: var(--wall); color: var(--chalk); border-radius: 20px; padding: 30px; }
+.big .num { font-family: "Big Shoulders"; font-weight: 800; font-size: 150px; line-height: .85; color: var(--orange); }
+.big .cap { font-family: "Atkinson Mono"; letter-spacing: .12em; font-size: 15px; color: #a9bdb2; margin-top: 8px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+.split div { background: var(--deep); border-radius: 12px; padding: 14px 16px; }
+.split b { font-family: "Big Shoulders"; font-size: 52px; font-weight: 800; display: block; line-height: 1; }
+.split span { font-size: 15px; color: #c7d5cc; line-height: 1.35; display: block; margin-top: 4px; }
+.extra { margin-top: 16px; font-size: 15px; color: #c7d5cc; line-height: 1.5; }
+
+/* ---------- outro ---------- */
+#outro { background: var(--wall); color: var(--chalk); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#outro .circle { position: absolute; width: 520px; height: 520px; border: 2px solid rgba(238,241,232,.07); border-radius: 50%; left: 340px; top: 78px; }
+#outro::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: rgba(238,241,232,.06); }
+#outro > * { position: relative; z-index: 1; }
+#outro img.mk { width: 92px; margin-bottom: 18px; }
+#outro h1 { font-size: 92px; }
+#outro .sub { font-size: 24px; color: #d5ded7; margin-top: 16px; }
+#outro .links { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; justify-content: center; }
+#outro .links span { font-family: "Atkinson Mono"; font-size: 17px; padding: 10px 16px; border-radius: 10px; background: var(--dugout); border: 2px solid rgba(238,241,232,.16); }
+#outro .links span.cta { background: var(--orange); color: var(--dugout); border-color: var(--dugout); font-weight: 700; }
+#outro .names { margin-top: 30px; font-size: 18px; color: #a9bdb2; }
+#outro .names b { color: var(--chalk); }
+
+/* ---------- twitch ---------- */
+#twitch .tw { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
+.tc { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 20px 18px; }
+.tc .lbl { font-family: "Atkinson Mono"; font-size: 14px; font-weight: 700; letter-spacing: .12em; color: var(--muted); }
+.tc h4 { font-family: "Big Shoulders"; font-size: 34px; font-weight: 800; line-height: 1; margin: 6px 0 14px; }
+.tc ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.tc li { font-size: 16px; line-height: 1.35; }
+.tc li code { font-family: "Atkinson Mono"; font-size: 13.5px; background: var(--chalk); padding: 1px 5px; border-radius: 4px; }
+.tc.hot { border-color: var(--orange); border-width: 2.5px; }
+.tc.dk { background: var(--wall); color: var(--chalk); border-color: var(--wall); }
+.tc.dk .lbl { color: #a9bdb2; }
+.tc.dk li code { background: var(--deep); color: var(--chalk); }
+.quota { margin-top: 18px; display: grid; grid-template-columns: auto repeat(3, 1fr); gap: 0; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; font-size: 16px; }
+.quota div { padding: 10px 16px; border-right: 1px solid var(--line); }
+.quota .h { font-family: "Atkinson Mono"; font-size: 13px; letter-spacing: .1em; color: var(--muted); font-weight: 700; background: var(--chalk); }
+.quota b { font-family: "Big Shoulders"; font-size: 24px; }
+.never { margin-top: 16px; display: flex; gap: 12px; align-items: center; font-size: 16px; }
+/* ---------- different ---------- */
+#different .dg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 30px; }
+.dd { background: var(--paper); border: 2px solid var(--line); border-radius: 16px; padding: 22px 22px; border-top: 8px solid var(--orange); }
+.dd h4 { font-family: "Big Shoulders"; font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 10px; }
+.dd p { font-size: 17px; line-height: 1.42; color: #33503f; }
+.dd.g { border-top-color: var(--wall); }
+</style>
+</head>
+<body>
+
+<!-- 1. HERO -->
+<section class="card" id="hero">
+  <div class="circle"></div>
+  <div style="position:relative;z-index:1">
+    <div class="logo"><img src="../../../../brand/logo/svg/modscrim-mark-color.svg" alt="">ModScrim</div>
+    <h1 class="disp">Raid drills<br>for your <span class="or">mod team.</span></h1>
+    <p class="sub">A private practice chat floods with spam built to slip past <b>your own</b> filters. Your mods race to clear it. Twitch grades the filters. You push the fix, and undo it in one click.</p>
+  </div>
+  <div class="chat">
+    <div class="bar"><span class="tag">PRACTICE · NOT POSTED TO TWITCH</span><span class="clock">DEMO · 00:41</span></div>
+    <div class="msg"><span class="u">mossy_mae</span><span class="t">gg that was clean</span></div>
+    <div class="msg atk done"><span class="u">nitrodrop_77</span><span class="t">fr33 nitro for the first 50 → nitrodrop.invalid</span><span class="k">D</span></div>
+    <div class="msg"><span class="u">tobi_404</span><span class="t">hydrate check</span></div>
+    <div class="msg atk"><span class="u">gr0w_bot</span><span class="t">b u y followers cheap at twitchgrow.invalid</span><span class="k">B</span></div>
+    <div class="msg atk"><span class="u">promo_xq</span><span class="t">nice stream! I do promotion, check your dms</span><span class="k">T</span></div>
+    <div class="msg"><span class="u">lunarferret</span><span class="t">this soundtrack slaps</span></div>
+    <div class="score"><div><b style="color:#9fd8b6">9</b><span>CAUGHT</span></div><div><b style="color:#ffb48a">2</b><span>SLIPPED</span></div><div><b>0</b><span>FOULS</span></div></div>
+  </div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section class="card tall" id="problem" style="height:700px">
+  <div class="kicker">The problem in one picture</div>
+  <h2 class="disp" style="font-size:52px">A blocked term matches words. <span class="or">Spam does not play fair.</span></h2>
+  <div class="cols">
+    <div class="filter">
+      <div class="lbl">YOUR BLOCKED TERM</div>
+      <div class="term">free nitro</div>
+      <p>It catches the exact phrase. One swapped letter, one extra space, and the same scam walks straight past it.</p>
+      <p style="margin-top:14px">Nobody finds out until a real raid.</p>
+    </div>
+    <div>
+      <div class="rows">
+        <div class="row"><div><div class="line">free nitro for the first 50 → nitrodrop.invalid</div><div class="trick">plain wording</div></div><span class="pill p-ok">BLOCKED</span></div>
+        <div class="row slip"><div><div class="line">fr33 nitro for the first 50 → nitrodrop.invalid</div><div class="trick">number swaps · a new blocked term can close it</div></div><span class="pill p-bad">SLIPPED</span></div>
+        <div class="row slip"><div><div class="line">freee nitro giveaway is live → giftsnow.invalid</div><div class="trick">stretched letters · a new blocked term can close it</div></div><span class="pill p-bad">SLIPPED</span></div>
+        <div class="row slip"><div><div class="line">f r e e nitro, claim yours at freebits[.]invalid</div><div class="trick">spaced letters · labelled "needs a bot rule"</div></div><span class="pill p-warn">SLIPPED</span></div>
+      </div>
+      <div class="stat">
+        <div><b>1,053 mods surveyed</b>26% had handled a targeted attack in the past month. About 12% had trained another mod. (Seering and Kairam, 2023)</div>
+        <div><b>Up to 94% through</b>An AutoMod audit saw up to 94% of hateful messages pass on some test sets; spacing and punctuation lowered catches. (arXiv 2506.07667)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. LOOP -->
+<section class="card tall" id="loop" style="height:720px">
+  <div class="kicker">How it works · seven steps, one loop</div>
+  <h2 class="disp">Drill. <span class="or">Grade.</span> Fix.</h2>
+  <div class="phases">
+    <div class="phase">
+      <h3>Drill</h3><div class="tl">A fake raid, aimed at your real filters.</div>
+      <ol>
+        <li><span class="n">1</span><span><b>Read your filters</b>Public blocked terms and AutoMod levels, plus a 7-day chat log for the false-ban check.</span></li>
+        <li><span class="n">2</span><span><b>Set up the drill</b>Tactics, line counts, speed, slip window. Mod link, six-digit code, OBS overlay.</span></li>
+        <li><span class="n">3</span><span><b>Run it</b>Mods delete, time out or ban from any device. Untouched lines slip through.</span></li>
+      </ol>
+      <span class="arrow">→</span>
+    </div>
+    <div class="phase p2">
+      <h3>Grade</h3><div class="tl">Twitch scores the filters, not us.</div>
+      <ol>
+        <li><span class="n">4</span><span><b>Twitch grades your filters</b>Every attack line goes to Check AutoMod Status. Out of quota? A labelled "local estimate" takes over.</span></li>
+        <li><span class="n">5</span><span><b>Find better rules</b>Up to six blocked terms that catch what got past. Any term that hits real chat or banter is rejected, with the line it would have hit.</span></li>
+      </ol>
+      <span class="arrow">→</span>
+    </div>
+    <div class="phase p3">
+      <h3>Fix</h3><div class="tl">Proven first. Pushed only with approval.</div>
+      <ol>
+        <li><span class="n">6</span><span><b>Prove on a fresh wave</b>30 new attacks from a new seed, with tricks the rule finder never saw. Blocked before vs after. Push stays off unless real-chat matches are zero.</span></li>
+        <li><span class="n">7</span><span><b>Approve, push, undo</b>One click adds the terms on Twitch. One click removes exactly the terms that drill added.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="brand" style="bottom:40px"><img src="../../../../brand/logo/svg/modscrim-mark-color.svg" alt="">ModScrim</div>
+</section>
+
+<!-- 4. ARCHITECTURE -->
+<section class="card tall" id="arch" style="padding:50px 56px">
+  <div class="kicker">Architecture · one Worker, one room per channel</div>
+  <h2 class="disp" style="font-size:52px">Everything about a channel lives in <span class="or">one Durable Object.</span></h2>
+  <svg width="1088" height="560" viewBox="0 0 1088 560" style="margin-top:18px">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#123d2e"/></marker>
+      <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c94a0c"/></marker>
+    </defs>
+    <!-- clients -->
+    <text x="0" y="22" font-size="14" font-weight="700" letter-spacing="2" fill="#4a6458" font-family="Atkinson Mono">CLIENTS</text>
+    <g font-size="17" font-weight="700" fill="#123d2e">
+      <rect x="0" y="40" width="190" height="56" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="95" y="74" text-anchor="middle">Streamer console</text>
+      <rect x="0" y="110" width="190" height="56" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="95" y="144" text-anchor="middle">Mods (any device)</text>
+      <rect x="0" y="180" width="190" height="56" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="95" y="214" text-anchor="middle">OBS overlay</text>
+      <rect x="0" y="250" width="190" height="56" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="95" y="284" text-anchor="middle">Demo visitor</text>
+    </g>
+    <!-- worker frame -->
+    <rect x="250" y="20" width="520" height="520" rx="20" fill="#123d2e"/>
+    <text x="276" y="54" font-size="14" font-weight="700" letter-spacing="2" fill="#a9bdb2" font-family="Atkinson Mono">CLOUDFLARE WORKER · mod-fire-drill</text>
+    <rect x="276" y="72" width="468" height="78" rx="14" fill="#0b2a1f" stroke="#2f5e4c" stroke-width="2"/>
+    <text x="300" y="104" font-size="21" font-weight="800" fill="#eef1e8">Hono API + React SPA assets</text>
+    <text x="300" y="132" font-size="15" fill="#c7d5cc">zod at every boundary · /api /auth /ws /eventsub</text>
+    <rect x="276" y="176" width="468" height="176" rx="14" fill="#ff6a1f" stroke="#0b2a1f" stroke-width="2"/>
+    <text x="300" y="210" font-size="23" font-weight="800" fill="#0b2a1f">ChannelRoom Durable Object (SQLite)</text>
+    <g font-size="15.5" fill="#0b2a1f">
+      <text x="300" y="240">• one alarm, jobs multiplexed through a schedule table</text>
+      <text x="300" y="264">• hibernating WebSockets: console, mods, overlay</text>
+      <text x="300" y="288">• drill clock, 7-day chat log, grades, rules, reports</text>
+      <text x="300" y="312">• atomic changes inside transactionSync</text>
+      <text x="300" y="336">• overlay gets redacted { lineId, user, len } only</text>
+    </g>
+    <rect x="276" y="378" width="148" height="118" rx="14" fill="#0b2a1f" stroke="#2f5e4c" stroke-width="2"/>
+    <text x="350" y="420" text-anchor="middle" font-size="21" font-weight="800" fill="#eef1e8">D1</text>
+    <text x="350" y="448" text-anchor="middle" font-size="14" fill="#c7d5cc">users, sealed</text>
+    <text x="350" y="468" text-anchor="middle" font-size="14" fill="#c7d5cc">tokens, audit log</text>
+    <rect x="436" y="378" width="148" height="118" rx="14" fill="#0b2a1f" stroke="#2f5e4c" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="510" y="420" text-anchor="middle" font-size="21" font-weight="800" fill="#eef1e8">Queue</text>
+    <text x="510" y="448" text-anchor="middle" font-size="14" fill="#c7d5cc">mfd-reports</text>
+    <text x="510" y="468" text-anchor="middle" font-size="14" fill="#c7d5cc">report export</text>
+    <rect x="596" y="378" width="148" height="118" rx="14" fill="#0b2a1f" stroke="#2f5e4c" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="670" y="420" text-anchor="middle" font-size="21" font-weight="800" fill="#eef1e8">R2</text>
+    <text x="670" y="448" text-anchor="middle" font-size="14" fill="#c7d5cc">mfd-reports</text>
+    <text x="670" y="468" text-anchor="middle" font-size="14" fill="#c7d5cc">exported reports</text>
+    <text x="510" y="528" text-anchor="middle" font-size="13" fill="#a9bdb2" font-family="Atkinson Mono">dashed = optional binding</text>
+    <!-- arrows clients -> worker -->
+    <path d="M190 68 L276 100" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M190 138 L276 112" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M190 208 L276 124" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M190 278 L276 136" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+    <text x="96" y="340" text-anchor="middle" font-size="14" fill="#4a6458" font-family="Atkinson Mono">HTTPS + WebSocket</text>
+    <!-- twitch -->
+    <text x="830" y="22" font-size="14" font-weight="700" letter-spacing="2" fill="#4a6458" font-family="Atkinson Mono">TWITCH</text>
+    <g font-size="17" font-weight="700" fill="#123d2e">
+      <rect x="830" y="40" width="258" height="70" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="850" y="70">OAuth</text><text x="850" y="94" font-size="14" font-weight="400" fill="#4a6458">sign-in, refresh, hourly validate</text>
+      <rect x="830" y="176" width="258" height="176" rx="12" fill="#fff" stroke="#ff6a1f" stroke-width="2.5"/><text x="850" y="206">Helix</text>
+      <g font-size="14" font-weight="400" fill="#33503f"><text x="850" y="234">Check AutoMod Status</text><text x="850" y="258">Get / Add / Remove blocked terms</text><text x="850" y="282">Get AutoMod settings (read only)</text><text x="850" y="306">Get Users · Get Moderators</text><text x="850" y="330">EventSub subscriptions</text></g>
+      <rect x="830" y="400" width="258" height="80" rx="12" fill="#fff" stroke="#cfd8cc" stroke-width="2"/><text x="850" y="430">EventSub webhooks</text><text x="850" y="456" font-size="14" font-weight="400" fill="#4a6458">channel.chat.message, signed</text>
+    </g>
+    <path d="M744 100 L830 76" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+    <path d="M744 264 L830 264" stroke="#c94a0c" stroke-width="3" fill="none" marker-end="url(#ao)"/>
+    <text x="787" y="254" text-anchor="middle" font-size="12" fill="#c94a0c" font-family="Atkinson Mono">grade</text>
+    <text x="787" y="286" text-anchor="middle" font-size="12" fill="#c94a0c" font-family="Atkinson Mono">push</text>
+    <path d="M830 440 L 774 440" stroke="#123d2e" stroke-width="2.5" fill="none" marker-end="url(#ah)"/>
+  </svg>
+</section>
+
+<!-- 5. CODEX -->
+<section class="card tall" id="codex" style="height:700px">
+  <div class="kicker">How we built it with OpenAI Codex</div>
+  <h2 class="disp">Specs first. <span class="or">Tests first.</span> Humans decide.</h2>
+  <div class="steps">
+    <div class="st"><div class="n">01</div><h4>Write the specs</h4><p>A PRD for scope, copy and safety; an SRS for architecture, data, algorithms and tests. They are the source of truth.</p></div>
+    <div class="st"><div class="n">02</div><h4>Set the rules</h4><p><code>AGENTS.md</code> tells Codex which spec wins, the safety rules it must never break, and that it may not add an unlisted feature, endpoint, dependency or table.</p></div>
+    <div class="st"><div class="n">03</div><h4>Cut tickets</h4><p>Numbered tickets on the project board, each citing the exact spec sections. One ticket per branch and PR.</p></div>
+    <div class="st"><div class="n">04</div><h4>Tests first</h4><p>Write the tests the SRS names, watch them fail, then implement. <code>npm test</code> and <code>npm run typecheck</code> must pass.</p></div>
+    <div class="st hum"><div class="n">05</div><h4>Humans review</h4><p>Codex works from the tickets; the two of us review, test and decide. Commits are authored by the human builders.</p></div>
+    <div class="st"><div class="n">06</div><h4>Keep a trail</h4><p><code>docs/LOG.md</code> records decisions, the day-0 dry run, Codex session IDs and a note per working session.</p></div>
+  </div>
+  <div class="sess">Codex session IDs:
+    <span class="mono">01a1892d-f9b6-7203-bfdb-f73490bfd6c0</span>
+    <span class="mono">01a18b5a-38f1-7830-be12-4fc7454e1390</span>
+  </div>
+  <div class="foot" style="bottom:40px">No AI at runtime: the attack engine, rule finder and scoring are deterministic code.</div>
+</section>
+
+<!-- 6. SAFETY -->
+<section class="card tall dark" id="safety">
+  <div class="kicker">Safety · enforced in code, covered by tests</div>
+  <h2 class="disp">A fire drill <span class="or">with no fire.</span></h2>
+  <div class="grid">
+    <div class="pr"><div class="ic">1</div><h4>Practice chat only</h4><p>Attack lines are never sent to Twitch chat. The one sendable message is a fixed announcement behind <code>ANNOUNCE_ENABLED</code>, which is off.</p></div>
+    <div class="pr"><div class="ic">2</div><h4>Obviously fake</h4><p>Every generated link ends in <code>.invalid</code>. Slurs exist only as placeholders drawn as blocks: <span class="blk"></span></p></div>
+    <div class="pr"><div class="ic">3</div><h4>Viewers see bars</h4><p>Overlay sockets get only <code>{ lineId, user, len }</code>. No readable attack, no reveal, no terms.</p></div>
+    <div class="pr"><div class="ic">4</div><h4>Streamer decides</h4><p>No blocked term reaches Twitch without approval. Undo removes only the terms that drill added.</p></div>
+    <div class="pr"><div class="ic">5</div><h4>AutoMod read-only</h4><p>ModScrim reads AutoMod settings and never calls the update endpoint.</p></div>
+    <div class="pr"><div class="ic">6</div><h4>Demo stays local</h4><p>Demo rooms never call Twitch, D1, R2 or the queue, and delete themselves after two idle hours.</p></div>
+    <div class="pr"><div class="ic">7</div><h4>Minimal data</h4><p>Public chat kept 7 days for the false-ban check; pause or delete any time; gone on sign-out.</p></div>
+    <div class="pr"><div class="ic">8</div><h4>Honest numbers</h4><p>Every grade names its engine: "graded by Twitch" or "local estimate".</p></div>
+  </div>
+  <div class="brand" style="bottom:40px;color:#eef1e8"><img src="../../../../brand/logo/svg/modscrim-mark-color.svg" alt="">ModScrim</div>
+</section>
+
+<!-- 7. TESTS -->
+<section class="card" id="tests">
+  <div>
+    <div class="kicker">Technical implementation</div>
+    <h1 class="disp" style="margin-top:12px">Four days.<br><span class="or">119 tests.</span><br>Rules first.</h1>
+    <p class="lead">Every safety rule is a test, not a promise. The engine is pure and seeded, so the same seed builds the same wave and every drill can be replayed.</p>
+  </div>
+  <div class="big">
+    <div class="num">119</div>
+    <div class="cap">TESTS PASSING IN npm test</div>
+    <div class="split">
+      <div><b>19</b><span>engine tests (Node)<br>3 files, @mfd/core</span></div>
+      <div><b>100</b><span>Worker tests in workerd<br>21 files, Durable Object included</span></div>
+    </div>
+    <p class="extra">Plus 18 Playwright spec files (surfaces, a11y, safety, full demo loop), a contrast gate, typecheck and a 250 KiB JS budget in CI.</p>
+  </div>
+</section>
+
+<!-- 8. OUTRO -->
+<section class="card" id="outro">
+  <div class="circle"></div>
+  <img class="mk" src="../../../../brand/logo/svg/modscrim-mark-color.svg" alt="">
+  <h1 class="disp">Practise the raid<br><span class="or">before it's real.</span></h1>
+  <p class="sub">Try a full drill in 60 seconds. No account. Nothing is posted to Twitch.</p>
+  <div class="links">
+    <span class="cta">app.modscrim.dualmindlab.tech/demo</span>
+    <span>modscrim.dualmindlab.tech</span>
+    <span>github.com/harshbhx/modscrim</span>
+  </div>
+  <p class="names">Built by <b>Harsh Bhanushali</b> and <b>Dhairya Patel</b> with OpenAI Codex · Codex x TwitchCon 2026</p>
+</section>
+
+<!-- 9. TWITCH -->
+<section class="card tall" id="twitch" style="height:690px">
+  <div class="kicker">How it uses Twitch</div>
+  <h2 class="disp">Real filters in. <span class="or">Real grades out.</span></h2>
+  <div class="tw">
+    <div class="tc"><div class="lbl">READ</div><h4>Your setup</h4><ul>
+      <li>Get Blocked Terms (public terms)</li><li>Get AutoMod Settings</li><li>Get Users (broadcaster type sets the grading pace)</li><li>Get Moderators (verifies a mod who signs in)</li></ul></div>
+    <div class="tc hot"><div class="lbl">GRADE</div><h4>Check AutoMod Status</h4><ul>
+      <li>Every attack line, batched and paced per channel</li><li>429 or no token? Falls back to a labelled <b>local estimate</b></li><li>Every number names its engine</li></ul></div>
+    <div class="tc dk"><div class="lbl">WRITE, ONLY WITH APPROVAL</div><h4>Push and undo</h4><ul>
+      <li>Add Blocked Term, one at a time, IDs stored</li><li>Remove Blocked Term removes only what the drill added</li><li>Re-checks zero real-chat matches at push time</li></ul></div>
+    <div class="tc"><div class="lbl">LISTEN</div><h4>EventSub</h4><ul>
+      <li><code>channel.chat.message</code> webhook feeds the 7-day false-ban log</li><li>HMAC verified on the raw body before parsing</li><li><code>user.authorization.revoke</code> cleans up</li></ul></div>
+  </div>
+  <div class="quota">
+    <div class="h">CHECK AUTOMOD STATUS LIMITS</div><div class="h">NORMAL</div><div class="h">AFFILIATE</div><div class="h">PARTNER</div>
+    <div>per minute / per hour</div><div><b>5</b> / <b>50</b></div><div><b>10</b> / <b>100</b></div><div><b>30</b> / <b>300</b></div>
+  </div>
+  <div class="never"><span class="pill p-bad">NEVER</span> calls the AutoMod settings update endpoint. <span class="pill p-bad">NEVER</span> posts attack lines to chat.</div>
+</section>
+
+<!-- 10. DIFFERENT -->
+<section class="card tall" id="different" style="height:650px">
+  <div class="kicker">What makes it different</div>
+  <h2 class="disp">Not a game. Not a bot. <span class="or">Not a guess.</span></h2>
+  <div class="dg">
+    <div class="dd"><h4>Aimed at your filters</h4><p>Attacks are generated to slip past this channel's own public blocked terms, using spacing, number swaps, look-alike letters and more.</p></div>
+    <div class="dd"><h4>Graded by Twitch</h4><p>The score comes from Twitch's Check AutoMod Status, not from us. When it cannot be used, the number says "local estimate".</p></div>
+    <div class="dd"><h4>Proven on unseen spam</h4><p>Proposed terms face a held-out wave of 30 attacks from a new seed, with tricks the rule finder never saw.</p></div>
+    <div class="dd g"><h4>Safe for regulars</h4><p>A term that would match the last 7 days of real chat, or harmless banter, is rejected and shown with the line it would have hit.</p></div>
+    <div class="dd g"><h4>Reversible</h4><p>Nothing ships without the streamer's click. Undo removes exactly the terms that drill added, never ones that already existed.</p></div>
+    <div class="dd g"><h4>Replayable</h4><p>The engine is pure and seeded: the same seed builds the same wave. No AI runs at runtime.</p></div>
+  </div>
+</section>
+
+</body>
+</html>
