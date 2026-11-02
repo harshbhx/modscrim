@@ -137,7 +137,7 @@ ours. We do not write `system.md`; with consent, a marker-delimited `### Colors`
 
 Taste, both Design Principles skills and Theme Factory read no palette file, so the only mechanism
 that reaches them is the project's always-loaded instructions. The skill asks **once per project**:
-"May I add a short palette pointer to this project's `CLAUDE.md` and `AGENTS.md`?" On yes it
+"May I add a short palette pointer to this project's `AGENTS.md`?" On yes it
 writes, between its own markers so it can be updated or removed:
 
 ```markdown
@@ -146,12 +146,12 @@ Colour: the project palette lives in DESIGN.md (## Colors) and design/tokens.css
 <!-- acp:end pointer -->
 ```
 
-The answer is recorded in `palette.json` as `handoff.claude_md: true | false | declined | not_asked`
-(`not_asked` until the user has answered; it is neither a yes nor a refusal). `--claude-md yes`
+The answer is recorded in `palette.json` as `handoff.agent_md: true | false | declined | not_asked`
+(`not_asked` until the user has answered; it is neither a yes nor a refusal). `--agent-md yes`
 needs `--user-confirmed`, which records that the user said yes in this conversation; the script
 refuses a yes without it. A stored no (`false` or `declined`) persists across re-runs, so the
 question is not asked again for that project. Never written unasked; never written to the global
-`~/.claude/CLAUDE.md`; a declined answer means the skill says the pointer text in chat instead.
+any global agent settings file; a declined answer means the skill says the pointer text in chat instead.
 Without the pointer, the skill must not claim automatic hand-off to those three neighbours.
 
 ## 6. Non-duplication

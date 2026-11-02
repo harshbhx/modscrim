@@ -9,19 +9,19 @@ Writes (all derived from one tokens JSON, so they cannot disagree):
                         existing file without our markers -> markers are inserted, a diff is printed,
                         and --yes is required to write
   design/palette.json   source of truth (provenance, roles, ramps, light/dark sets, contrast, adjustments,
-                        proportion targets, handoff.claude_md)
+                        proportion targets, handoff.agent_md)
   design/tokens.css     two-tier CSS custom properties (primitives, then semantic --color-* with light,
                         prefers-color-scheme dark and [data-theme=dark]) plus alias blocks for Taste,
                         UI/UX Pro Max and interface-design token names
-  CLAUDE.md, AGENTS.md  only with --claude-md yes: a marker-delimited pointer (--claude-md no removes it);
+  AGENTS.md  only with --agent-md yes: a marker-delimited pointer (--agent-md no removes it);
                         never the home directory
 
 Re-running with the same input is byte-identical. Exit codes: 0 done | 1 contrast gate fails |
-2 bad input or broken markers | 3 DESIGN.md insertion needs --yes | 4 --claude-md yes without --user-confirmed.
+2 bad input or broken markers | 3 DESIGN.md insertion needs --yes | 4 --agent-md yes without --user-confirmed.
 
 Examples:
   python3 scripts/handoff.py --palette wada-229 --strategy restrained --project-dir ./myapp
-  python3 scripts/handoff.py --tokens tokens.json --project-dir . --yes --claude-md yes
+  python3 scripts/handoff.py --tokens tokens.json --project-dir . --yes --agent-md yes
   python3 scripts/handoff.py --tokens tokens.json --dry-run
 """
 from __future__ import annotations
@@ -662,7 +662,7 @@ def render_css(tokens: dict) -> str:
 # --------------------------------------------------------------------------- JSON
 
 
-def render_palette_json(tokens: dict, claude_md, paths: dict, usage_notes: str | None = None) -> str:
+def render_palette_json(tokens: dict, agent_md, paths: dict, usage_notes: str | None = None) -> str:
     out = {
         "schema": "acp-palette/1",
         "name": tokens["name"],
@@ -681,7 +681,7 @@ def render_palette_json(tokens: dict, claude_md, paths: dict, usage_notes: str |
         "handoff": {
             "version": HANDOFF_VERSION,
             "design_md": paths["design_md"], "tokens_css": paths["tokens_css"], "palette_json": paths["palette_json"],
-            "claude_md": claude_md,
+            "agent_md": agent_md,
             "usage_notes": usage_notes,
             "markers": {"frontmatter": [FM_BEGIN_TEXT, FM_END_TEXT], "body": [BODY_BEGIN, BODY_END], "pointer": [PTR_BEGIN, PTR_END]},
         },
@@ -689,7 +689,7 @@ def render_palette_json(tokens: dict, claude_md, paths: dict, usage_notes: str |
     return json.dumps(out, indent=2, ensure_ascii=False) + "\n"
 
 
-# --------------------------------------------------------------------------- CLAUDE.md / AGENTS.md pointer
+# --------------------------------------------------------------------------- AGENTS.md pointer
 
 
 def pointer_lines(crlf: bool) -> list[str]:
@@ -740,26 +740,26 @@ def _within(child: str, parent: str) -> bool:
     return child == parent or child.startswith(parent.rstrip("\\/") + os.sep)
 
 
-def protected_paths() -> list[Path]:
-    home = Path.home().resolve()
-    return [home / ".claude", home / ".codex", home / ".agents"]
-
-
 def path_inside_protected(path: Path) -> bool:
+    """True inside any hidden folder directly in the home folder (for example ~/.config), where tools keep global settings."""
     c = _norm(path)
-    return any(_within(c, _norm(p)) for p in protected_paths())
+    home = _norm(Path.home())
+    if not _within(c, home) or c == home:
+        return False
+    first = Path(c[len(home):].lstrip("\/")).parts
+    return bool(first) and first[0].startswith(".")
 
 
 def protected_dir_problem(project_dir: Path) -> str | None:
     """Why this project directory must not receive hand-off files, or None. Refused: the home folder, any folder above it,
-    and ~/.claude, ~/.codex, ~/.agents (or anything inside them): those hold the user's global agent settings."""
+    and any hidden folder in the home folder (or anything inside one): those hold the user's global tool settings."""
     proj = _norm(project_dir)
     home = _norm(Path.home())
     if _within(home, proj):
         return ("--project-dir is the home folder or a folder above it; this skill never writes project files there "
                 "(global agent settings live in the home folder).")
     if path_inside_protected(project_dir):
-        return "--project-dir is inside ~/.claude, ~/.codex or ~/.agents (the user's global agent folders)."
+        return "--project-dir is inside a hidden folder in the home folder (where global tool settings live)."
     return None
 
 
@@ -787,10 +787,10 @@ def main(argv=None) -> int:
     cl.configure_stdio()
     ap = argparse.ArgumentParser(
         prog="handoff.py",
-        description="Write DESIGN.md (marker regions only), design/palette.json, design/tokens.css and optionally the CLAUDE.md/AGENTS.md "
+        description="Write DESIGN.md (marker regions only), design/palette.json, design/tokens.css and optionally the AGENTS.md "
                     "pointer from a validated palette. Idempotent.",
         epilog="Exit codes: 0 done | 1 contrast gate fails | 2 bad input, broken markers or a data-source --provenance | 3 DESIGN.md insertion needs --yes | "
-               "4 --claude-md yes without --user-confirmed, or --project-dir at/above the home folder or inside ~/.claude, ~/.codex, ~/.agents.",
+               "4 --agent-md yes without --user-confirmed, or --project-dir at/above the home folder or inside a hidden home folder.",
     )
     src = ap.add_argument_group("palette source (one of)")
     src.add_argument("--tokens", help="tokens JSON from build_tokens.py / validate.py ('-' = stdin)")
@@ -815,10 +815,10 @@ def main(argv=None) -> int:
     ap.add_argument("--name", help="design name for a new DESIGN.md (default: palette title)")
     ap.add_argument("--project-dir", type=Path, default=Path.cwd(), help="project root (default: current directory)")
     ap.add_argument("--design-dir", default="design", help="folder for palette.json and tokens.css, relative to the project (default: design)")
-    ap.add_argument("--claude-md", choices=("yes", "no", "declined"), help="yes: write the pointer into CLAUDE.md and AGENTS.md (needs --user-confirmed); "
+    ap.add_argument("--agent-md", choices=("yes", "no", "declined"), help="yes: write the pointer into AGENTS.md (needs --user-confirmed); "
                                                                            "no: remove it; declined: record that the user said no (writes nothing). Omit to leave as is.")
-    ap.add_argument("--user-confirmed", action="store_true", help="records that the user explicitly said yes to the CLAUDE.md pointer in this conversation; "
-                                                                  "required for --claude-md yes (refused with exit 4 otherwise), meaningless for no / declined")
+    ap.add_argument("--user-confirmed", action="store_true", help="records that the user explicitly said yes to the AGENTS.md pointer in this conversation; "
+                                                                  "required for --agent-md yes (refused with exit 4 otherwise), meaningless for no / declined")
     ap.add_argument("--notes", type=Path, help="text or markdown file with usage guidance; rendered as a '#### Usage notes' block INSIDE our "
                                                "## Colors marker region and regenerated on every run (it is remembered in palette.json, so a re-run "
                                                "without --notes keeps it). Write nothing about colour outside the markers; put it here.")
@@ -835,12 +835,12 @@ def main(argv=None) -> int:
     if guard:
         print(err_line(f"{guard} Nothing was written."), file=sys.stderr)
         return 4
-    if args.claude_md == "yes" and not args.user_confirmed:
-        print("error: --claude-md yes writes into the project's CLAUDE.md and AGENTS.md, so it needs the user's explicit yes in this conversation; "
-              "ask once, then re-run with --claude-md yes --user-confirmed. Nothing was written.", file=sys.stderr)
+    if args.agent_md == "yes" and not args.user_confirmed:
+        print("error: --agent-md yes writes into the project's AGENTS.md, so it needs the user's explicit yes in this conversation; "
+              "ask once, then re-run with --agent-md yes --user-confirmed. Nothing was written.", file=sys.stderr)
         return 4
-    if args.user_confirmed and args.claude_md != "yes":
-        print("note: --user-confirmed only matters with --claude-md yes; ignored.", file=sys.stderr)
+    if args.user_confirmed and args.agent_md != "yes":
+        print("note: --user-confirmed only matters with --agent-md yes; ignored.", file=sys.stderr)
 
     try:
         tokens = load_or_build(args)
@@ -894,21 +894,21 @@ def main(argv=None) -> int:
         print(err_line(exc), file=sys.stderr)
         return 2
 
-    # CLAUDE.md state to record
-    claude_md = "not_asked"
+    # AGENTS.md pointer state to record
+    agent_md = "not_asked"
     pj_path = proj / paths["palette_json"]
     if pj_path.exists():
         try:
-            claude_md = json.loads(read_text(pj_path)).get("handoff", {}).get("claude_md")
-            claude_md = "not_asked" if claude_md is None else claude_md  # a stored no / declined / false is kept
+            agent_md = json.loads(read_text(pj_path)).get("handoff", {}).get("agent_md")
+            agent_md = "not_asked" if agent_md is None else agent_md  # a stored no / declined / false is kept
         except (ValueError, OSError):
-            claude_md = "not_asked"
-    if args.claude_md == "yes":
-        claude_md = True
-    elif args.claude_md == "no":
-        claude_md = False
-    elif args.claude_md == "declined":
-        claude_md = "declined"
+            agent_md = "not_asked"
+    if args.agent_md == "yes":
+        agent_md = True
+    elif args.agent_md == "no":
+        agent_md = False
+    elif args.agent_md == "declined":
+        agent_md = "declined"
 
     results: list[str] = []
     code = 0
@@ -938,7 +938,7 @@ def main(argv=None) -> int:
         print("Re-run with --yes to apply the insertion above; DESIGN.md, design/palette.json and design/tokens.css are written only then.")
         return 3
     # companions (wholly ours)
-    results.append(f"{paths['palette_json']}: {write_bytes_if_changed(pj_path, render_palette_json(tokens, claude_md, paths, usage_notes))}")
+    results.append(f"{paths['palette_json']}: {write_bytes_if_changed(pj_path, render_palette_json(tokens, agent_md, paths, usage_notes))}")
     results.append(f"{paths['tokens_css']}: {write_bytes_if_changed(proj / paths['tokens_css'], render_css(tokens))}")
     # DESIGN.md
     if how == "inserted" and not args.yes:
@@ -953,19 +953,19 @@ def main(argv=None) -> int:
             print("\n".join(difflib.unified_diff(old.split("\n"), new_text.split("\n"), "DESIGN.md (current)", "DESIGN.md (proposed)", lineterm="")))
         results.append(f"DESIGN.md: {write_bytes_if_changed(dm_path, new_text) if how != 'unchanged' else 'unchanged'}")
     # pointer files
-    if args.claude_md in ("yes", "no"):
-        for fname in ("CLAUDE.md", "AGENTS.md"):
+    if args.agent_md in ("yes", "no"):
+        for fname in ("AGENTS.md",):
             if path_inside_protected(proj / fname):
                 print(f"error: refusing to write {fname} inside the user's home-level agent folders.", file=sys.stderr)
                 return 4
-        for fname in ("CLAUDE.md", "AGENTS.md"):
+        for fname in ("AGENTS.md",):
             try:
-                results.append(f"{fname}: {update_pointer_file(proj / fname, args.claude_md == 'yes')}")
+                results.append(f"{fname}: {update_pointer_file(proj / fname, args.agent_md == 'yes')}")
             except HandoffError as exc:
                 print(err_line(exc), file=sys.stderr)
                 return 2
-    elif args.claude_md == "declined":
-        results.append("CLAUDE.md / AGENTS.md: untouched (recorded handoff.claude_md = declined)")
+    elif args.agent_md == "declined":
+        results.append("AGENTS.md: untouched (recorded handoff.agent_md = declined)")
     print(f"handoff: {tokens['palette']['label']} | {tokens['strategy']['name']}, {tokens['strategy']['mode']} | gate "
           f"{'pass' if tokens['contrast']['gate_pass'] else 'FAIL'}")
     for r in results:

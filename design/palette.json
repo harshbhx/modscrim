@@ -3560,7 +3560,7 @@
     "design_md": "DESIGN.md",
     "tokens_css": "design/tokens.css",
     "palette_json": "design/palette.json",
-    "claude_md": "not_asked",
+    "agent_md": "not_asked",
     "usage_notes": null,
     "markers": {
       "frontmatter": [

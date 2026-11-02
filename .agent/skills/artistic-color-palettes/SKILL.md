@@ -140,7 +140,7 @@ mechanism (`prefers-color-scheme` plus a `[data-theme]` override).
 
 ```bash
 python3 <skill>/scripts/handoff.py --tokens <tmp>/tokens.json --project-dir . --dry-run
-python3 <skill>/scripts/handoff.py --tokens <tmp>/tokens.json --project-dir . --claude-md yes --user-confirmed [--notes FILE]
+python3 <skill>/scripts/handoff.py --tokens <tmp>/tokens.json --project-dir . --agent-md yes --user-confirmed [--notes FILE]
 ```
 
 This writes `design/palette.json` (source of truth), `design/tokens.css` (primitives, semantic `--color-*`,
@@ -153,12 +153,12 @@ it. Write nothing in `DESIGN.md` outside our markers; usage guidance goes in the
 `--notes FILE`, which renders inside the region so it is regenerated with the hex.
 
 **The project pointer is opt-in.** Ask once per project before the first hand-off: "May I add a short
-palette pointer to this project's `CLAUDE.md` and `AGENTS.md`?" Only an explicit yes in this conversation
-allows `--claude-md yes --user-confirmed` (the script refuses `yes` without it); `--claude-md declined` only
-when the user said no (then paste the pointer text in chat); `--claude-md no` removes an existing pointer.
+palette pointer to this project's `AGENTS.md`?" Only an explicit yes in this conversation
+allows `--agent-md yes --user-confirmed` (the script refuses `yes` without it); `--agent-md declined` only
+when the user said no (then paste the pointer text in chat); `--agent-md no` removes an existing pointer.
 If you could not ask yet, omit the flag (recorded as `not_asked`, neither a yes nor a refusal) and put the
 question in your final message. The answer is stored in `palette.json`, so do not ask again. Never write
-the pointer unasked and never to the global `~/.claude/CLAUDE.md`.
+the pointer unasked and never to any global agent settings file.
 
 ## Provenance and the no-fabrication rule
 
