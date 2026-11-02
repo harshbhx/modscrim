@@ -1,0 +1,7 @@
+# ModScrim security contact (RFC 9116)
+Contact: mailto:bhanushaliharsh434@gmail.com
+Contact: https://github.com/harshbhx/modscrim/security
+Expires: 2027-11-03T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://modscrim.dualmindlab.tech/.well-known/security.txt
+Policy: https://github.com/harshbhx/modscrim/blob/main/SECURITY.md
