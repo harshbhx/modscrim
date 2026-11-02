@@ -63,6 +63,21 @@ Wave B is 30 attack lines built from a new seed and from tricks the rule finder 
 
 Nothing reaches Twitch until the streamer presses **Approve and push**. The room re-reads the channel's terms, adds one term at a time, stores the ID Twitch returns and records each result and an audit row. A term that already existed is marked preexisting. **Undo** removes exactly the terms that drill added and leaves preexisting terms alone.
 
+The push gate, from proposal to undo:
+
+```mermaid
+flowchart TD
+  P["Proposed terms<br/>(up to 6)"] --> R{"Matches the last 7 days<br/>of real chat or a<br/>banter line?"}
+  R -- yes --> X["Rejected, shown with<br/>the line it would hit"]
+  R -- no --> W["Fresh wave:<br/>30 held-out attacks,<br/>before and after"]
+  W --> Z{"Real-chat<br/>matches = 0?"}
+  Z -- no --> D["Push stays disabled"]
+  Z -- yes --> A{"Streamer presses<br/>Approve?"}
+  A -- no --> N["Nothing reaches Twitch"]
+  A -- yes --> T["Terms added on Twitch,<br/>term IDs stored"]
+  T --> U["Undo removes exactly<br/>those term IDs"]
+```
+
 After the drill, an after-action report keeps per-mod scores, grades, proposed, rejected and pushed terms, and the fresh-wave result. The numbers-only card is what overlays and share links carry; attack text never leaves the room.
 
 ## Scoring in one table
