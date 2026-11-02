@@ -31,6 +31,7 @@
 | [FAQ](faq.md) | Get quick answers for streamers, mods, judges and contributors |
 | [Design system](design-system.md) | Use the tokens, the contrast gate and the brand kit |
 | [Contributing](contributing.md) | Make a change the way this repository expects |
+| [Research and references](references.md) | See the papers, articles and Twitch and Cloudflare docs the project rests on |
 
 ## Specifications and records
 
