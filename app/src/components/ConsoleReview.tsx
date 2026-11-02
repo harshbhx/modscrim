@@ -5,6 +5,9 @@ import type { GradesView, ProofResult, PushResult, ReportView, RuleResult } from
 import { displayName } from '../lib/names';
 import { Chip, Icon } from './ConsoleIcons';
 
+
+/** Waits longer than this mean the hourly Check AutoMod Status quota is spent, not the per-minute pacing. */
+const GRADE_HOUR_WAIT_MS = 3 * 60_000;
 export type GradeLine = { id: string; text: string; tactic?: string; trick?: string; tags: string[] };
 
 /** Split the grade headline after its lead figure ("10 of 14") so the figure can be set large. Text is unchanged. */
@@ -38,7 +41,9 @@ export function GradeTable({ lines, grades, phase, onGradeTwitch, onGradeLocal, 
     </div>}
     {inProgress && !limited && <p className="console-muted console-grade-status" role="status"><Icon name="clock" size={14} />{localOnly ? 'Local estimate in progress' : 'Twitch grading in progress'}: {phase?.done ?? 0} of {phase?.total ?? lines.filter((line) => line.tactic).length} checked.</p>}
     {limited && !localOnly && <p className="console-warning" role="status"><Icon name="alert" /><span>{finished || !phase?.nextAt ? consoleCopy.grade.limitedEstimate : fill(consoleCopy.grade.limitedRetry, { time: timeFormat.format(phase.nextAt) })}</span></p>}
-    {!limited && phase?.nextAt && phase.nextAt > Date.now() && <p className="console-warning" role="status"><Icon name="alert" /><span>Twitch's grading limit for this hour is used up. {phase.engine === 'local' || phase.engine === 'mixed' ? 'Showing a local estimate; ' : ''}Twitch grading resumes at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(phase.nextAt)}.</span></p>}
+    {!limited && phase?.nextAt && phase.nextAt > Date.now() && (phase.nextAt - Date.now() > GRADE_HOUR_WAIT_MS
+      ? <p className="console-warning" role="status"><Icon name="alert" /><span>Twitch's grading limit for this hour is used up. {phase.engine === 'local' || phase.engine === 'mixed' ? 'Showing a local estimate; ' : ''}Twitch grading resumes at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(phase.nextAt)}.</span></p>
+      : <p className="console-muted console-grade-status" role="status"><Icon name="clock" size={14} />Twitch checks a few lines per minute on this channel. Next batch at {new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(phase.nextAt)}.</p>)}
     <div className="console-grade-actions">{!localOnly && <button type="button" className="console-button console-button-primary" disabled={busy || inProgress} onClick={onGradeTwitch}>Grade with Twitch</button>}<button type="button" className={`console-button ${localOnly ? 'console-button-primary' : 'console-button-quiet'}`} disabled={busy} onClick={onGradeLocal}>{localOnly ? 'Run local estimate' : 'Use local estimate now'}</button></div>
     <div className="console-table-wrap" tabIndex={0} role="region" aria-label="Attack line grades table"><table className="console-grade-table"><thead><tr><th scope="col">Attack line</th><th scope="col">Tactic</th><th scope="col">Trick</th><th scope="col">Result</th><th scope="col">Engine</th></tr></thead>
       <tbody>{lines.filter((line) => line.tactic).map((line) => {
