@@ -16,7 +16,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const SKILL = '.claude/skills/artistic-color-palettes/scripts';
+const SKILL = '.agent/skills/artistic-color-palettes/scripts';
 const VALIDATE = `${SKILL}/validate.py`;
 const TOKENS = 'design/tokens.json';
 
