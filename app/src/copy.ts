@@ -186,6 +186,10 @@ export const pages = {
  */
 export const consoleCopy = {
   rejectedWhy: 'Would ban a regular: also matches {n} harmless {messages}',
+  grade: {
+    limitedEstimate: 'Twitch is limiting grading for this channel right now. Showing a local estimate. You can try Grade with Twitch again later.',
+    limitedRetry: 'Twitch is limiting grading for this channel right now. Trying again at {time}, or use a local estimate now.'
+  },
   stepEyebrow: 'Step {n} of 6',
   status: {
     allGood: 'All systems working',

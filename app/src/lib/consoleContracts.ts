@@ -70,7 +70,7 @@ export const StatusViewZ = z.object({
 });
 
 const GradeZ = z.object({ lineId: z.string(), phase: z.enum(['A', 'B-before', 'B-after']), engine: z.enum(['twitch', 'local']), permitted: z.boolean(), blockedBy: z.string().optional() });
-const PhaseZ = z.object({ done: z.number().int().nonnegative(), total: z.number().int().nonnegative(), passed: z.number().int().nonnegative(), engine: z.enum(['twitch', 'local', 'mixed']), nextAt: z.number().optional() });
+const PhaseZ = z.object({ done: z.number().int().nonnegative(), total: z.number().int().nonnegative(), passed: z.number().int().nonnegative(), engine: z.enum(['twitch', 'local', 'mixed']), nextAt: z.number().optional(), limited: z.boolean().optional() });
 export const GradesViewZ = z.object({ phases: z.object({ A: PhaseZ.optional(), 'B-before': PhaseZ.optional(), 'B-after': PhaseZ.optional() }), lines: z.array(GradeZ) });
 export const RuleResultZ = z.object({
   accepted: z.array(z.object({ term: z.string(), hits: z.number().int(), gain: z.number().int(), exampleLineId: z.string() })).max(6),

@@ -149,6 +149,10 @@ export type ConsoleMock = {
   open: (page: Page) => Promise<void>;
   /** Flip a Twitch-graded phase to finished and tell the socket. */
   finishTwitchGrading: () => void;
+  /** Twitch answers 429 and the worker waits to retry: nothing graded yet, retry in a minute. */
+  rateLimitTwitchGrading: () => void;
+  /** Twitch kept limiting the channel: the worker fell back to a local estimate. */
+  fallBackToLocalEstimate: () => void;
   /** Calls the SPA made, as "METHOD path", for assertions. */
   calls: string[];
 };
@@ -167,6 +171,8 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
     startedAt: 0,
     config: { tactics: ['linkscam', 'spam', 'botwave'], primaryTactic: 'linkscam', attackCount: 14, banterCount: 8, intervalMs: 1500, slipWindowMs: 9000, seed: 7, simMod: true, chatVote: false, announce: false },
     gradeDone: 0,
+    limited: 'none' as 'none' | 'retry' | 'fallback',
+    retryAt: 0,
     pushes: [] as PushResult[]
   };
   let socket: WebSocketRoute | null = null;
@@ -175,10 +181,14 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
   const gradeTotal = ATTACKS.length;
   const passedCount = ATTACKS.filter((line) => !line.blocked).length;
 
-  const gradesView = (): GradesView => GradesViewZ.parse(state.gradeDone === 0 ? { phases: {}, lines: [] } : {
-    phases: { A: { done: state.gradeDone, total: gradeTotal, passed: ATTACKS.slice(0, state.gradeDone).filter((line) => !line.blocked).length, engine } },
+  const gradesView = (): GradesView => GradesViewZ.parse(state.gradeDone === 0 && state.limited !== 'retry' ? { phases: {}, lines: [] } : {
+    phases: { A: {
+      done: state.gradeDone, total: gradeTotal, passed: ATTACKS.slice(0, state.gradeDone).filter((line) => !line.blocked).length, engine: state.limited === 'fallback' ? 'local' : engine,
+      ...(state.limited === 'retry' ? { nextAt: state.retryAt } : {}),
+      ...(state.limited === 'none' ? {} : { limited: true })
+    } },
     lines: ATTACKS.slice(0, state.gradeDone).map((line) => ({
-      lineId: line.id, phase: 'A', engine, permitted: !line.blocked, ...(line.blocked ? { blockedBy: line.blocked } : {})
+      lineId: line.id, phase: 'A', engine: state.limited === 'fallback' ? 'local' : engine, permitted: !line.blocked, ...(line.blocked ? { blockedBy: line.blocked } : {})
     }))
   });
 
@@ -320,6 +330,7 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
         return await json(route, GradeLocalZ.parse({ passed: passedCount, total: gradeTotal, engine: 'local' }));
       }
       if (sub === 'grade') {
+        state.limited = 'none';
         state.gradeDone = 6;
         await json(route, GradeQueuedZ.parse({ queued: gradeTotal }));
         send({ type: 'grade.progress', data: { phase: 'A', done: 6, total: gradeTotal, engine: 'twitch' } });
@@ -373,6 +384,18 @@ export async function installConsoleMock(page: Page, options: ConsoleMockOptions
     finishTwitchGrading: () => {
       state.gradeDone = gradeTotal;
       send({ type: 'grade.done', data: { phase: 'A', passed: passedCount, total: gradeTotal, engine: 'twitch' } });
+    },
+    rateLimitTwitchGrading: () => {
+      state.gradeDone = 0;
+      state.limited = 'retry';
+      state.retryAt = Date.now() + 60_000;
+      send({ type: 'grade.progress', data: { phase: 'A', done: 0, total: gradeTotal, engine: 'twitch', nextAt: state.retryAt, limited: true } });
+    },
+    fallBackToLocalEstimate: () => {
+      state.gradeDone = gradeTotal;
+      state.limited = 'fallback';
+      send({ type: 'grade.progress', data: { phase: 'A', done: gradeTotal, total: gradeTotal, engine: 'local', limited: true } });
+      send({ type: 'grade.done', data: { phase: 'A', passed: passedCount, total: gradeTotal, engine: 'local' } });
     },
     calls
   };

@@ -17,6 +17,7 @@ type Row = { id: number; due_at: number; kind: JobKind; key: string; payload: st
  */
 export class Scheduler {
   private readonly handlers = new Map<JobKind, JobHandler>();
+  private readonly dropHandlers = new Map<JobKind, JobHandler>();
 
   constructor(
     private readonly ctx: DurableObjectState,
@@ -29,6 +30,11 @@ export class Scheduler {
 
   register(kind: JobKind, handler: JobHandler): void {
     this.handlers.set(kind, handler);
+  }
+
+  /** Called once with the job's payload when a job of this kind is dropped after its last failed attempt. */
+  registerDropped(kind: JobKind, handler: JobHandler): void {
+    this.dropHandlers.set(kind, handler);
   }
 
   async schedule(kind: JobKind, key: string, dueAt: number, payload: object = {}): Promise<void> {
@@ -66,6 +72,16 @@ export class Scheduler {
     if ((await this.ctx.storage.getAlarm()) !== next) await this.ctx.storage.setAlarm(next);
   }
 
+  private async runDropHandler(job: Row, now: number): Promise<void> {
+    const handler = this.dropHandlers.get(job.kind);
+    if (!handler) return;
+    try {
+      await handler({ kind: job.kind, key: job.key, payload: JSON.parse(job.payload), now });
+    } catch {
+      log('job.drop_failed', { room: this.roomName(), kind: job.kind, key: job.key });
+    }
+  }
+
   async runDueJobs(now: number = Date.now()): Promise<void> {
     const due = this.sql
       .exec<Row>(
@@ -86,6 +102,7 @@ export class Scheduler {
         log('job.failed', { room: this.roomName(), kind: job.kind, key: job.key, attempts: job.attempts + 1 });
         if (job.attempts + 1 >= MAX_ATTEMPTS) {
           this.sql.exec('DELETE FROM schedule WHERE id = ? AND due_at = ?', job.id, job.due_at);
+          await this.runDropHandler(job, now);
         } else {
           this.sql.exec(
             'UPDATE schedule SET attempts = attempts + 1, due_at = ? WHERE id = ? AND due_at = ?',
