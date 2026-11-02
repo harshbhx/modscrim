@@ -82,8 +82,8 @@ Each ticket is sized for under 2 hours of Codex plus review. Open each Codex ses
 | ☐ | T-45 | README, licence and a judge-ready public repository | M-06 | P0 | Dhairya | M6 | T-18, T-40 | [#49](https://github.com/harshbhx/modscrim/issues/49) |
 | ☐ | T-46 | Accessibility, responsive and cross-browser pass | NFR-06, NFR-15, NFR-16 | P1 | Dhairya | M4 | T-21, T-23, T-24 | [#50](https://github.com/harshbhx/modscrim/issues/50) |
 | ☐ | T-47 | Live rehearsal on the test channel with real mods | M-01, M-03, M-04 | P0 | Dhairya | M4 | T-10, T-16, T-23, T-24 | [#51](https://github.com/harshbhx/modscrim/issues/51) |
-| ☐ | T-48 | Record and edit the demo video | M-07 | P0 | Dhairya | M5 | T-47 | [#52](https://github.com/harshbhx/modscrim/issues/52) |
-| ☐ | T-49 | Devpost submission | M6 | P0 | Dhairya | M6 | T-45, T-48 | [#53](https://github.com/harshbhx/modscrim/issues/53) |
+| ☑ | T-48 | Record and edit the demo video | M-07 | P0 | Dhairya | M5 | T-47 | [#52](https://github.com/harshbhx/modscrim/issues/52) |
+| ☑ | T-49 | Devpost submission | M6 | P0 | Dhairya | M6 | T-45, T-48 | [#53](https://github.com/harshbhx/modscrim/issues/53) |
 | ☐ | T-50 | Tests: auth, sessions, crypto and Worker foundations | Tests for T-07, T-38 | P0 | Dhairya | M1 | T-07, T-38 | [#56](https://github.com/harshbhx/modscrim/issues/56) |
 | ☐ | T-51 | Tests: ChannelRoom scheduler, sockets and tickets | Tests for T-09 | P0 | Dhairya | M1 | T-09 | [#57](https://github.com/harshbhx/modscrim/issues/57) |
 | ☐ | T-52 | Tests: drill engine, mod join and Kai (sim) | Tests for T-12, T-13, T-14 | P0 | Dhairya | M2 | T-12, T-13, T-14 | [#58](https://github.com/harshbhx/modscrim/issues/58) |
@@ -159,14 +159,14 @@ Record results and the decision in `docs/LOG.md`.
 
 ## 7. Submission checklist (PRD §13.6)
 
-- [ ] Public GitHub repository with all source, `README.md`, `AGENTS.md`, the PRD and SRS (here in `docs/for-agents/`), a licence and no secrets
+- [x] Public GitHub repository with all source, `README.md`, `AGENTS.md`, the PRD and SRS (here in `docs/for-agents/`), a licence and no secrets
 - [ ] README: what it is, demo URL, local quick start, Twitch app setup, Cloudflare deploy, privacy, how Codex was used, known limits, day-0 decision
-- [ ] Deployed Worker URL works; `/demo` works in a private window
-- [ ] Video under 3:00, public on YouTube, shows it working on Twitch and how Codex was used (script in PRD §13.2)
-- [ ] Devpost text complete (outline in PRD §13.5), with screenshots of the console, mod console and the overlay in OBS
-- [ ] Codex session IDs from `/status` (collected in `docs/LOG.md`)
-- [ ] "Built with" tags: OpenAI Codex, Twitch API, EventSub, Cloudflare Workers, Durable Objects, D1, TypeScript, React
-- [ ] Submitted by Mon 2 Nov 20:00 IST
+- [x] Deployed Worker URL works; `/demo` works in a private window
+- [x] Video under 3:00, public on YouTube, shows it working on Twitch and how Codex was used (script in PRD §13.2)
+- [x] Devpost text complete (outline in PRD §13.5), with screenshots of the console, mod console and the overlay in OBS
+- [x] Codex session IDs from `/status` (collected in `docs/LOG.md`)
+- [x] "Built with" tags: OpenAI Codex, Twitch API, EventSub, Cloudflare Workers, Durable Objects, D1, TypeScript, React
+- [ ] Submitted by Mon 2 Nov 20:00 IST (missed the target; submitted Tue 3 Nov 01:00 IST, before the 03:30 hard deadline)
 
 ## 8. Working rhythm (PRD §12.4, SRS §15.1)
 
