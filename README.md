@@ -51,11 +51,11 @@
   <a href="#-the-drill-in-seven-steps">How it works</a> ·
   <a href="#-screenshots">Screenshots</a> ·
   <a href="#-features">Features</a> ·
-  <a href="#%EF%B8%8F-how-it-stays-safe">Safety</a> ·
-  <a href="#%EF%B8%8F-architecture">Architecture</a> ·
+  <a href="#-how-it-stays-safe">Safety</a> ·
+  <a href="#-architecture">Architecture</a> ·
   <a href="#-run-it-yourself">Run it</a> ·
   <a href="#built-with-codex">Built with Codex</a> ·
-  <a href="#-honest-limits">Limits</a> ·
+  <a href="#roadmap-and-known-limits">Limits</a> ·
   <a href="#-team">Team</a>
 </p>
 
@@ -175,7 +175,7 @@ flowchart LR
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>
 
-## 🛡️ How it stays safe
+## 🔒 How it stays safe
 
 > [!IMPORTANT]
 > **Safe by design.** The drill runs in a practice chat and attack lines are never sent to Twitch chat. Every generated link ends in `.invalid`, slurs exist only as the placeholders `slurx` and `slury` drawn as blocks, the OBS overlay receives redacted payloads only, and no blocked term reaches Twitch without the streamer's approval.
@@ -214,7 +214,7 @@ flowchart TD
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>
 
-## 🏗️ Architecture
+## 🧱 Architecture
 
 ```mermaid
 flowchart LR
@@ -406,7 +406,7 @@ Codex session IDs are recorded in `docs/LOG.md` and provided in the Devpost entr
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>
 
-## 🧭 Honest limits
+## Roadmap and known limits
 
 > [!WARNING]
 > **The day-0 Twitch validation is not complete.** The live test-channel run that measures the grading quota and Twitch's matching behaviour has not been recorded, so this README makes no claim of measured improvement on a real channel. The only recorded result is a fixture-only dry run, labelled as such in [`docs/LOG.md`](docs/LOG.md). Numbers in demo rooms are a **local estimate**, not a Twitch grade.
