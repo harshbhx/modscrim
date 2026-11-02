@@ -6,8 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Scope is set by the [PRD](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/PRD.md), so start with the problem rather than the solution.
-        ModScrim's safety rules never bend: nothing generated is sent to Twitch chat, links end in `.invalid`, the overlay stays redacted and no term reaches Twitch without the streamer's approval.
+        Scope is set by the [PRD](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/PRD.md) and the [SRS](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/SRS.md), so start with the problem rather than the solution. The [specs index](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/INDEX.md) maps every feature and requirement ID.
+
+        ModScrim's [safety rules](https://github.com/harshbhx/modscrim/blob/main/docs/safety.md) never bend: nothing generated is sent to Twitch chat, links end in `.invalid`, the overlay stays redacted, AutoMod stays read-only, and no term reaches Twitch without the streamer's approval and an undo.
   - type: dropdown
     id: who
     attributes:
@@ -29,22 +30,29 @@ body:
     validations:
       required: true
   - type: textarea
-    id: idea
+    id: proposal
     attributes:
-      label: The idea
-      description: What would you like ModScrim to do?
+      label: The proposal
+      description: What would you like ModScrim to do? Name the screen or route it changes.
     validations:
       required: true
+  - type: input
+    id: ids
+    attributes:
+      label: Related PRD or SRS IDs
+      description: Features (F-xx), requirements (FR-xx), safety rules (S-xx) or tickets (T-xx) it touches. Write "none" if it is new scope.
+      placeholder: F-07, FR-33
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives you considered
+      description: Other designs, the workaround you use today, or why an existing feature does not cover it.
   - type: checkboxes
     id: checks
     attributes:
       label: Checks
       options:
-        - label: I searched the existing issues and [open questions](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/open-questions.md).
+        - label: I searched the existing issues and the [open questions](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/open-questions.md).
           required: true
-        - label: The idea keeps every safety rule in [Safety](https://github.com/harshbhx/modscrim/blob/main/docs/safety.md).
+        - label: The idea keeps every rule in [Safety](https://github.com/harshbhx/modscrim/blob/main/docs/safety.md).
           required: true

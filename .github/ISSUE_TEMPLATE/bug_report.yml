@@ -1,58 +1,87 @@
 name: Bug report
-description: Something in ModScrim does not work as documented.
+description: Something in ModScrim does not work as the docs or specs say it should.
 title: "Bug: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Please **do not** report security problems here; follow [SECURITY.md](https://github.com/harshbhx/modscrim/blob/main/SECURITY.md) instead.
-        Never paste a Twitch token, a secret or real chat text into this form.
+        Thanks for reporting. A [demo room](https://app.modscrim.dualmindlab.tech/demo) is the easiest way to show a bug, because it needs no Twitch account.
+
+        > [!CAUTION]
+        > **Security problems do not go here.** Follow [SECURITY.md](https://github.com/harshbhx/modscrim/blob/main/SECURITY.md) to report them privately.
+        > Never paste a Twitch token, a secret, real chat text or attack text into this form. Describe lines instead ("the third attack line").
   - type: dropdown
     id: surface
     attributes:
       label: Where did it happen?
       options:
-        - Demo room (/demo)
         - Streamer console (/console)
         - Mod view (/mod/:channel)
         - OBS overlay (/overlay/:channel)
+        - Demo room (/demo)
         - After-action report (/r/:reportId)
-        - Twitch sign-in, grading or push
+        - Twitch sign-in, grading, push or undo
+        - API (/api, /auth, /ws, /eventsub)
         - Website (modscrim.dualmindlab.tech)
-        - Local development or tests
+        - Local development, tests or scripts
         - Something else
     validations:
       required: true
-  - type: textarea
-    id: what
+  - type: dropdown
+    id: environment
     attributes:
-      label: What happened?
-      description: What you saw, and what you expected instead.
-      placeholder: After pressing Approve and push, the Undo button stayed disabled...
+      label: Environment
+      options:
+        - Production (app.modscrim.dualmindlab.tech)
+        - Preview Worker (mod-fire-drill-preview.creharsh.workers.dev)
+        - workers.dev (mod-fire-drill.creharsh.workers.dev)
+        - Local (npm run dev on localhost:5173)
+        - Website only
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      description: A demo room is the easiest way to show it, because it needs no account.
+      description: Start from a page anyone can open, such as /demo.
       value: |
-        1.
+        1. Open /demo and press Start drill
         2.
         3.
     validations:
       required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      placeholder: After Approve and push, the Undo button is enabled.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What you saw. Quote on-screen messages exactly. For a grade, say whether it was labelled Twitch or local.
+      placeholder: The Undo button stayed disabled and the console showed "..."
+    validations:
+      required: true
   - type: input
-    id: env
+    id: browser
     attributes:
       label: Browser, device and screen width
       placeholder: Firefox 133 on Windows 11, 1440 px
+  - type: input
+    id: version
+    attributes:
+      label: Commit or time seen
+      description: For a local run, the output of `git rev-parse --short HEAD`. For the deployed app, the date and time with time zone.
+      placeholder: 2 Nov 2026, 18:40 IST
   - type: textarea
     id: logs
     attributes:
-      label: Console output or screenshots
-      description: Remove anything that looks like a token or real chat text first.
+      label: Console output, Worker logs or screenshots
+      description: Remove anything that looks like a token, a cookie, an overlay key or chat text first.
       render: text
   - type: checkboxes
     id: checks
@@ -61,5 +90,5 @@ body:
       options:
         - label: I searched the existing issues and the [troubleshooting guide](https://github.com/harshbhx/modscrim/blob/main/docs/troubleshooting.md).
           required: true
-        - label: This report contains no token, secret or real chat text.
+        - label: This report contains no token, secret, overlay key, real chat text or attack text.
           required: true

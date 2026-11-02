@@ -1,0 +1,108 @@
+name: Ticket (team)
+description: A build ticket in the project's T-xx format, for the ModScrim team and their Codex sessions.
+title: "T-xx: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tickets follow [`AGENTS.md`](https://github.com/harshbhx/modscrim/blob/main/AGENTS.md) and [`docs/for-agents/build-plan.md`](https://github.com/harshbhx/modscrim/blob/main/docs/for-agents/build-plan.md). The Scope, Requirements, Tests and Done-when sections are the brief, so cite spec sections instead of restating them.
+        After you create it, add the `owner:`, `area:`, `type:` and `priority:` labels, the milestone and the project board, and add the issue number to the build plan.
+  - type: input
+    id: ticket
+    attributes:
+      label: Ticket ID
+      description: The next free T-xx in the build plan. Put it in the title too.
+      placeholder: T-56
+    validations:
+      required: true
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Owner
+      options:
+        - "Harsh: Cloudflare (Worker, Durable Objects, D1, cron, Queues, R2, AI, deploy), landing page"
+        - "Dhairya: core engine, Twitch, web app, all testing, CI, launch"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - "P0: must ship for the submission"
+        - "P1: should ship"
+        - "P2: only if ahead at the feature freeze"
+    validations:
+      required: true
+  - type: input
+    id: depends
+    attributes:
+      label: Depends on
+      description: Issues that must be closed first, as `#number (T-xx)`. Write "none" if there are none.
+      placeholder: "#14 (T-12), #16 (T-14)"
+    validations:
+      required: true
+  - type: input
+    id: unblocks
+    attributes:
+      label: Unblocks
+      placeholder: "#27 (T-25)"
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One sentence on the outcome.
+      placeholder: Let judges run the whole loop without a Twitch account.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Files, routes and behaviour to build. Only what the PRD and SRS list.
+      value: |
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: The FR-xx, F-xx and S-xx IDs this ticket covers, each with its acceptance criterion.
+      placeholder: "- **FR-38**: /demo completes a full loop with no Twitch account"
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Tests (SRS §13.2) or acceptance checks
+      description: The test files SRS §13.2 names, written first. Harsh's Cloudflare tickets list acceptance checks instead and name the paired test ticket (T-50 to T-55).
+      placeholder: "- `app/test/room.demo.test.ts`: a demo room makes no outbound fetch"
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      value: |
+        - [ ] The tests or acceptance checks above pass; `npm test` and `npm run typecheck` stay green
+        - [ ] Every requirement above is met and works on the deployed Worker
+        - [ ] No rule in `AGENTS.md` is weakened (safety, Durable Object rules, pure core)
+        - [ ] Copy shown to users matches PRD §9.6
+        - [ ] The PR is titled `T-xx: …` and says `Closes #<this issue>`
+        - [ ] `docs/for-agents/build-plan.md` ticks T-xx; `docs/LOG.md` has a note
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      placeholder: "SRS FR-38, §5.16, §8.2 · PRD §7.5, §9.6 · `AGENTS.md`"
+    validations:
+      required: true
+  - type: checkboxes
+    id: person
+    attributes:
+      label: Needs a person
+      options:
+        - label: A team member has to act (accounts, the live channel, recording or submitting), so a coding agent cannot finish this alone. Add the `needs a person` label.

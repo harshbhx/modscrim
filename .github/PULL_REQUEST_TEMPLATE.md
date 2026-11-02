@@ -1,26 +1,34 @@
-## What and why
-
-<!-- Title: `T-xx: ...` for a ticket, or `docs: ...` / `ci: ...` for other work. -->
+<!--
+Title: `T-xx: …` for a ticket, or `docs: …` / `ci: …` for other work. One ticket per PR.
+Never paste a token, a secret, `.dev.vars` content or real chat text here.
+-->
 
 Closes #
 
-Requirements covered: <!-- e.g. FR-17, F-04 -->
+**Requirements:** <!-- FR-xx, F-xx, S-xx, or "none" -->
 
-## How it was tested
+## What changed and why
 
-<!-- Paste the test counts, and say what you checked by hand (demo room, deployed app, screen reader). -->
+-
+
+## Test evidence
+
+<!-- Paste the result lines with test counts, not just "passes". -->
 
 - `npm test`:
 - `npm run typecheck`:
+- `npm run e2e` (UI changes):
+- By hand: <!-- demo room, deployed app, OBS overlay, keyboard and screen reader -->
+
+<!-- UI change? Add before and after screenshots here. -->
 
 ## Checklist
 
-- [ ] Tests for the requirements were written or updated first, and `npm test` passes
-- [ ] `npm run typecheck` passes
-- [ ] No safety rule is weakened: nothing generated is sent to Twitch chat, links end in `.invalid`, slurs are only `slurx` / `slury`, overlay payloads stay redacted, AutoMod stays read-only, and every push needs approval and can be undone
+- [ ] Tests for the requirements were written or updated first
+- [ ] No safety rule in `AGENTS.md` is weakened (no generated text to Twitch chat, `.invalid` links, `slurx` / `slury` only, redacted overlay, read-only AutoMod, every push approved and undoable)
 - [ ] User-facing copy matches the PRD §9.6 copy deck (`app/src/copy.ts`)
-- [ ] No secret, token or `.dev.vars` content is in the diff, the logs or this description
-- [ ] No feature, endpoint, dependency or table the PRD or SRS does not list
-- [ ] `docs/LOG.md` and `docs/for-agents/build-plan.md` are updated for a ticket
+- [ ] No secret, token or `.dev.vars` content in the diff, the logs or this description
+- [ ] Nothing added that the PRD or SRS does not list (feature, endpoint, dependency, table)
+- [ ] `docs/LOG.md` updated and the ticket ticked in `docs/for-agents/build-plan.md`
+- [ ] Commits name the requirement and carry no AI co-author trailers
 - [ ] If `docs/*.md` or the README's "Repository structure" or "Built with Codex" sections changed, `npm run site:docs` was run
-- [ ] Keyboard and screen-reader basics were checked for UI changes

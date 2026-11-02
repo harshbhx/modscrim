@@ -9,7 +9,7 @@ By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). To
 - **Try the [live demo](https://app.modscrim.dualmindlab.tech/demo)** and [report a bug](https://github.com/harshbhx/modscrim/issues/new?template=bug_report.yml) when something looks wrong.
 - **Suggest a feature** with the [feature request form](https://github.com/harshbhx/modscrim/issues/new?template=feature_request.yml). Scope is set by the specs, so tell us the problem first.
 - **Improve the docs.** Every statement should come from the code, a spec or a workflow file.
-- **Pick up a ticket.** Every ticket is a GitHub issue; the numbers are in [`docs/for-agents/build-plan.md`](docs/for-agents/build-plan.md).
+- **Pick up a ticket.** Every ticket is a GitHub issue; the numbers are in [`docs/for-agents/build-plan.md`](docs/for-agents/build-plan.md). The team files new ones with the [ticket form](https://github.com/harshbhx/modscrim/issues/new?template=ticket.yml) (Goal, Scope, Requirements, Tests, Done when, Depends on, References).
 
 ## Before you start
 
