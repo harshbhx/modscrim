@@ -132,10 +132,6 @@ flowchart LR
 | **OBS overlay** | **After-action report** |
 | ![The redacted OBS overlay: alarm bar, scoreboard and a practice chat drawn as blurred bars.](docs/assets/screenshots/overlay.png) | ![The numbers-only after-action report.](docs/assets/screenshots/report.png) |
 
-<p align="center">
-  <img src="docs/assets/gifs/share-card.gif" alt="The share card for a finished drill: numbers only, no chat. It shows how many attack lines would get past the filters and the fresh-wave result before and after the new terms." width="720">
-</p>
-
 <sub>CI also uploads light and dark screenshots of every surface at 375, 768 and 1440 px as the `screenshots-<run id>` artifact of the [End-to-end workflow](.github/workflows/e2e.yml).</sub>
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>
@@ -402,7 +398,7 @@ Codex session IDs are recorded in `docs/LOG.md` and provided in the Devpost entr
 | Builder | Codex session ID | Recorded in |
 |---|---|---|
 | Harsh Bhanushali (core and worker, 30 October 2026) | `01a1892d-f9b6-7203-bfdb-f73490bfd6c0` | [`docs/LOG.md`](docs/LOG.md), Codex sessions table |
-| Dhairya Patel | `01a18b5a-38f1-7830-be12-4fc7454e1390` | This README and the Devpost entry |
+| Dhairya Patel (main build thread) | `01a18b5a-38f1-7830-be12-4fc7454e1390` | [`docs/LOG.md`](docs/LOG.md), Codex sessions table, and the Devpost entry |
 
 <p align="right"><a href="#readme-top">Back to top ↑</a></p>
 
@@ -410,6 +406,9 @@ Codex session IDs are recorded in `docs/LOG.md` and provided in the Devpost entr
 
 > [!WARNING]
 > **The day-0 Twitch validation is not complete.** The live test-channel run that measures the grading quota and Twitch's matching behaviour has not been recorded, so this README makes no claim of measured improvement on a real channel. The only recorded result is a fixture-only dry run, labelled as such in [`docs/LOG.md`](docs/LOG.md). Numbers in demo rooms are a **local estimate**, not a Twitch grade.
+
+> [!NOTE]
+> **What is checked live so far:** on 3 November 2026, step 4 on Harsh's production channel showed 14 of 14 attack lines graded by Twitch, after the grading quota was set to count lines (`GRADING_QUOTA_UNIT` = `line`, [PR #247](https://github.com/harshbhx/modscrim/pull/247)). That shows Twitch grading works end to end. It is not a measurement of improved filters.
 
 - **Only public blocked terms are visible.** Twitch does not return private terms to apps.
 - **Two engines can disagree.** Twitch's check also applies AutoMod categories and permitted terms, which the local matcher does not model.
